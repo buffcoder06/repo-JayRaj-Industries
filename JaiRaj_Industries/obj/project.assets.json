@@ -476,11 +476,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\JaiRaj_Industries\\JayRaj_Industries.csproj",
+      "projectUniqueName": "D:\\git-repo\\repo-JayRaj-Industries\\JaiRaj_Industries\\JayRaj_Industries.csproj",
       "projectName": "JayRaj_Industries",
-      "projectPath": "D:\\JaiRaj_Industries\\JayRaj_Industries.csproj",
+      "projectPath": "D:\\git-repo\\repo-JayRaj-Industries\\JaiRaj_Industries\\JayRaj_Industries.csproj",
       "packagesPath": "C:\\Users\\Harshal Pawar\\.nuget\\packages\\",
-      "outputPath": "D:\\JaiRaj_Industries\\obj\\",
+      "outputPath": "D:\\git-repo\\repo-JayRaj-Industries\\JaiRaj_Industries\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

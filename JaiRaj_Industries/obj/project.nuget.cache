@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "LIxX7RfYgZ6K69gzOvZyH5eYfKpyNftRTkkDrtsDVGwREXNFyl2FsJBoX9i/y3QYqG7lsQnZuuRX68+Oq07qQQ==",
+  "dgSpecHash": "aDXf5aiq80nMGxW5ngt7qnP5oZCfZIMtUheq5K2EdhZpsrAejeHxufx9jgpg5eEFgu2UGG52CfO59TIFVjuV0g==",
   "success": true,
-  "projectFilePath": "D:\\JaiRaj_Industries\\JayRaj_Industries.csproj",
+  "projectFilePath": "D:\\git-repo\\repo-JayRaj-Industries\\JaiRaj_Industries\\JayRaj_Industries.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Harshal Pawar\\.nuget\\packages\\microsoft.netcore.platforms\\3.1.0\\microsoft.netcore.platforms.3.1.0.nupkg.sha512",
     "C:\\Users\\Harshal Pawar\\.nuget\\packages\\microsoft.win32.registry\\4.7.0\\microsoft.win32.registry.4.7.0.nupkg.sha512",

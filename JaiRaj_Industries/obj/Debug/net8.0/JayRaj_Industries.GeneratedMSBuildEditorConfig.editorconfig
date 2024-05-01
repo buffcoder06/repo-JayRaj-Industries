@@ -9,47 +9,47 @@ build_property.EnforceExtendedAnalyzerRules =
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = JayRaj_Industries
 build_property.RootNamespace = JayRaj_Industries
-build_property.ProjectDir = D:\JaiRaj_Industries\
+build_property.ProjectDir = D:\git-repo\repo-JayRaj-Industries\JaiRaj_Industries\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 8.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = D:\JaiRaj_Industries
+build_property.MSBuildProjectDirectory = D:\git-repo\repo-JayRaj-Industries\JaiRaj_Industries
 build_property._RazorSourceGeneratorDebug = 
 
-[D:/JaiRaj_Industries/Views/ChalanProcess/Index.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/ChalanProcess/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQ2hhbGFuUHJvY2Vzc1xJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/GetDatewiseData/Index.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/GetDatewiseData/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcR2V0RGF0ZXdpc2VEYXRhXEluZGV4LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/Home/Index.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/Home/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/Home/Privacy.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/Home/Privacy.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/Shared/Error.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/Shared/_ValidationScriptsPartial.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/_ViewImports.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/_ViewStart.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/_ViewStart.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/JaiRaj_Industries/Views/Shared/_Layout.cshtml]
+[D:/git-repo/repo-JayRaj-Industries/JaiRaj_Industries/Views/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-w4zot16uls
