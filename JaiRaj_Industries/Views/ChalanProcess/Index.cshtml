@@ -1,0 +1,648 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Chalan Process";
+}
+
+<style>
+    .custom-form-group {
+        padding: 10px;
+        margin: 10px;
+        /* Add more styling as needed */
+    }
+
+    .tableHeaderFix thead {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        /* Change this to match your table header background color */
+        z-index: 1;
+        /* Ensure the table header is above other content */
+    }
+
+    .tableHeaderFix th {
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        /* Change this to match your table header background color */
+        z-index: 1;
+        /* Ensure the table header is above other content */
+    }
+</style>
+
+<div>
+    <div class="contComnDiv1" id="idChalanEntry" style="">
+        <div class="card-body">
+            <div class="secHeading">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                Chalan Entry
+            </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="form-group formGroup2">
+                        <label for="">&nbsp;</label>
+                        <button type="button" class="btn btn-primary btnPrimary1" id="btnIn">Incoming Material
+                            Entry</button>
+                    </div>
+                </div>
+                @* <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12">
+                <div class="form-group formGroup2">
+                <label for="">&nbsp;</label>
+                <button type="button" class="btn btn-secondary btnSecondary1" id="btnOut">Outgoing Material
+                Entry</button>
+                </div>
+                </div> *@
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="contComnDiv1" id="idChalanTotalView" style="">
+        <div class="card-body">
+            <div class="secHeading">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                chalan Total View
+            </div>
+            <div class="row">
+                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="form-group formGroup2">
+                        <label for="">&nbsp;</label>
+                        <button type="button" class="btn btn-primary btnPrimary1" id="btnTotalView">View Total</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <div class="contComnDiv1" id="idChalanProcessGrid" style="">
+        <div class="card-body">
+            <div class="secHeading">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                @ViewData["Title"]
+            </div>
+            <div class="col-12 mb-2">
+                <div class="col-12">
+                    <div class="tableHeaderFix" style="max-height:450px;overflow: auto;">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcess">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>
+                                        Date
+                                        <input type="text" class="srchTextInputCls" id="idDesign"
+                                            placeholder="Search Date" />
+                                    </th>
+                                    <th>
+                                        Component Description
+                                        <input type="text" class="srchTextInputCls" id="idReqNo"
+                                            placeholder="Search Component Description" />
+                                    </th>
+                                    <th>
+                                        Chalan No
+                                        <input type="text" class="srchTextInputCls" id="idReqEntityID"
+                                            placeholder="Search Chalan No" />
+                                    </th>
+                                    <th>
+                                        Quantity
+                                        <input type="text" class="srchTextInputCls" id="idReqEntityName"
+                                            placeholder="Search  Quantity" />
+                                    </th>
+                                    @* <th>
+                                    Company Name
+                                    <input type="text" class="srchTextInputCls" id="idReqdt"
+                                    placeholder="Search Requisition Date" />
+                                    </th>
+                                    <th>
+                                    Vehicle Number
+                                    <input type="text" class="srchTextInputCls" id="idApprvStat"
+                                    placeholder="Search Remark" />
+                                    </th>
+                                    <th>
+                                    Vehicle Chalan No
+                                    <input type="text" class="srchTextInputCls" id="idDesign"
+                                    placeholder="Search Remark" />
+                                    </th>
+                                    <th>
+                                    Total In Material
+                                    <input type="text" class="srchTextInputCls" id="idDesign"
+                                    placeholder="Search Remark" />
+                                    </th>
+                                    <th>
+                                    Total Out Material
+                                    <input type="text" class="srchTextInputCls" id="idDesign"
+                                    placeholder="Search Remark" />
+                                    </th> *@
+                                    <th>
+                                        Pending Material
+                                        <input type="text" class="srchTextInputCls" id="idDesign"
+                                            placeholder="Search Pending Material" />
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="contComnDiv1" id="idChalanOut" style="display:none">
+    <div class="row">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            Chalan Out Material Entry
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="txtDate">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Delivery Chalan No:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="txtOutChalan">
+            </div>
+        </div>
+        @* <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+        <div class="form-group formGroup2">
+        <label for="poaType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
+        <select id="ddlComponent1" name="poaType" class="form-select">
+        <option value="0">Please Select</option>
+        <option value="JR_JLRDC">J LWD Rear Diff Case 10013474-030</option>
+        <option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
+        <option value="JR_JCD">J Case Differential 40112573(Dost Diff Case AAM)</option>
+        <option value="JR_JPDC">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+        <option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
+        <option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+        <option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+        <option value="JR_JLRDC">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+        <option value="JR_JDCSD103">J Diff Case S20Dc103</option>
+        <option value="JR_JDCSD104">J Diff Case S20Dc104</option>
+        <option value="JR_JDC32931">J Diff Case 32931</option>
+        </select>
+        </div>
+        </div> *@
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="txtComponentDesc" disabled>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Existing Chalan No:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="txtExistChalan" disabled>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="Searchtext" id="idQuantity" class="custmLbl1">Pending Quantity:<span
+                        class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="txtPenQuantity" disabled>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaType" class="custmLbl1">Selection<span class="colorRed">*</span></label>
+                <select id="ddlSelection" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="APR">Out Material</option>
+                    <option value="REJ">Rejected Material</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="Searchtext" id="idQuantity" class="custmLbl1">Quantity:<span
+                        class="colorRed">*</span></label>
+                <input type="number" class="form-control" placeholder="" id="txtDoneQuantity" min="0" value="0">
+            </div>
+        </div>
+        @* <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="Searchtext" id="idQuantity" class="custmLbl1">Rejected Quantity:<span
+                        class="colorRed">*</span></label>
+                <input type="number" class="form-control" placeholder="" id="txtRejQuantity" min="0" value="0">
+            </div>
+        </div> *@
+        <br />
+        <br />
+        <br />
+    </div>
+    <button type="button" class="btn btn-primary btnPrimary1" id="SaveChalanOut">Submit</button>
+</div>
+
+<div class="contComnDiv1" id="idChalanNew" style="display:none">
+    <div class="row">
+
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            Chalan In Material Entry
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="idDatenew">
+            </div>
+            </br>
+            <button type="button" class="btn btn-primary btnPrimary1" id="SaveChalanStatus">Submit</button>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
+                <select id="ddlComponentnew" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="JR_JLRDC">J LWD Rear Diff Case 10013474-030</option>
+                    <option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
+                    <option value="JR_JCD">J Case Differential 40112573(Dost Diff Case AAM)</option>
+                    <option value="JR_JPDC">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+                    <option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
+                    <option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+                    <option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+                    <option value="JR_JLRDC">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                    <option value="JR_JDCSD103">J Diff Case S20Dc103</option>
+                    <option value="JR_JDCSD104">J Diff Case S20Dc104</option>
+                    <option value="JR_JDC32931">J Diff Case 32931</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Chalan No:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="idchalanNonew">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="Searchtext" id="idQuantity" class="custmLbl1">Quantity:<span
+                        class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="idQuantitynew">
+            </div>
+        </div>
+        @* <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Company Name<span class="colorRed">*</span></label>
+                <select id="ddlCompanynew" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="1">Kores India</option>
+                    <option value="2">CIA</option>
+                    <option value="3">CIE</option>
+                    <option value="4">Shri Siddheshwar</option>
+                    <option value="6">AAM India</option>
+                    <option value="5">Jagdeesh</option>
+                </select>
+            </div>
+            @*</div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+            <label for="poaSubType" class="custmLbl1">Vehicle Number<span class="colorRed">*</span></label>
+            <select id="ddlVehiclenew" name="poaType" class="form-select">
+            <option value="0">Please Select</option>
+            <option value="1">MH14HG1300</option>
+            <option value="2">MH14HU8249</option>
+            <option value="3">MH14EM4790</option>
+            <option value="4">MH14EM9101</option>
+            <option value="6">MH14EM8248</option>
+            </select>
+            </div>
+            </div>
+            <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+            <label for="poaSubType" class="custmLbl1">Vehicle chalan Number<span class="colorRed">*</span></label>
+            <input type="text" class="form-control" placeholder="" id="idVehicleChalannew">
+            </div>
+            </div>
+            <br />
+        </div> *@
+    </div>
+</div>
+
+<div class="contComnDiv1" id="idChalanView" style="display:none">
+    <div class="row">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            @ViewData["Title"]
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
+                <select id="ddlComponent" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="1" selected>J LWD Rear Diff Case 10013474-030</option>
+                    <option value="2">J Hub Small 111.06.021.61.9</option>
+                    <option value="3">J Case Differential 40112573(Dost Diff Case AAM)</option>
+                    <option value="4">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+                    <option value="5">J Wheel Hub 708.06.0003.63.9</option>
+                    <option value="6">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+                    <option value="7">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+                    <option value="8">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                    <option value="9">J Diff Case S20Dc103</option>
+                    <option value="10">J Diff Case S20Dc104</option>
+                    <option value="11">J Diff Case 32931</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Chalan No:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="2224435">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Quantity:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="100">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Company Name<span class="colorRed">*</span></label>
+                <select id="ddlComponent" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="1">Kores India</option>
+                    <option value="2">CIA</option>
+                    <option value="3">CIE</option>
+                    <option value="4" selected>Shri Siddheshwar</option>
+                    <option value="4">AAM India</option>
+                    <option value="4">Jagdeesh</option>
+                </select>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Vehicle Number<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="MH14EM9101">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Vehicle chalan Number<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="2305598">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="8-11-2023">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Pending Material<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="50">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Total In Material<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="100">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Total Out Material<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="50">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">Remarks<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" placeholder="" id="Searchtext" value="Pending">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <div class="contComnDiv1" id="idChalanProcess" style="display:none">
+        <div class="card-body">
+            <div class="secHeading">
+                <i class="fa fa-search-plus" aria-hidden="true"></i>
+                @ViewData["Title"]
+            </div>
+            <div class="col-12 mb-2">
+                <div class="col-12">
+                    <div class="tableHeaderFix" style="max-height:450px;overflow: auto;">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcess">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Date
+                                        <input type="text" class="srchTextInputCls" id="" placeholder="Search Date" />
+                                    </th>
+                                    <th>
+                                        Component Description
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Component Discription" />
+                                    </th>
+                                    <th>
+                                        Chalan No
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Chalan No" />
+                                    </th>
+                                    <th>
+                                        Quantity
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search  Quantity" />
+                                    </th>
+                                    <th>
+                                        Company Name
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Company Name" />
+                                    </th>
+                                    <th>
+                                        Vehicle Number
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Vehicle Number" />
+                                    </th>
+                                    <th>
+                                        Vehicle Chalan No
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Vehicle Chalan Number" />
+                                    </th>
+                                    <th>
+                                        Total In Material
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search In Material" />
+                                    </th>
+                                    <th>
+                                        Total Out Material
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Out Material" />
+                                    </th>
+                                    <th>
+                                        Pending Material
+                                        <input type="text" class="srchTextInputCls" id=""
+                                            placeholder="Search Pending Material" />
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal custmModal" id="EmpModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="idComponentName"></span></h4>&nbsp;<span id="lblErrMsg1"
+                    style="color:red;"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblOutdetails">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 150px;">
+                                        Out Chalan Date
+                                    </th>
+                                    <th>
+                                        Delivery Chalan No
+                                    </th>
+                                    <th>
+                                        Existing chalan number
+                                    </th>
+                                    <th>
+                                        Quantity
+                                    </th>
+                                    <th>
+                                        Out Material Quantity
+                                    </th>
+                                    <th>
+                                        Rejected Quantity
+                                    </th>
+                                    <th>
+                                        Balance Quantity
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal custmModal" id="OutMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="idComponentName"></span></h4>&nbsp;<span id="lblErrMsg1"
+                    style="color:red;"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    <th>
+                                        Total In Material
+                                    </th>
+                                    <th>
+                                        Total Out Material
+                                    </th>
+                                    <th>
+                                        Total Rejected Material
+                                    </th>
+                                    <th>
+                                        Pending Material
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* <div>
+<div class="contComnDiv1" id="idTotalDtlsGrid" style="display:none">
+<div class="card-body">
+<div class="secHeading">
+<i class="fa fa-search-plus" aria-hidden="true"></i>
+@ViewData["Title"]
+</div>
+<div class="col-12 mb-2">
+<div class="col-12">
+<div class="tableHeaderFix" style="max-height:450px;overflow: auto;">
+<table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
+<thead>
+<tr>
+<th>Sr.No</th>
+<th>
+Material code & Description
+</th>
+<th>
+Total In Material
+</th>
+<th>
+Total Out Material
+</th>
+<th>
+Total Rejected Material
+</th>
+<th>
+Pending Material
+</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div> *@
+<input type="hidden" id="HdnProcessHdeSeq" name="hiddenFieldName">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var doneQuantityInput = document.getElementById('txtDoneQuantity,txtRejQuantity');
+
+        doneQuantityInput.addEventListener('input', function () {
+            if (this.value.trim() === '') {
+                this.value = 0;
+            }
+        });
+    });
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="~/appjs/ChalanProcess.js" asp-append-version="true"></script>
