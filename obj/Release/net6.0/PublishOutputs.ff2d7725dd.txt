@@ -1,0 +1,13 @@
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\JayRaj_Industries.exe
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\appsettings.Development.json
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\appsettings.json
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\JayRaj_Industries.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\JayRaj_Industries.deps.json
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\JayRaj_Industries.runtimeconfig.json
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\JayRaj_Industries.pdb
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\System.Data.SqlClient.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\runtimes\win-arm64\native\sni.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\runtimes\win-x64\native\sni.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\runtimes\win-x86\native\sni.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+D:\JayRaj_Industries_v1\JaiRaj_Industries\obj\Release\net6.0\PubTmp\Out\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll

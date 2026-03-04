@@ -1,0 +1,52 @@
+﻿/* General Styles */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(15deg, #13547a 0%, #80d0c7 100%);
+    margin: 0;
+    padding: 0;
+    color: #fff;
+}
+
+/* Header */
+header .navbar {
+    background: transparent !important;
+    padding: 20px 0;
+}
+
+header .navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff !important;
+}
+
+header .navbar-nav .nav-link {
+    color: #fff !important;
+    font-weight: 500;
+}
+
+header .navbar-toggler {
+    background-color: #fff;
+}
+
+/* Container */
+.container {
+    padding: 20px;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    margin-top: 40px;
+}
+
+/* Footer */
+footer {
+    background-color: transparent;
+    color: #fff;
+    padding: 20px 0;
+    text-align: center;
+    border-top: none;
+}
+
+footer a {
+    color: #fff;
+    text-decoration: underline;
+}

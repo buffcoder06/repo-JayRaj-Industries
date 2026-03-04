@@ -1,0 +1,181 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Datewise Chalan";
+}
+
+<div class="contComnDiv1" id="idChalanOutDatewise">
+    <div class="row">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            Chalan Datewise Calculation
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">From Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="txtFromDate">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">To Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="txtToDate">
+            </div>
+        </div>
+        <div>
+            </br>
+            <button type="button" class="btn btn-primary btnPrimary1" id="idShowInData">InMaterial</button>
+            <button type="button" class="btn btn-primary btnPrimary1" id="idShowOutData">OutMaterial</button>
+            <button type="button" class="btn btn-primary btnPrimary1" id="btnShowPenData">View Pending</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="OutMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Outward Material</span></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th> *@
+                                    <th>
+                                        Total Out Material
+                                    </th>
+                                    <th>
+                                        Total Rejected Material
+                                    </th>
+                                @* <th>
+                                        Pending Material
+                                    </th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="PenMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Pending Material</span></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="d-flex justify-content-end mb-2">
+                    <button type="button" class="btn btn-primary btnPrimary1" id="btnDownloadPendingPdf">Download PDF</button>
+                </div>
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalPenDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th>
+                                    <th>
+                                        Total Out Material
+                                    </th>
+                                    <th>
+                                        Total Rejected Material
+                                    </th> *@
+                                    <th>
+                                        Pending Material
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="InMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Inward Material</span></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalInDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th> *@
+                                    <th>
+                                        Total In Material
+                                    </th>
+                                    @* <th>
+                                        Total Pending Material
+                                    </th> *@
+                                @* <th>
+                                        Pending Material
+                                    </th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="~/appjs/DatewiseData.js" asp-append-version="true"></script>
+}
+
+
+

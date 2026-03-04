@@ -1,0 +1,13 @@
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\JayRaj_Industries.exe
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\appsettings.Development.json
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\appsettings.json
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\JayRaj_Industries.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\JayRaj_Industries.deps.json
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\JayRaj_Industries.runtimeconfig.json
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\JayRaj_Industries.pdb
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\System.Data.SqlClient.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\runtimes\win-arm64\native\sni.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\runtimes\win-x64\native\sni.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\runtimes\win-x86\native\sni.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
+D:\JaiRaj_Industries\bin\Release\net8.0\publish\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll

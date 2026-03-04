@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - JayRaj_Industries</title>
+    <link rel="icon" type="image/jpeg" href="~/images/jr_logo.jpeg" />
+    <link rel="shortcut icon" type="image/jpeg" href="~/images/jr_logo.jpeg" />
+    <link rel="apple-touch-icon" href="~/images/jr_logo.jpeg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/page.css" asp-append-version="true" />
+</head>
+
+<body class="app-body">
+    <div class="app-shell" data-theme="system">
+        <aside class="app-sidebar" aria-label="Primary navigation">
+            <div class="app-sidebar__brand">
+                <span class="app-sidebar__logo">
+                    <img src="~/images/jr_logo.jpeg" alt="JayRaj Industries logo" class="app-sidebar__logo-img" />
+                </span>
+                <div class="app-sidebar__brand-text">
+                    <span class="app-sidebar__title">JayRaj Industries</span>
+                    <span class="app-sidebar__subtitle">Chalan Control</span>
+                </div>
+            </div>
+
+            <nav class="app-sidebar__nav" aria-label="Main">
+                <a class="app-sidebar__link" asp-area="" asp-controller="ChalanProcess" asp-action="Index">
+                    <span class="app-sidebar__icon" aria-hidden="true">
+                        <!-- dashboard icon -->
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z" />
+                        </svg>
+                    </span>
+                    <span class="app-sidebar__label">Chalan Process</span>
+                </a>
+                <a class="app-sidebar__link" asp-area="" asp-controller="GetDatewiseData" asp-action="Index">
+                    <span class="app-sidebar__icon" aria-hidden="true">
+                        <!-- calendar icon -->
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" />
+                            <path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" />
+                        </svg>
+                    </span>
+                    <span class="app-sidebar__label">Datewise Status</span>
+                </a>
+                <a class="app-sidebar__link" asp-area="" asp-controller="BulkOutMaterialEntry" asp-action="Index">
+                    <span class="app-sidebar__icon" aria-hidden="true">
+                        <!-- arrows icon -->
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M5 4h9v2H5v3L1 5.5 5 2zM19 20h-9v-2h9v-3l4 3.5L19 22z" />
+                        </svg>
+                    </span>
+                    <span class="app-sidebar__label">Out Material Entry</span>
+                </a>
+                <a class="app-sidebar__link" asp-area="" asp-controller="Invoice" asp-action="Index">
+                    <span class="app-sidebar__icon" aria-hidden="true">
+                        <!-- invoice icon -->
+                        <svg viewBox="0 0 24 24" focusable="false">
+                            <path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM14 3.5V8h4.5"></path>
+                            <path d="M8 12h8M8 16h8M8 20h5"></path>
+                        </svg>
+                    </span>
+                    <span class="app-sidebar__label">Invoice Generation</span>
+                </a>
+            </nav>
+
+            <button class="app-sidebar__toggle" type="button" data-sidebar-toggle aria-label="Toggle sidebar">
+                <span class="app-sidebar__toggle-icon" aria-hidden="true"></span>
+            </button>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-topbar">
+                <div class="app-topbar__left">
+                    <button class="icon-button app-topbar__sidebar-trigger" type="button" data-sidebar-toggle aria-label="Toggle sidebar">
+                        <span class="icon-button__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M4 6h16v2H4zM4 11h10v2H4zM4 16h16v2H4z" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <nav class="app-breadcrumbs" aria-label="Breadcrumb">
+                        @RenderSection("Breadcrumbs", required: false)
+                    </nav>
+                </div>
+
+                <div class="app-topbar__right">
+                    <button class="icon-button" type="button" aria-label="Notifications">
+                        <span class="icon-button__icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" focusable="false">
+                                <path d="M12 2a6 6 0 0 0-6 6v3.586L4.293 14.3A1 1 0 0 0 5 16h14a1 1 0 0 0 .707-1.7L18 11.586V8a6 6 0 0 0-6-6z" />
+                                <path d="M9 18a3 3 0 0 0 6 0z" />
+                            </svg>
+                        </span>
+                        <span class="badge-dot" aria-hidden="true"></span>
+                    </button>
+
+                    <button class="icon-button" type="button" data-theme-toggle aria-label="Toggle theme">
+                        <span class="icon-button__icon" aria-hidden="true">
+                            <svg class="icon-sun" viewBox="0 0 24 24" focusable="false">
+                                <path d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.657-6.343L19.778 4.22M4.222 19.778l2.121-2.121m11.314 0l2.121 2.121M6.343 6.343 4.222 4.222" />
+                                <circle cx="12" cy="12" r="4" />
+                            </svg>
+                            <svg class="icon-moon" viewBox="0 0 24 24" focusable="false">
+                                <path d="M21 12.79A9 9 0 0 1 12.21 3 7 7 0 1 0 21 12.79z" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <button class="avatar-button" type="button" aria-label="User menu">
+                        <img src="~/images/jr_logo.jpeg" alt="JR logo" class="avatar-logo-img" />
+                    </button>
+                </div>
+            </header>
+
+            <main class="app-content" role="main">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

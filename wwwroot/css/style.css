@@ -1,0 +1,797 @@
+/* =========================================================
+   Enterprise SaaS / CRM Light Theme (No Dark Mode, No Toast)
+   Copy-paste full file: wwwroot/css/style.css
+   ========================================================= */
+
+:root{
+  --bg: #f6f7fb;
+  --surface: #ffffff;
+  --surface-2: #fbfcff;
+  --border: rgba(15, 23, 42, 0.12);
+
+  --text: #0f172a;
+  --muted: #64748b;
+
+  /* Fresh enterprise primary (not loud) */
+  --primary: #111111;
+  --primary-600: #000000;
+  --primary-soft: rgba(17, 17, 17, 0.10);
+
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+
+  --shadow-1: 0 8px 22px rgba(15, 23, 42, 0.06);
+  --shadow-2: 0 14px 30px rgba(15, 23, 42, 0.08);
+
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 84px;
+  --topbar-height: 64px;
+
+  --t-fast: 150ms ease-out;
+  --t-normal: 220ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font: "Inter", "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+*,
+*::before,
+*::after{ box-sizing:border-box; }
+
+html{ font-size: 14px; }
+@media (min-width: 768px){ html{ font-size: 15px; } }
+
+body.app-body{
+  margin:0;
+  min-height:100vh;
+  font-family: var(--font);
+  color: var(--text);
+
+  /* SaaS-like soft background */
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(37,99,235,0.10) 0, transparent 48%),
+    radial-gradient(120% 120% at 100% 0%, rgba(34,197,94,0.08) 0, transparent 42%),
+    var(--bg);
+
+  display:flex;
+  justify-content:center;
+  align-items:stretch;
+  padding: 16px;
+}
+
+.app-shell{
+  width:100%;
+  max-width: 1500px;
+  min-height: calc(100vh - 32px);
+  display:flex;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  overflow:hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-2);
+}
+
+/* =========================
+   Sidebar (Enterprise)
+   ========================= */
+.app-sidebar{
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, #0b1220, #0b1220);
+  color: rgba(226, 232, 240, 0.92);
+  padding: 18px 14px;
+  display:flex;
+  flex-direction:column;
+  gap: 14px;
+  transition: width var(--t-normal), transform var(--t-normal);
+}
+
+.app-sidebar__brand{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 6px 6px;
+}
+
+.app-sidebar__logo{
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  min-height: 42px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.32);
+  overflow: hidden;
+}
+
+.app-sidebar__logo-img{
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.app-sidebar__title{
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #e2e8f0;
+}
+
+.app-sidebar__subtitle{
+  font-size: 0.80rem;
+  color: rgba(148, 163, 184, 0.95);
+}
+
+.app-sidebar__nav{
+  display:flex;
+  flex-direction:column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.app-sidebar__link{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 10px;
+  border-radius: 12px;
+  color: rgba(226, 232, 240, 0.92);
+  text-decoration:none;
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: background-color var(--t-fast), transform var(--t-fast);
+}
+
+.app-sidebar__link:hover{
+  background: rgba(148, 163, 184, 0.14);
+  transform: translateY(-1px);
+}
+
+.app-sidebar__link.active,
+.app-sidebar__link[aria-current="page"]{
+  background: rgba(37, 99, 235, 0.22);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+.app-sidebar__icon{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(148, 163, 184, 0.08);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.app-sidebar__icon svg{
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+  opacity: .95;
+}
+
+.app-sidebar__toggle{
+  margin-top:auto;
+  border: 1px solid rgba(148,163,184,0.18);
+  background: rgba(148,163,184,0.10);
+  color: rgba(226,232,240,0.92);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor:pointer;
+}
+
+/* collapsed */
+.app-shell.app-shell--sidebar-collapsed .app-sidebar{
+  width: var(--sidebar-width-collapsed);
+}
+.app-shell.app-shell--sidebar-collapsed .app-sidebar__brand-text,
+.app-shell.app-shell--sidebar-collapsed .app-sidebar__label{
+  display:none;
+}
+.app-shell.app-shell--sidebar-collapsed .app-sidebar__link{
+  justify-content:center;
+}
+
+/* =========================
+   Main / Topbar
+   ========================= */
+.app-main{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  background: transparent;
+}
+
+.app-topbar{
+  height: var(--topbar-height);
+  padding: 12px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  border-bottom: 1px solid var(--border);
+
+  /* SaaS glass header */
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(14px);
+}
+
+.app-topbar__left,
+.app-topbar__right{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+
+.app-topbar__sidebar-trigger{ display:none; }
+
+.app-breadcrumbs{
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.icon-button{
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  padding: 8px 10px;
+  cursor:pointer;
+  box-shadow: 0 8px 22px rgba(15,23,42,0.06);
+  transition: transform var(--t-fast), box-shadow var(--t-fast), background-color var(--t-fast);
+}
+.icon-button:hover{
+  transform: translateY(-1px);
+  background: var(--surface-2);
+  box-shadow: var(--shadow-1);
+}
+.icon-button__icon svg{
+  width: 18px;
+  height: 18px;
+  fill: var(--text);
+}
+
+.avatar-button{
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 999px;
+  width: 44px;
+  height: 44px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow: 0 8px 22px rgba(15,23,42,0.06);
+  overflow: hidden;
+}
+
+.avatar-logo-img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* =========================
+   Content area
+   ========================= */
+.app-content{
+  padding: 18px 18px 22px;
+  flex:1;
+  overflow:auto;
+  scroll-behavior: smooth;
+}
+
+/* =========================
+   Cards / Sections
+   ========================= */
+.card,
+.card-body{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.card-body{
+  padding: 18px;
+  margin-bottom: 16px;
+  content-visibility: auto;
+  contain-intrinsic-size: 400px;
+}
+
+/* =========================
+   Buttons (Enterprise)
+   ========================= */
+.btn{
+  border-radius: 12px !important;
+  font-weight: 800;
+  padding: 8px 14px;
+  box-shadow: 0 8px 22px rgba(15,23,42,0.06);
+  transition: transform var(--t-fast), box-shadow var(--t-fast);
+}
+.btn:hover{ transform: translateY(-1px); box-shadow: var(--shadow-1); }
+
+.btn-primary{
+  background: var(--primary) !important;
+  border-color: var(--primary) !important;
+}
+.btn-primary:hover{
+  background: var(--primary-600) !important;
+  border-color: var(--primary-600) !important;
+}
+.btn-success{ background: var(--success) !important; border-color: var(--success) !important; }
+.btn-danger{ background: var(--danger) !important; border-color: var(--danger) !important; }
+
+/* =========================
+   Forms
+   ========================= */
+.form-control,
+.form-select{
+  border: 1px solid rgba(15,23,42,0.14);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--text);
+}
+.form-control:focus,
+.form-select:focus{
+  outline:none;
+  border-color: rgba(37,99,235,0.45);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.12);
+}
+
+/* Advanced dropdown styling */
+.form-select,
+select.srchTextInputCls {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #5c6f92 50%),
+    linear-gradient(135deg, #5c6f92 50%, transparent 50%),
+    linear-gradient(to right, transparent, transparent);
+  background-position:
+    calc(100% - 16px) calc(50% - 2px),
+    calc(100% - 11px) calc(50% - 2px),
+    0 0;
+  background-size: 5px 5px, 5px 5px, 100% 100%;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+
+.form-select:hover,
+select.srchTextInputCls:hover {
+  border-color: rgba(29, 111, 233, 0.28);
+  background-color: #fcfdff;
+}
+
+/* =========================================================
+   ADVANCED TABLES (SaaS/CRM)
+   Works for: .table, .grid-container table, .tableHeaderFix table
+   ========================================================= */
+.table,
+.grid-container table,
+.tableHeaderFix table{
+  width:100%;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+}
+
+/* header */
+.table thead th,
+.grid-container th,
+.tableHeaderFix thead th{
+  background: linear-gradient(180deg, #fbfcff, #f1f5f9);
+  color: var(--text);
+  font-weight: 900;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 12px 12px;
+  border-bottom: 1px solid var(--border) !important;
+  white-space: nowrap;
+}
+
+/* body cells */
+.table tbody td,
+.grid-container td,
+.tableHeaderFix td{
+  padding: 11px 12px;
+  border-bottom: 1px solid rgba(15,23,42,0.08);
+  color: var(--text);
+  font-size: 0.92rem;
+  vertical-align: middle;
+}
+
+/* zebra */
+.table tbody tr:nth-child(even),
+.grid-container tbody tr:nth-child(even),
+.tableHeaderFix tbody tr:nth-child(even){
+  background: rgba(15,23,42,0.015);
+}
+
+/* hover */
+.table tbody tr:hover,
+.grid-container tbody tr:hover,
+.tableHeaderFix tbody tr:hover{
+  background: rgba(37,99,235,0.06);
+}
+
+/* last row */
+.table tbody tr:last-child td,
+.grid-container tbody tr:last-child td,
+.tableHeaderFix tbody tr:last-child td{
+  border-bottom: none;
+}
+
+/* sticky header container */
+.tableHeaderFix{
+  max-height: 450px;
+  overflow:auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+}
+.tableHeaderFix thead th{
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+
+/* filters/search inside table header rows */
+.srchTextInputCls,
+.table input[type="text"],
+.table input[type="number"],
+.grid-container input[type="text"],
+.grid-container input[type="number"]{
+  width: 100%;
+  border: 1px solid rgba(15,23,42,0.14);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: #fff;
+  font-size: 0.86rem;
+  outline:none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+}
+.srchTextInputCls:focus,
+.table input:focus,
+.grid-container input:focus{
+  border-color: rgba(37,99,235,0.45);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.10);
+}
+
+/* Small status pills you can use in table cells */
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 0.80rem;
+  border: 1px solid rgba(15,23,42,0.12);
+  background: rgba(15,23,42,0.03);
+  color: var(--text);
+}
+.pill--success{ background: rgba(22,163,74,0.10); border-color: rgba(22,163,74,0.22); color: #166534; }
+.pill--danger{ background: rgba(239,68,68,0.10); border-color: rgba(239,68,68,0.22); color: #991b1b; }
+.pill--warning{ background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.25); color: #92400e; }
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+@media (max-width: 768px){
+  body.app-body{ padding:0; background: var(--bg); }
+  .app-shell{ min-height:100vh; border-radius:0; }
+
+  .app-sidebar{
+    position:fixed;
+    inset:0 auto 0 0;
+    transform: translateX(-100%);
+    z-index: 40;
+    box-shadow: 14px 0 40px rgba(15,23,42,0.20);
+  }
+  .app-shell.app-shell--sidebar-open .app-sidebar{
+    transform: translateX(0);
+  }
+  .app-topbar__sidebar-trigger{ display:inline-flex; }
+  .app-content{ padding-inline: 14px; }
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce){
+  *{ transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+}
+
+/* =========================================================
+   CRM Light Override (Salesforce/HubSpot-inspired, lighter)
+   ========================================================= */
+:root{
+  --bg: #f4f8fc;
+  --surface: #ffffff;
+  --surface-2: #f8fbff;
+  --border: rgba(15, 23, 42, 0.08);
+  --primary: #1d6fe9;
+  --primary-600: #1256bc;
+  --primary-soft: rgba(29, 111, 233, 0.12);
+  --shadow-1: 0 4px 16px rgba(15, 23, 42, 0.05);
+  --shadow-2: 0 10px 28px rgba(15, 23, 42, 0.08);
+}
+
+body.app-body{
+  background:
+    radial-gradient(120% 120% at 0% 0%, rgba(29,111,233,0.09) 0, transparent 50%),
+    radial-gradient(120% 120% at 100% 0%, rgba(21,184,166,0.08) 0, transparent 42%),
+    var(--bg);
+}
+
+.app-shell{
+  border: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.app-sidebar{
+  background: linear-gradient(180deg, #fbfdff, #f4f8fc);
+  color: var(--text);
+  border-right: 1px solid var(--border);
+}
+
+.app-sidebar__title{ color: #0b1730; }
+.app-sidebar__subtitle{ color: var(--muted); }
+
+.app-sidebar__link{
+  color: #1a2842;
+}
+
+.app-sidebar__link:hover{
+  background: rgba(29, 111, 233, 0.09);
+}
+
+.app-sidebar__link.active,
+.app-sidebar__link[aria-current="page"]{
+  background: rgba(29, 111, 233, 0.14);
+  border: 1px solid rgba(29, 111, 233, 0.22);
+  color: #0f3e8a;
+}
+
+.app-sidebar__icon{
+  background: rgba(29, 111, 233, 0.08);
+  border: 1px solid rgba(29, 111, 233, 0.15);
+}
+
+.app-sidebar__toggle{
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.app-topbar{
+  background: #ffffff;
+  backdrop-filter: none;
+}
+
+.icon-button,
+.avatar-button{
+  box-shadow: 0 2px 10px rgba(15,23,42,0.04);
+}
+
+.icon-button:hover{
+  background: #f5f9ff;
+  border-color: rgba(29, 111, 233, 0.22);
+  box-shadow: 0 4px 12px rgba(15,23,42,0.06);
+}
+
+.btn{
+  box-shadow: 0 2px 10px rgba(15,23,42,0.05);
+}
+
+.btn-primary{
+  background: linear-gradient(135deg, var(--primary), #2a8ae8) !important;
+  border-color: transparent !important;
+}
+
+.btn-primary:hover{
+  background: linear-gradient(135deg, var(--primary-600), #1b73cd) !important;
+  border-color: transparent !important;
+}
+
+.form-control:focus,
+.form-select:focus{
+  border-color: rgba(29,111,233,0.45);
+  box-shadow: 0 0 0 3px rgba(29,111,233,0.14);
+}
+
+.table thead th,
+.grid-container th,
+.tableHeaderFix thead th{
+  background: linear-gradient(180deg, #fbfdff, #f3f8ff);
+}
+
+.table tbody tr:hover,
+.grid-container tbody tr:hover,
+.tableHeaderFix tbody tr:hover{
+  background: rgba(29,111,233,0.08);
+}
+
+.srchTextInputCls:focus,
+.table input:focus,
+.grid-container input:focus{
+  border-color: rgba(29,111,233,0.45);
+  box-shadow: 0 0 0 3px rgba(29,111,233,0.12);
+}
+
+/* =========================================================
+   Branded Alerts (SweetAlert2)
+   ========================================================= */
+.swal2-popup.jr-alert-popup {
+  border-radius: 14px !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-2) !important;
+  padding: 1rem 1rem 0.95rem !important;
+}
+
+.swal2-title.jr-alert-title {
+  font-size: 1.05rem !important;
+  font-weight: 800 !important;
+  color: #142544 !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.swal2-html-container.jr-alert-text {
+  font-size: 0.9rem !important;
+  color: #4c5f80 !important;
+  margin-top: 0.2rem !important;
+  line-height: 1.45 !important;
+}
+
+.swal2-actions {
+  gap: 0.5rem !important;
+  margin-top: 0.9rem !important;
+}
+
+.jr-alert-btn {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.55rem 1rem;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: transform var(--t-fast), filter var(--t-fast), box-shadow var(--t-fast);
+}
+
+.jr-alert-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.97);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.jr-alert-btn--primary {
+  background: linear-gradient(135deg, var(--primary), #2f8ff0);
+  color: #ffffff;
+}
+
+.jr-alert-btn--muted {
+  background: #eef3fa;
+  color: #304565;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+.swal2-icon.swal2-success {
+  border-color: rgba(22, 163, 74, 0.25) !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: rgba(245, 158, 11, 0.28) !important;
+}
+
+/* =========================================================
+   Global Theme Refresh: Professional Cool Blue (All Pages)
+   ========================================================= */
+:root{
+  --bg: #f3f7fc;
+  --surface: #ffffff;
+  --surface-2: #f8fbff;
+  --border: rgba(30, 64, 112, 0.12);
+  --text: #13233a;
+  --muted: #5e718f;
+  --primary: #2563eb;
+  --primary-600: #1d4ed8;
+  --primary-soft: rgba(37, 99, 235, 0.14);
+  --shadow-1: 0 6px 18px rgba(16, 40, 75, 0.07);
+  --shadow-2: 0 14px 32px rgba(16, 40, 75, 0.10);
+}
+
+body.app-body{
+  background:
+    radial-gradient(130% 120% at 0% 0%, rgba(59, 130, 246, 0.11) 0, transparent 52%),
+    radial-gradient(120% 120% at 100% 0%, rgba(6, 182, 212, 0.08) 0, transparent 44%),
+    var(--bg);
+}
+
+.app-shell{
+  border: 1px solid rgba(30, 64, 112, 0.10);
+}
+
+.app-sidebar{
+  background: linear-gradient(180deg, #0f2745, #123257);
+  color: #dbe8ff;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.app-sidebar__title{ color: #f3f8ff; }
+.app-sidebar__subtitle{ color: rgba(207, 223, 248, 0.86); }
+
+.app-sidebar__link{
+  color: #e7f0ff;
+}
+
+.app-sidebar__link:hover{
+  background: rgba(96, 165, 250, 0.20);
+}
+
+.app-sidebar__link.active,
+.app-sidebar__link[aria-current="page"]{
+  background: rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(125, 211, 252, 0.34);
+  color: #ffffff;
+}
+
+.app-sidebar__icon{
+  background: rgba(125, 211, 252, 0.16);
+  border: 1px solid rgba(147, 197, 253, 0.30);
+}
+
+.app-topbar{
+  background: rgba(255,255,255,0.90);
+  border-bottom: 1px solid rgba(30, 64, 112, 0.10);
+}
+
+.icon-button:hover{
+  background: #eef5ff;
+  border-color: rgba(59, 130, 246, 0.25);
+}
+
+.btn-primary{
+  background: linear-gradient(135deg, var(--primary), #3b82f6) !important;
+  border-color: transparent !important;
+}
+
+.btn-primary:hover{
+  background: linear-gradient(135deg, var(--primary-600), #2563eb) !important;
+  border-color: transparent !important;
+}
+
+.card,
+.card-body{
+  border-color: rgba(30, 64, 112, 0.10);
+}
+
+.table thead th,
+.grid-container th,
+.tableHeaderFix thead th{
+  background: linear-gradient(180deg, #f7fbff, #eaf2fc);
+}
+
+.table tbody tr:hover,
+.grid-container tbody tr:hover,
+.tableHeaderFix tbody tr:hover{
+  background: rgba(37, 99, 235, 0.07);
+}

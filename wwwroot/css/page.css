@@ -1,0 +1,785 @@
+﻿/* Shared page components for all module pages */
+.contComnDiv1 {
+  background: linear-gradient(180deg, #ffffff 0%, #f9fcff 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+  padding: 18px;
+  margin-bottom: 18px;
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
+}
+
+.secHeading {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.secHeading i {
+  color: var(--primary);
+}
+
+.formGroup2 {
+  margin-bottom: 14px;
+}
+
+.custmLbl1 {
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.btnPrimary1 {
+  background: linear-gradient(135deg, var(--primary), #2f8ff0);
+  color: #fff;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 800;
+  padding: 10px 18px;
+  transition: transform var(--t-fast), filter var(--t-fast);
+}
+
+.btnPrimary1:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.tableHeaderFix {
+  max-height: 420px;
+  overflow: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.tableHeaderFix::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.tableHeaderFix::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+  border-radius: 999px;
+}
+
+.table a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.table a:hover {
+  text-decoration: underline;
+}
+
+.modal-dialog {
+  max-width: 90%;
+}
+
+.modal-content {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+}
+
+/* Advanced compact modal system */
+.custmModal .modal-dialog {
+  width: min(1100px, calc(100vw - 2rem));
+  max-width: min(1100px, calc(100vw - 2rem));
+  margin: 1.25rem auto;
+}
+
+.custmModal .modal-content {
+  border-radius: 14px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.custmModal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #fbfdff, #f3f8ff);
+}
+
+.custmModal .modal-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #1b2b45;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.custmModal .modal-body {
+  padding: 12px;
+  max-height: min(74vh, 720px);
+  overflow: auto;
+}
+
+.custmModal .modal-body .row {
+  margin: 0;
+}
+
+.custmModal .modal-body .clsFieldSet,
+.custmModal .modal-body [id="idEntityDetailsSec"] {
+  padding: 0;
+}
+
+.custmModal .tableHeaderFix {
+  max-height: 60vh;
+}
+
+.custmModal .table {
+  margin-bottom: 0;
+}
+
+.custmModal .table thead th,
+.custmModal .table td {
+  padding: 9px 10px;
+}
+
+@media (max-width: 768px) {
+  .custmModal .modal-dialog {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    margin: 0.5rem auto;
+  }
+
+  .custmModal .modal-body {
+    padding: 10px;
+    max-height: 78vh;
+  }
+}
+
+/* Invoice module */
+.invoice-canvas {
+  background: #ffffff;
+  border: 2px solid #2e2e2e;
+  border-radius: 0;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 6mm;
+  box-sizing: border-box;
+  box-shadow: none;
+  font-family: "Times New Roman", Georgia, serif;
+  color: #151515;
+}
+
+.invoice-head-wrap {
+  display: grid;
+  grid-template-columns: 90px 1fr 90px;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #4b4b4b;
+  padding-bottom: 6px;
+}
+
+.invoice-head-wrap::after {
+  content: "";
+  width: 80px;
+  height: 80px;
+}
+
+.invoice-head-logo {
+  grid-column: 1;
+  width: 80px;
+  height: 80px;
+  border: 1px solid #4b4b4b;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invoice-head-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.invoice-head {
+  grid-column: 2;
+  text-align: center;
+}
+
+.invoice-caption {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.invoice-company {
+  font-size: 2.8rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.invoice-subtext {
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.invoice-meta {
+  margin-top: 0;
+  border: 1px solid #4b4b4b;
+  border-top: 0;
+}
+
+.invoice-meta-left,
+.invoice-meta-right {
+  padding: 6px 8px;
+  font-size: 0.93rem;
+  line-height: 1.35;
+  min-height: 132px;
+}
+
+.invoice-meta-left {
+  border-right: 1px solid #4b4b4b;
+}
+
+.invoice-canvas .table {
+  font-family: "Times New Roman", Georgia, serif;
+  width: 100% !important;
+  margin: 0 !important;
+  border-collapse: collapse !important;
+  border-radius: 0 !important;
+  table-layout: fixed;
+}
+
+.invoice-canvas .invoice-table-wrap {
+  max-height: none !important;
+  overflow: visible !important;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.invoice-canvas .invoice-table-wrap::-webkit-scrollbar {
+  display: none;
+}
+
+.invoice-canvas .table thead th {
+  background: #ffffff !important;
+  border: 1px solid #4b4b4b !important;
+  font-size: 0.92rem;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 700;
+  text-align: center;
+  min-width: 0 !important;
+  white-space: normal !important;
+  padding: 4px 6px;
+}
+
+.invoice-canvas .table td {
+  border: 1px solid #4b4b4b !important;
+  font-size: 0.9rem;
+  vertical-align: middle;
+  min-width: 0 !important;
+  white-space: normal !important;
+  word-break: break-word;
+  padding: 4px 6px;
+}
+
+.invoice-canvas .table td.text-end {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-canvas .table td.text-center {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-canvas .inv-rate-input {
+  width: 100%;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent;
+  text-align: center;
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none !important;
+  box-shadow: none !important;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.invoice-canvas .inv-rate-input:focus {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.invoice-canvas .inv-rate-input::-webkit-outer-spin-button,
+.invoice-canvas .inv-rate-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.invoice-canvas #invoiceItemsTable th:nth-child(1),
+.invoice-canvas #invoiceItemsTable td:nth-child(1) { width: 8%; }
+.invoice-canvas #invoiceItemsTable th:nth-child(2),
+.invoice-canvas #invoiceItemsTable td:nth-child(2) { width: 40%; }
+.invoice-canvas #invoiceItemsTable th:nth-child(3),
+.invoice-canvas #invoiceItemsTable td:nth-child(3) { width: 12%; }
+.invoice-canvas #invoiceItemsTable th:nth-child(4),
+.invoice-canvas #invoiceItemsTable td:nth-child(4) { width: 12%; }
+.invoice-canvas #invoiceItemsTable th:nth-child(5),
+.invoice-canvas #invoiceItemsTable td:nth-child(5) { width: 14%; }
+.invoice-canvas #invoiceItemsTable th:nth-child(6),
+.invoice-canvas #invoiceItemsTable td:nth-child(6) { width: 14%; }
+
+.invoice-foot-left,
+.invoice-foot-right {
+  border: 1px solid #4b4b4b;
+  border-top: 0;
+  min-height: 126px;
+  padding: 6px 8px;
+  font-size: 0.92rem;
+}
+
+.invoice-foot-left {
+  border-right: 0;
+}
+
+.invoice-foot-right > div {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #4b4b4b;
+  padding: 3px 0;
+}
+
+.invoice-foot-right > div:last-child {
+  border-bottom: 0;
+}
+
+.invoice-foot-right .grand {
+  font-weight: 700;
+}
+
+.invoice-sign {
+  border: 1px solid #4b4b4b;
+  border-top: 0;
+  font-size: 0.92rem;
+}
+
+.invoice-sign .left,
+.invoice-sign .center,
+.invoice-sign .right {
+  min-height: 110px;
+  padding: 6px 8px;
+}
+
+.invoice-sign .left {
+  border-right: 1px solid #4b4b4b;
+}
+
+.invoice-sign .center {
+  border-right: 1px solid #4b4b4b;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.invoice-sign .center .receiver-box {
+  width: 100%;
+  min-height: 82px;
+  border: 0;
+}
+
+.invoice-sign .sign-gap {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invoice-sign .authorised-sign-img {
+  max-height: 52px;
+  max-width: 90%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+@page {
+  size: A4;
+  margin: 8mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .app-sidebar,
+  .app-header,
+  .main-content .secHeading,
+  #btnLoadInvoiceData,
+  #btnDownloadInvoicePdf,
+  #scrapManualSection,
+  .contComnDiv1 > .row.g-3,
+  .contComnDiv1 > .row.g-3.mt-1,
+  .contComnDiv1 > .d-flex.gap-2.mt-3 {
+    display: none !important;
+  }
+
+  .contComnDiv1 {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .invoice-canvas {
+    width: 194mm !important;
+    min-height: 281mm !important;
+    margin: 0 auto !important;
+    padding: 6mm !important;
+    border: 1px solid #2e2e2e !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  #invoiceItemsTable tr,
+  .invoice-meta,
+  .invoice-foot-left,
+  .invoice-foot-right,
+  .invoice-sign {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .invoice-sign .center .receiver-box {
+    min-height: 76px;
+  }
+}
+
+/* Advanced grid filters + header inputs */
+.table thead th,
+.tableHeaderFix thead th {
+  vertical-align: top;
+  line-height: 1.25;
+  min-width: 120px;
+}
+
+.table thead th .srchTextInputCls,
+.tableHeaderFix thead th .srchTextInputCls,
+.table thead th input[type="text"],
+.table thead th input[type="number"],
+.table thead th select,
+.tableHeaderFix thead th input[type="text"],
+.tableHeaderFix thead th input[type="number"],
+.tableHeaderFix thead th select,
+#idTotAmount {
+  display: block;
+  width: 100%;
+  min-width: 130px;
+  margin-top: 8px;
+  padding: 7px 10px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #1f2a44;
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  outline: none;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast), background-color var(--t-fast);
+}
+
+.table thead th .srchTextInputCls::placeholder,
+.tableHeaderFix thead th .srchTextInputCls::placeholder,
+.table thead th input::placeholder,
+.tableHeaderFix thead th input::placeholder,
+#idTotAmount::placeholder {
+  color: #8a97ab;
+  font-size: 0.8rem;
+}
+
+.table thead th .srchTextInputCls:focus,
+.tableHeaderFix thead th .srchTextInputCls:focus,
+.table thead th input[type="text"]:focus,
+.table thead th input[type="number"]:focus,
+.table thead th select:focus,
+.tableHeaderFix thead th input[type="text"]:focus,
+.tableHeaderFix thead th input[type="number"]:focus,
+.tableHeaderFix thead th select:focus,
+#idTotAmount:focus {
+  border-color: rgba(29, 111, 233, 0.5);
+  box-shadow: 0 0 0 3px rgba(29, 111, 233, 0.13);
+  background: #fdfefe;
+}
+
+.table thead th .srchTextInputCls[list]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+}
+
+.table tbody td {
+  white-space: nowrap;
+}
+
+#tblTotalPenDtls th:nth-child(2),
+#tblTotalPenDtls td:nth-child(2) {
+  text-align: left !important;
+}
+
+
+.custmModal .modal-title.modal-title-stack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.custmModal .modal-title-stack .modal-title-top {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.custmModal .modal-title-stack .modal-title-sub {
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Chalan Process grid: keep header fixed while body scrolls */
+#idChalanProcessGrid .tableHeaderFix {
+  position: relative;
+  max-height: 450px;
+  overflow: auto;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid {
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+#idChalanProcessGrid #tblchalanProcess {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+#idChalanProcessGrid #tblchalanProcess thead th {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  background: linear-gradient(180deg, #fbfdff, #f3f8ff);
+  box-shadow: inset 0 -1px 0 rgba(15, 23, 42, 0.14);
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th {
+  top: 0 !important;
+  z-index: 8;
+}
+
+/* Hard fix for challan grid header:
+   keep thead fixed and scroll only tbody to avoid sticky conflicts. */
+#idChalanProcessGrid .tableHeaderFix--chalan-grid {
+  max-height: none;
+  overflow: visible;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess {
+  table-layout: fixed;
+  width: 100%;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead,
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead {
+  width: calc(100% - 10px);
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody {
+  display: block;
+  max-height: 410px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Prevent data text from spilling into adjacent columns in fixed-header mode */
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: middle;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td a {
+  display: inline-block;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+/* Keep readable, aligned column widths in fixed-header mode */
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th,
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td {
+  white-space: normal;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(1),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(1) { width: 14%; }
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(2),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(2) { width: 16%; }
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(3),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(3) { width: 27%; }
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(4),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(4) { width: 17%; }
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(5),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(5) { width: 11%; }
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th:nth-child(6),
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess tbody td:nth-child(6) { width: 15%; }
+
+/* Global header input min-width is 130px; override it for this compact fixed grid */
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th .srchTextInputCls,
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th input[type="text"],
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th select {
+  min-width: 0 !important;
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}
+
+/* =========================================================
+   Page-Level Theme Polish (All Module Pages)
+   ========================================================= */
+.contComnDiv1 {
+  background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+  border: 1px solid rgba(30, 64, 112, 0.10);
+}
+
+.plainSection {
+  margin-bottom: 18px;
+}
+
+.contComnDiv1 .plainSection:last-child {
+  margin-bottom: 0;
+}
+
+.summaryCardsRow {
+  margin-top: 2px;
+}
+
+.summaryCard {
+  border: 1px solid rgba(30, 64, 112, 0.12);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff, #f4f8ff);
+  box-shadow: 0 6px 16px rgba(16, 40, 75, 0.06);
+  padding: 14px 16px;
+  min-height: 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summaryCard__label {
+  color: #5e718f;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.summaryCard__value {
+  margin-top: 6px;
+  color: #13233a;
+  font-size: 1.55rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.summaryCard--action {
+  background: linear-gradient(180deg, #ffffff, #edf5ff);
+}
+
+.summaryCard__btn {
+  margin-top: 10px;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.secHeading {
+  color: #122741;
+}
+
+.secHeading i {
+  color: #2563eb;
+}
+
+.btnPrimary1 {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: #ffffff;
+}
+
+.btnPrimary1:hover {
+  filter: brightness(0.96);
+}
+
+.tableHeaderFix {
+  border-color: rgba(30, 64, 112, 0.12);
+  background: #ffffff;
+}
+
+.custmModal .modal-header {
+  background: linear-gradient(180deg, #f7fbff, #ebf3fd);
+  border-bottom: 1px solid rgba(30, 64, 112, 0.12);
+}
+
+.custmModal .modal-title {
+  color: #16355d;
+}
+
+.table thead th .srchTextInputCls:focus,
+.tableHeaderFix thead th .srchTextInputCls:focus,
+.table thead th input[type="text"]:focus,
+.table thead th input[type="number"]:focus,
+.table thead th select:focus,
+.tableHeaderFix thead th input[type="text"]:focus,
+.tableHeaderFix thead th input[type="number"]:focus,
+.tableHeaderFix thead th select:focus,
+#idTotAmount:focus {
+  border-color: rgba(37, 99, 235, 0.45);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  background: #ffffff;
+}
+
+#idChalanProcessGrid #tblchalanProcess thead th {
+  background: linear-gradient(180deg, #f7fbff, #eaf2fc);
+}

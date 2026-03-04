@@ -1,0 +1,89 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Datewise Chalan";
+}
+
+<div class="contComnDiv1" id="idChalanOutDatewise">
+    <div class="row g-3 align-items-end">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            Out Material Entry
+        </div>
+
+        <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
+            <div class="form-group formGroup2">
+                <label for="ddlComponentnew" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
+                <select id="ddlComponentnew" name="poaType" class="form-select">
+                    <option value="0">Please Select</option>
+                    <option value="JR_JLRDC">J LWD Rear Diff Case 10013474-030</option>
+                    <option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
+                    <option value="JR_JCD">J Case Differential 40112573(Dost Diff Case AAM)</option>
+                    <option value="JR_JPDC">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+                    <option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
+                    <option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+                    <option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+                    <option value="JR_JLRDC">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                    <option value="JR_JDCSD103">J Diff Case S20Dc103</option>
+                    <option value="JR_JDCSD104">J Diff Case S20Dc104</option>
+                    <option value="JR_JDC32931">J Diff Case 32931</option>
+                    <option value="JR_JDC10043998">J P-375 Rear Diff Case 10043997</option>
+                    <option value="JR_JDCR252596A130E1">J Diff Cover R252596-A130E1(Sona)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" id="divDate" style="display:none">
+            <div class="form-group formGroup2">
+                <label for="txtDate" class="custmLbl1">Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" id="txtDate">
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" id="divChalan" style="display:none">
+            <div class="form-group formGroup2">
+                <label for="txtOutChalan" class="custmLbl1">Delivery Chalan No:<span class="colorRed">*</span></label>
+                <input type="text" class="form-control" id="txtOutChalan">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="contComnDiv1" id="idChalanProcessGrid" style="display:none">
+    <div class="card-body">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            @ViewData["Title"]
+        </div>
+
+        <div class="tableHeaderFix" style="max-height:300px;overflow:auto;">
+            <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcess">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Component Description</th>
+                        <th>Chalan No</th>
+                        <th>Quantity</th>
+                        <th>Pending Material</th>
+                        <th>
+                            Amount
+                            <br />
+                            <input type="text" id="idTotAmount" placeholder="Please Amount" />
+                        </th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex gap-2 mb-3">
+    <button type="button" class="btn btn-primary btnPrimary1" id="idSubmit">Submit</button>
+    <button type="button" class="btn btn-primary btnPrimary1" id="idClear">Clear</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@section Scripts {
+    <script src="~/appjs/bulkoutmaterialentry.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,392 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    ViewData["Title"] = "Datewise Chalan";
+}
+
+<style>
+    /* Overall page styling */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f5f5f5;
+        margin: 0;
+        padding: 20px;
+    }
+
+    .custom-form-group {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    /* Card styling */
+    .card-body {
+        background-color: #ffffff;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .secHeading {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        color: #3b5998; /* Replace with your color */
+    }
+
+    .secHeading i {
+        margin-right: 10px;
+        color: #1e90ff; /* Adjust the color to match your theme */
+    }
+
+    /* Form group styling */
+    .formGroup2 {
+        margin-bottom: 15px;
+    }
+
+    .custmLbl1 {
+        font-weight: 600;
+        color: #3b5998; /* Replace with your color */
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 0.95rem;
+        color: #3b5998; /* Replace with your color */
+    }
+
+    .form-select {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 10px;
+        font-size: 0.95rem;
+        color: #3b5998; /* Replace with your color */
+    }
+
+    .btnPrimary1 {
+        background-color: #1e90ff; /* Adjust the color to match your theme */
+        color: #fff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btnPrimary1:hover {
+        background-color: #3b5998; /* Adjust the hover color to match your theme */
+    }
+
+    /* Table styling */
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        border-collapse: collapse;
+    }
+
+        .table th,
+        .table td {
+            padding: 10px 12px;
+            text-align: left;
+            vertical-align: top; /* Aligns the content to the top */
+            border-top: 1px solid #dee2e6;
+            color: #3b5998;
+        }
+
+        .table thead th {
+            background-color: #1e90ff;
+            color: #ffffff;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+    .srchTextInputCls {
+        width: 100%;
+        margin-top: 5px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        color: #3b5998;
+    }
+
+    /* General Button Styling */
+    .btn {
+        display: inline-block;
+        font-weight: 600;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 8px 16px;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 6px;
+        transition: all 0.3s ease-in-out;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Success Button Styling */
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: #fff;
+    }
+
+        .btn-success:hover,
+        .btn-success:focus {
+            background-color: #218838;
+            border-color: #1e7e34;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
+    /* Danger Button Styling */
+    .btn-danger {
+        background-color: #dc3545;
+        border-color: #dc3545;
+        color: #fff;
+    }
+
+        .btn-danger:hover,
+        .btn-danger:focus {
+            background-color: #c82333;
+            border-color: #bd2130;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2);
+            color: #ffffff;
+        }
+
+    /* Button Focus Outline */
+    .btn:focus {
+        outline: none;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25); /* Green outline for success button */
+    }
+
+    .btn-danger:focus {
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25); /* Red outline for danger button */
+    }
+    /* Modal Styles */
+    .modal-dialog {
+        max-width: 90%; /* Adjusts the width of the modal */
+        margin: 30px auto;
+    }
+
+    .modal-content {
+        overflow: hidden; /* Ensures content stays within the modal */
+        border-radius: 10px;
+    }
+
+    .modal-body {
+        overflow-y: auto; /* Allows vertical scrolling if content overflows */
+        max-height: 80vh; /* Limits the height of the modal body */
+        padding: 20px;
+    }
+
+    /* Grid Styles */
+    .grid-container {
+        width: 100%; /* Ensures the grid fits within the modal */
+        overflow-x: auto; /* Enables horizontal scrolling if needed */
+        margin-bottom: 20px;
+    }
+
+        .grid-container table {
+            width: 100%; /* Ensures the table takes up full width */
+            border-collapse: collapse;
+        }
+
+        .grid-container th, .grid-container td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        /* Optional: Adjust Grid Cells */
+        .grid-container th {
+            background-color: #f2f2f2;
+        }
+
+        .grid-container td {
+            white-space: nowrap; /* Prevents text from wrapping */
+        }
+
+</style>
+
+
+<div class="contComnDiv1" id="idChalanOutDatewise" style="">
+    <div class="row">
+        <div class="secHeading">
+            <i class="fa fa-search-plus" aria-hidden="true"></i>
+            Chalan Datewise Calculation
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">From Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="txtFromDate">
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="form-group formGroup2">
+                <label for="poaSubType" class="custmLbl1">To Date<span class="colorRed">*</span></label>
+                <input type="date" class="form-control" placeholder="" id="txtToDate">
+            </div>
+        </div>
+        <div>
+            </br>
+            <button type="button" class="btn btn-primary btnPrimary1" id="idShowInData">InMaterial</button>
+            <button type="button" class="btn btn-primary btnPrimary1" id="idShowOutData">OutMaterial</button>
+            <button type="button" class="btn btn-primary btnPrimary1" id="btnShowPenData">View Pending</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="OutMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="idComponentName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JAYRAJ INDUSTRIES Outward Material</span></h4>&nbsp;<span id="lblErrMsg1"
+                    style="color:red;"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th> *@
+                                    <th>
+                                        Total Out Material
+                                    </th>
+                                    <th>
+                                        Total Rejected Material
+                                    </th>
+                                @* <th>
+                                        Pending Material
+                                    </th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="PenMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="idComponentName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JAYRAJ INDUSTRIES Pending Material</span></h4>&nbsp;<span id="lblErrMsg1"
+                    style="color:red;"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th>
+                                    <th>
+                                        Total Out Material
+                                    </th>
+                                    <th>
+                                        Total Rejected Material
+                                    </th> *@
+                                    <th>
+                                        Pending Material
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal custmModal" id="InMaterialModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title"><span id="idComponentName">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;JAYRAJ INDUSTRIES Inward Material</span></h4>&nbsp;<span id="lblErrMsg1"
+                    style="color:red;"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
+                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalInDtls">
+                            <thead>
+                                <tr>
+                                    <th>Sr.No</th>
+                                    <th>
+                                        Material code & Description
+                                    </th>
+                                    @* <th>
+                                        Total In Material
+                                    </th> *@
+                                    <th>
+                                        Total In Material
+                                    </th>
+                                    @* <th>
+                                        Total Pending Material
+                                    </th> *@
+                                @* <th>
+                                        Pending Material
+                                    </th> *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="~/appjs/DatewiseData.js" asp-append-version="true"></script>

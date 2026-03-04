@@ -1,0 +1,184 @@
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Invoice Generation";
+}
+
+<div class="contComnDiv1">
+    <div class="secHeading">
+        <i class="fa fa-file-invoice" aria-hidden="true"></i>
+        Invoice Generation
+    </div>
+
+    <div class="row g-3">
+        <div class="col-xl-3 col-md-4">
+            <label class="custmLbl1">Invoice Type</label>
+            <select id="invoiceProfileSelect" class="form-select">
+                <option value="kundalik_automation">KUNDALIK AUTOMATION PVT. LTD</option>
+                <option value="kundalik_engineers">KUNDALIK ENGINEERS</option>
+                <option value="scrap">SCRAP INVOICE</option>
+            </select>
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">From Date</label>
+            <input type="date" id="invFromDate" class="form-control" />
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">To Date</label>
+            <input type="date" id="invToDate" class="form-control" />
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">Invoice No</label>
+            <input type="text" id="invNo" class="form-control" placeholder="26-27 / 91" />
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">Invoice Date</label>
+            <input type="date" id="invDate" class="form-control" />
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">PO No</label>
+            <input type="text" id="poNo" class="form-control" value="JW/252600012" />
+        </div>
+        <div class="col-xl-2 col-md-4">
+            <label class="custmLbl1">PO Date</label>
+            <input type="date" id="poDate" class="form-control" />
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1">
+        <div class="col-xl-4 col-md-6">
+            <label class="custmLbl1">Billed To</label>
+            <input type="text" id="billTo" class="form-control" value="KUNDALIK AUTOMATION PVT. LTD" />
+        </div>
+        <div class="col-xl-4 col-md-6">
+            <label class="custmLbl1">Address</label>
+            <input type="text" id="billAddress" class="form-control" value="GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501" />
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <label class="custmLbl1">Party GST No</label>
+            <input type="text" id="partyGst" class="form-control" value="27AACCC6309H1ZK" />
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <label class="custmLbl1">Party PAN No</label>
+            <input type="text" id="partyPan" class="form-control" value="AACCC6309H" />
+        </div>
+    </div>
+
+    <div class="row g-3 mt-1" id="scrapManualSection" style="display:none;">
+        <div class="col-xl-4 col-md-6">
+            <label class="custmLbl1">Scrap Party</label>
+            <select id="scrapPartySelect" class="form-select">
+                <option value="kundalik_automation">KUNDALIK AUTOMATION PVT. LTD</option>
+                <option value="steel_trade">STEEL TRADE</option>
+            </select>
+        </div>
+        <div class="col-xl-4 col-md-12">
+            <label class="custmLbl1">Scrap Description</label>
+            <input type="text" id="scrapDescription" class="form-control" value="Scrap Bill Month" />
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <label class="custmLbl1">Scrap Quantity (Kg)</label>
+            <input type="number" id="scrapQty" class="form-control" min="0" step="0.01" value="0" />
+        </div>
+        <div class="col-xl-2 col-md-6">
+            <label class="custmLbl1">Rate Per Kg</label>
+            <input type="number" id="scrapRatePerKg" class="form-control" min="0" step="0.01" value="0" />
+        </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-3">
+        <button type="button" class="btn btn-primary btnPrimary1" id="btnLoadInvoiceData">Load Items</button>
+        <button type="button" class="btn btn-primary btnPrimary1" id="btnDownloadInvoicePdf">Download Invoice PDF</button>
+    </div>
+</div>
+
+<div class="contComnDiv1">
+    <div id="invoiceCanvas" class="invoice-canvas">
+        <div class="invoice-head-wrap">
+            <div class="invoice-head-logo">
+                <img src="~/images/jr_logo.jpeg" alt="JR logo" />
+            </div>
+            <div class="invoice-head text-center">
+                <div class="invoice-caption">TAX INVOICE</div>
+                <div class="invoice-company">JAYRAJ INDUSTRIES</div>
+                <div class="invoice-subtext"><span id="pCompanyTopAddress"></span></div>
+                <div class="invoice-subtext"><strong>Office :</strong> B/104, 'Pragati Palace' Sec. No - 29 Plot No - 3 Ravet, Pune 412101.</div>
+                <div class="invoice-subtext"><strong>Contact No. :</strong> 8237362166 / 9856821821 &nbsp;&nbsp; <strong>Email ID :</strong> jayraj.industries.07@gmail.com</div>
+            </div>
+        </div>
+
+        <div class="row g-0 invoice-meta">
+            <div class="col-md-6 invoice-meta-left">
+                <div><strong>Billed To :</strong> <span id="pBillTo" class="fw-bold"></span></div>
+                <div id="pBillAddress"></div>
+                <div><strong>Party GST No :</strong> <span id="pPartyGst"></span></div>
+                <div><strong>Party PAN No :</strong> <span id="pPartyPan"></span></div>
+            </div>
+            <div class="col-md-6 invoice-meta-right">
+                <div><strong>Invoice No :</strong> <span id="pInvNo"></span></div>
+                <div><strong>Date :</strong> <span id="pInvDate"></span></div>
+                <div><strong>P.O. No :</strong> <span id="pPoNo"></span></div>
+                <div><strong>Date :</strong> <span id="pPoDate"></span></div>
+                <div><strong>Vendor Code :</strong> <span id="pVendorCode"></span></div>
+                <div><strong>HSN / SAC Code :</strong> <span id="pHsnCode"></span></div>
+                <div><strong>State :</strong> Maharashtra &nbsp;&nbsp; <strong>State Code :</strong> 27</div>
+            </div>
+        </div>
+
+        <div class="tableHeaderFix invoice-table-wrap">
+            <table class="table table-bordered mb-0" id="invoiceItemsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">Sr. No.</th>
+                        <th>Item Description</th>
+                        <th style="width: 90px;">Qty</th>
+                        <th style="width: 80px;">Unit</th>
+                        <th style="width: 110px;">Rate/<br />Qty.</th>
+                        <th style="width: 120px;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="row g-0 mt-0">
+            <div class="col-md-6 invoice-foot-left">
+                <div>Payment Term :</div>
+                <div>Remark :</div>
+                <div class="mt-3">Amount in words : <span id="amtWords">Zero Only</span></div>
+            </div>
+            <div class="col-md-6 invoice-foot-right">
+                <div><span>Assessable Value :</span> <strong id="assessableValue">0</strong></div>
+                <div><span>Total :</span> <strong id="subTotal">0</strong></div>
+                <div><span>CGST % (9.00) :</span> <strong id="cgstValue">0</strong></div>
+                <div><span>SGST % (9.00) :</span> <strong id="sgstValue">0</strong></div>
+                <div class="grand"><span>Grand Total :</span> <strong id="grandTotal">0</strong></div>
+            </div>
+        </div>
+
+        <div class="row g-0 invoice-sign">
+            <div class="col-md-6 left">
+                <div><strong>GST Tin No: 27BJKPD4175R1ZJ</strong></div>
+                <div class="mt-3">Certified that the particulars given above are true &amp; correct</div>
+                <div class="mt-3">Subject to Pune Jurisdiction.</div>
+            </div>
+            <div class="col-md-2 center text-center">
+                <div class="receiver-box"></div>
+                <div>Receiver Signature</div>
+            </div>
+            <div class="col-md-4 right text-center">
+                <div><strong>For JAYRAJ INDUSTRIES</strong></div>
+                <div class="sign-gap">
+                    <img src="~/images/abhi_dada-sign-original.png" alt="Authorised Signature" class="authorised-sign-img" />
+                </div>
+                <div><strong>( Abhishek R. Desale )</strong></div>
+                <div>Authorised Signatory</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="~/appjs/InvoiceGeneration.js" asp-append-version="true"></script>
+}
