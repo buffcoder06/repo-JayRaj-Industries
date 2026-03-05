@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using JayRaj_Industries.Models;
+using Npgsql;
 
 public class ApplicationAuditDAL
 {
@@ -24,9 +24,10 @@ public class ApplicationAuditDAL
     {
         try
         {
-            using SqlConnection con = new SqlConnection(_connectionString);
-            using SqlCommand cmd = new SqlCommand("sp_LogApplicationException", con);
-            cmd.CommandType = CommandType.StoredProcedure;
+            using NpgsqlConnection con = new NpgsqlConnection(_connectionString);
+            using NpgsqlCommand cmd = new NpgsqlCommand(
+                "select sp_logapplicationexception(@ControllerName, @ActionName, @ErrorMessage, @StackTrace, @InnerException, @RequestPath, @RequestMethod, @Payload, @UserName);",
+                con);
             cmd.Parameters.AddWithValue("@ControllerName", controllerName ?? string.Empty);
             cmd.Parameters.AddWithValue("@ActionName", (object?)actionName ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@ErrorMessage", ex.Message);
@@ -115,9 +116,10 @@ public class ApplicationAuditDAL
         string? controllerName,
         string? sourceAction)
     {
-        using SqlConnection con = new SqlConnection(_connectionString);
-        using SqlCommand cmd = new SqlCommand("sp_InsertInvoiceAuditHeader", con);
-        cmd.CommandType = CommandType.StoredProcedure;
+        using NpgsqlConnection con = new NpgsqlConnection(_connectionString);
+        using NpgsqlCommand cmd = new NpgsqlCommand(
+            "select sp_insertinvoiceauditheader(@StartDate::date, @EndDate::date, @InvoiceProfile, @InvoiceNo, @InvoiceDate::date, @GeneratedBy, @ItemCount, @TotalQty, @TotalAmount, @AssessableValue, @CgstAmount, @SgstAmount, @GstAmount, @GrandTotal, @ControllerName, @SourceAction);",
+            con);
 
         cmd.Parameters.AddWithValue("@StartDate", DbValue(startDate));
         cmd.Parameters.AddWithValue("@EndDate", DbValue(endDate));
@@ -136,23 +138,18 @@ public class ApplicationAuditDAL
         cmd.Parameters.AddWithValue("@ControllerName", DbValue(controllerName));
         cmd.Parameters.AddWithValue("@SourceAction", DbValue(sourceAction));
 
-        var outputParam = new SqlParameter("@InvoiceAuditHeaderId", SqlDbType.BigInt)
-        {
-            Direction = ParameterDirection.Output
-        };
-        cmd.Parameters.Add(outputParam);
-
         con.Open();
-        cmd.ExecuteNonQuery();
+        object? value = cmd.ExecuteScalar();
 
-        return outputParam.Value == DBNull.Value ? 0 : Convert.ToInt64(outputParam.Value);
+        return value == null || value == DBNull.Value ? 0 : Convert.ToInt64(value);
     }
 
     private void InsertInvoiceAuditDetail(long headerId, InvoiceLineItem item)
     {
-        using SqlConnection con = new SqlConnection(_connectionString);
-        using SqlCommand cmd = new SqlCommand("sp_InsertInvoiceAuditDetail", con);
-        cmd.CommandType = CommandType.StoredProcedure;
+        using NpgsqlConnection con = new NpgsqlConnection(_connectionString);
+        using NpgsqlCommand cmd = new NpgsqlCommand(
+            "select sp_insertinvoiceauditdetail(@InvoiceAuditHeaderId, @SrNo, @ItemDescription, @Qty, @Unit, @Rate, @Amount);",
+            con);
 
         cmd.Parameters.AddWithValue("@InvoiceAuditHeaderId", headerId);
         cmd.Parameters.AddWithValue("@SrNo", item.SrNo);

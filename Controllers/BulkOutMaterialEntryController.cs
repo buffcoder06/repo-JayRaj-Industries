@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace JayRaj_Industries.Controllers

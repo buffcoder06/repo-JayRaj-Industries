@@ -1,5 +1,6 @@
-﻿using System.Data.SqlClient;
 using System.Data;
+using System.Linq;
+using Npgsql;
 
 namespace JayRaj_Industries.Models
 {
@@ -7,33 +8,38 @@ namespace JayRaj_Industries.Models
     {
         private readonly string _connectionString;
 
-
         public DataComponents(IConfiguration configuration)
         {
-
-            // Initialize the DAL with the connection string
             _connectionString = configuration["ConnectionStrings:Jayraj_Industries"].ToString();
-
         }
-            private void ExecuteNonQuery(string storedProcedure, params SqlParameter[] parameters)
+
+        private static string BuildParameterList(NpgsqlParameter[] parameters)
         {
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            using (SqlCommand cmd = new SqlCommand(storedProcedure, con))
+            if (parameters == null || parameters.Length == 0)
             {
-                cmd.CommandType = CommandType.StoredProcedure;
+                return string.Empty;
+            }
+
+            return string.Join(", ", parameters.Select(p => p.ParameterName));
+        }
+
+        private void ExecuteNonQuery(string functionName, params NpgsqlParameter[] parameters)
+        {
+            using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+            using (NpgsqlCommand cmd = new NpgsqlCommand($"select {functionName}({BuildParameterList(parameters)});", con))
+            {
                 if (parameters != null) cmd.Parameters.AddRange(parameters);
                 con.Open();
-                cmd.ExecuteNonQuery();
+                cmd.ExecuteScalar();
             }
         }
 
-        private DataTable ExecuteDataTable(string storedProcedure, params SqlParameter[] parameters)
+        private DataTable ExecuteDataTable(string functionName, params NpgsqlParameter[] parameters)
         {
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            using (SqlCommand cmd = new SqlCommand(storedProcedure, con))
-            using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
+            using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+            using (NpgsqlCommand cmd = new NpgsqlCommand($"select * from {functionName}({BuildParameterList(parameters)});", con))
+            using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(cmd))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
                 if (parameters != null) cmd.Parameters.AddRange(parameters);
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
@@ -41,18 +47,17 @@ namespace JayRaj_Industries.Models
             }
         }
 
-        private List<ChalanProcessBO> ExecuteReader(string storedProcedure, Func<SqlDataReader, ChalanProcessBO> readRow, params SqlParameter[] parameters)
+        private List<ChalanProcessBO> ExecuteReader(string functionName, Func<NpgsqlDataReader, ChalanProcessBO> readRow, params NpgsqlParameter[] parameters)
         {
             var results = new List<ChalanProcessBO>();
 
-            using (SqlConnection con = new SqlConnection(_connectionString))
-            using (SqlCommand cmd = new SqlCommand(storedProcedure, con))
+            using (NpgsqlConnection con = new NpgsqlConnection(_connectionString))
+            using (NpgsqlCommand cmd = new NpgsqlCommand($"select * from {functionName}({BuildParameterList(parameters)});", con))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
                 if (parameters != null) cmd.Parameters.AddRange(parameters);
                 con.Open();
 
-                using (SqlDataReader reader = cmd.ExecuteReader())
+                using (NpgsqlDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
