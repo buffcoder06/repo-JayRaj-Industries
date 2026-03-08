@@ -205,6 +205,23 @@
         if (el) el.value = today;
     }
 
+    function setCurrentMonthDateRange(fromId, toId) {
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        const toLocalIso = (dt) => {
+            const y = dt.getFullYear();
+            const m = String(dt.getMonth() + 1).padStart(2, "0");
+            const d = String(dt.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        };
+
+        const fromEl = document.getElementById(fromId);
+        const toEl = document.getElementById(toId);
+        if (fromEl) fromEl.value = toLocalIso(firstDay);
+        if (toEl) toEl.value = toLocalIso(lastDay);
+    }
+
     function getFinancialYearPrefix(dateObj) {
         const now = dateObj || new Date();
         const year = now.getFullYear();
@@ -453,8 +470,7 @@
     $(document).ready(function () {
         setToday("invDate");
         setPoDateByContext();
-        setToday("invFromDate");
-        setToday("invToDate");
+        setCurrentMonthDateRange("invFromDate", "invToDate");
         syncHeader();
 
         $("#invNo").val(getFinancialYearPrefix(new Date()));
