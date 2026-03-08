@@ -63,94 +63,57 @@ function GetTotalComponentDetails(startDate, endDate) {
 }
 
 $('#btnShowPenData').on('click', function () {
-    var startDate = $('#txtFromDate').val();
-    var endDate = $('#txtToDate').val();
-
-    GetTotalPenComponentDetails(startDate, endDate);
+    GetTotalPenComponentDetails();
 });
 
 $('#btnDownloadPendingPdf').on('click', function () {
     downloadPendingModalPdf();
 });
 
-function GetTotalPenComponentDetails(startDate, endDate) {
+function GetTotalPenComponentDetails() {
     $('#idTotalDtlsGrid').show();
 
-    var outReq = $.ajax({
+    $.ajax({
         url: '/GetDatewiseData/GetTotalComponentDetails',
         type: 'GET',
         dataType: 'json',
-        data: {
-            startDate: startDate,
-            endDate: endDate
-        }
-    });
+        success: function (data) {
+            var rows = [];
+            $.each(data || [], function (_, item) {
+                var component = (item.f_Component_Desc || '').toString().trim();
+                if (!component) return;
 
-    var inReq = $.ajax({
-        url: '/GetDatewiseData/GetTotalInComponentDetails',
-        type: 'GET',
-        dataType: 'json',
-        data: {
-            startDate: startDate,
-            endDate: endDate
-        }
-    });
+                rows.push({
+                    component: component,
+                    pendingQty: parseToNumber(getFirstValue(item, ['PendingMaterialQuantity', 'PendingQuantity', 'pendingQuantity', 'f_Pending_Quantity'], 0))
+                });
+            });
 
-    $.when(outReq, inReq).done(function (outRes, inRes) {
-        var outData = outRes[0] || [];
-        var inData = inRes[0] || [];
+            rows.sort(function (a, b) {
+                return a.component.localeCompare(b.component);
+            });
 
-        var map = {};
+            $('#PenMaterialModal').modal('show');
+            var tbody = $('#tblTotalPenDtls tbody');
+            tbody.empty();
 
-        $.each(inData, function (_, item) {
-            var component = (item.f_Component_Desc || '').toString().trim();
-            if (!component) return;
-            var key = component.toLowerCase();
-            if (!map[key]) {
-                map[key] = { component: component, inQty: 0, outQty: 0, rejQty: 0 };
+            var html = "";
+            $.each(rows, function (index, row) {
+                html += '<tr>';
+                html += '<td>' + (index + 1) + '</td>';
+                html += '<td>' + row.component + '</td>';
+                html += '<td>' + formatNumber(row.pendingQty) + '</td>';
+                html += '</tr>';
+            });
+
+            tbody.html(html);
+        },
+        error: function (xhr, status, error) {
+            console.error('Error:', status, error);
+            if (window.Swal && typeof window.Swal.fire === "function") {
+                window.Swal.fire({ icon: "error", title: "Error", text: "Failed to fetch pending material data." });
             }
-            map[key].inQty += parseToNumber(getFirstValue(item, ['MaterialInQuantity', 'materialInQuantity', 'f_Actual_InMaterial_Quantity'], 0));
-        });
-
-        $.each(outData, function (_, item) {
-            var component = (item.f_Component_Desc || '').toString().trim();
-            if (!component) return;
-            var key = component.toLowerCase();
-            if (!map[key]) {
-                map[key] = { component: component, inQty: 0, outQty: 0, rejQty: 0 };
-            }
-            map[key].outQty += parseToNumber(getFirstValue(item, ['MaterialOutQuantity', 'materialOutQuantity', 'f_OutMaterial_Quantity'], 0));
-            map[key].rejQty += parseToNumber(getFirstValue(item, ['MaterialRejQuantity', 'materialRejQuantity', 'f_RejectMaterial_Quantity'], 0));
-        });
-
-        var rows = Object.keys(map).map(function (k) {
-            var r = map[k];
-            return {
-                component: r.component,
-                pendingQty: Math.max(0, r.inQty - r.outQty - r.rejQty)
-            };
-        });
-
-        rows.sort(function (a, b) {
-            return a.component.localeCompare(b.component);
-        });
-
-        $('#PenMaterialModal').modal('show');
-        var tbody = $('#tblTotalPenDtls tbody');
-        tbody.empty();
-
-        var html = "";
-        $.each(rows, function (index, row) {
-            html += '<tr>';
-            html += '<td>' + (index + 1) + '</td>';
-            html += '<td>' + row.component + '</td>';
-            html += '<td>' + formatNumber(row.pendingQty) + '</td>';
-            html += '</tr>';
-        });
-
-        tbody.html(html);
-    }).fail(function (xhr, status, error) {
-        console.error('Error:', status, error);
+        }
     });
 }
 
@@ -198,7 +161,7 @@ function normalizeKeyName(key) {
         .replace(/^f/, "");
 }
 
-function downloadPendingModalPdf() {
+async function downloadPendingModalPdf() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         console.error("jsPDF library is not available.");
         return;
@@ -223,21 +186,26 @@ function downloadPendingModalPdf() {
         return;
     }
 
-    var fromDate = $('#txtFromDate').val() || '';
-    var toDate = $('#txtToDate').val() || '';
-    var formattedFromDate = formatPdfDate(fromDate);
-    var formattedToDate = formatPdfDate(toDate);
-
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF('p', 'mm', 'a4');
+    var pageWidth = doc.internal.pageSize.getWidth();
+    var pageHeight = doc.internal.pageSize.getHeight();
     doc.setFont('times', 'bold');
     doc.setFontSize(14);
+    doc.setTextColor(193, 18, 31);
     doc.text('JAYRAJ INDUSTRIES', 105, 14, { align: 'center' });
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
     doc.text('Pending Material Report', 105, 21, { align: 'center' });
     doc.setFont('times', 'normal');
     doc.setFontSize(10);
-    doc.text('Date Range: ' + formattedFromDate + ' to ' + formattedToDate, 14, 28);
+    var subtitle = 'Following materials pending in Jayraj Industries';
+    var subtitleY = 28;
+    var subtitleX = pageWidth / 2;
+    var subtitleWidth = doc.getTextWidth(subtitle);
+    doc.text(subtitle, subtitleX, subtitleY, { align: 'center' });
+    doc.setLineWidth(0.25);
+    doc.line(subtitleX - (subtitleWidth / 2), subtitleY + 1.2, subtitleX + (subtitleWidth / 2), subtitleY + 1.2);
 
     doc.autoTable({
         startY: 32,
@@ -254,9 +222,40 @@ function downloadPendingModalPdf() {
         }
     });
 
-    var fileFrom = fromDate || 'from';
-    var fileTo = toDate || 'to';
-    doc.save('Pending_Material_' + fileFrom + '_to_' + fileTo + '.pdf');
+    var finalY = doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY : 32;
+    var signHeaderY = Math.min(finalY + 12, pageHeight - 34);
+    var signImageY = Math.min(signHeaderY + 4, pageHeight - 30);
+    var signNameY = Math.min(signImageY + 22, pageHeight - 10);
+    var signRoleY = Math.min(signNameY + 5, pageHeight - 4);
+    var rightMarginX = pageWidth - 14;
+    var signImageWidth = 42;
+    var signImageHeight = 16;
+    var signImageX = rightMarginX - signImageWidth;
+    var signTextX = signImageX + 1;
+    var signImageData = null;
+
+    try {
+        signImageData = await loadImageAsDataUrl('/images/abhi_dada-sign-original.png');
+    } catch (e) {
+        console.warn('Unable to load signature image for pending PDF.', e);
+    }
+
+    doc.setFont('times', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(193, 18, 31);
+    doc.text('For JAYRAJ INDUSTRIES', signTextX, signHeaderY, { align: 'left' });
+    doc.setTextColor(0, 0, 0);
+
+    if (signImageData) {
+        doc.addImage(signImageData, 'PNG', signImageX, signImageY, signImageWidth, signImageHeight);
+    }
+
+    doc.setFontSize(9);
+    doc.text('( Abhishek R. Desale )', signTextX, signNameY, { align: 'left' });
+    doc.setFont('times', 'normal');
+    doc.text('Authorised Signatory', signTextX, signRoleY, { align: 'left' });
+
+    doc.save('Pending_Material_All_Dates.pdf');
 }
 
 function formatPdfDate(dateText) {
@@ -267,6 +266,27 @@ function formatPdfDate(dateText) {
     var month = dt.toLocaleString("en-IN", { month: "short" });
     var year = dt.getFullYear();
     return day + "-" + month + "-" + year;
+}
+
+function loadImageAsDataUrl(src) {
+    return new Promise(function (resolve, reject) {
+        var img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = function () {
+            try {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth || img.width;
+                canvas.height = img.naturalHeight || img.height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            } catch (err) {
+                reject(err);
+            }
+        };
+        img.onerror = function (err) { reject(err); };
+        img.src = src;
+    });
 }
 
 function getFirstValue(item, keys, defaultValue) {

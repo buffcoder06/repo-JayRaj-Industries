@@ -59,21 +59,21 @@
         kundalik_automation: {
             billTo: "KUNDALIK AUTOMATION PVT. LTD",
             billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
-            partyGst: "27AACC6309H1ZK",
+            partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
             poNo: "JW/252600012"
         },
         kundalik_engineers: {
             billTo: "KUNDALIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
-            partyGst: "27CQGPK7226L1F",
+            partyGst: "27CQGPK7226L1ZF",
             partyPan: "AACCK6309H",
             poNo: "JW/252600006"
         },
         scrap: {
             billTo: "STEEL TRADE",
             billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
-            partyGst: "27AACC6309H1ZK",
+            partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: ""
         }
@@ -83,7 +83,7 @@
         kundalik_automation: {
             billTo: "KUNDALIK AUTOMATION PVT. LTD",
             billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
-            partyGst: "27AACC6309H1ZK",
+            partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
             poNo: "JW/252600012",
             allowManualPoNo: false
@@ -91,7 +91,7 @@
         steel_trade: {
             billTo: "STEEL TRADE",
             billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
-            partyGst: "27AACC6309H1ZK",
+            partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: "",
             allowManualPoNo: true
@@ -205,6 +205,17 @@
         if (el) el.value = today;
     }
 
+    function getFinancialYearPrefix(dateObj) {
+        const now = dateObj || new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const startYear = month >= 4 ? year : year - 1;
+        const endYear = startYear + 1;
+        const startYY = String(startYear).slice(-2);
+        const endYY = String(endYear).slice(-2);
+        return `${startYY}-${endYY}/`;
+    }
+
     function setFixedPoDate() {
         $("#poDate").val(FIXED_PO_DATE_VALUE);
     }
@@ -240,6 +251,12 @@
         return `${day}-${month}-${year}`;
     }
 
+    function isSteelTradeScrapCase() {
+        const profileKey = $("#invoiceProfileSelect").val();
+        const selectedParty = $("#scrapPartySelect").val() || "kundalik_automation";
+        return profileKey === "scrap" && selectedParty === "steel_trade";
+    }
+
     function syncHeader() {
         setPoDateByContext();
         updatePoDateEditState();
@@ -248,7 +265,9 @@
         $("#pBillAddress").text($("#billAddress").val() || "");
         $("#pCompanyTopAddress").text($("#billAddress").val() || "");
         $("#pPartyGst").text($("#partyGst").val() || "");
-        $("#pPartyPan").text($("#partyPan").val() || "");
+        const hidePan = isSteelTradeScrapCase();
+        $("#pPartyPanRow").toggle(!hidePan);
+        $("#pPartyPan").text(hidePan ? "" : ($("#partyPan").val() || ""));
         $("#pInvNo").text($("#invNo").val() || "");
         $("#pInvDate").text(formatDisplayDate($("#invDate").val() || ""));
         $("#pPoNo").text($("#poNo").val() || "");
@@ -274,7 +293,7 @@
         $("#billTo").val(party.billTo);
         $("#billAddress").val(party.billAddress);
         $("#partyGst").val(party.partyGst);
-        $("#partyPan").val(party.partyPan);
+        $("#partyPan").val(selectedParty === "steel_trade" ? "" : party.partyPan);
 
         if (!party.allowManualPoNo) {
             $("#poNo").val(party.poNo);
@@ -438,7 +457,7 @@
         setToday("invToDate");
         syncHeader();
 
-        $("#invNo").val(`INV-${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, "0")}`);
+        $("#invNo").val(getFinancialYearPrefix(new Date()));
         applyInvoiceProfile($("#invoiceProfileSelect").val());
 
         $("#billTo, #billAddress, #partyGst, #partyPan, #invNo, #invDate, #poNo, #poDate").on("input change", syncHeader);

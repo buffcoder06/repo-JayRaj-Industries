@@ -55,7 +55,7 @@
         </div>
         <div class="col-xl-2 col-md-6">
             <label class="custmLbl1">Party GST No</label>
-            <input type="text" id="partyGst" class="form-control" value="27AACCC6309H1ZK" />
+            <input type="text" id="partyGst" class="form-control" value="27AACCK6309H1ZK" />
         </div>
         <div class="col-xl-2 col-md-6">
             <label class="custmLbl1">Party PAN No</label>
@@ -95,7 +95,7 @@
     <div id="invoiceCanvas" class="invoice-canvas">
         <div class="invoice-head-wrap">
             <div class="invoice-head-logo">
-                <img src="~/images/jr_logo.jpeg" alt="JR logo" />
+                <img src="~/images/jr_logo.png" alt="JR logo" />
             </div>
             <div class="invoice-head text-center">
                 <div class="invoice-caption">TAX INVOICE</div>
@@ -111,7 +111,7 @@
                 <div><strong>Billed To :</strong> <span id="pBillTo" class="fw-bold"></span></div>
                 <div id="pBillAddress"></div>
                 <div><strong>Party GST No :</strong> <span id="pPartyGst"></span></div>
-                <div><strong>Party PAN No :</strong> <span id="pPartyPan"></span></div>
+                <div id="pPartyPanRow"><strong>Party PAN No :</strong> <span id="pPartyPan"></span></div>
             </div>
             <div class="col-md-6 invoice-meta-right">
                 <div><strong>Invoice No :</strong> <span id="pInvNo"></span></div>
@@ -125,7 +125,7 @@
         </div>
 
         <div class="tableHeaderFix invoice-table-wrap">
-            <table class="table table-bordered mb-0" id="invoiceItemsTable">
+            <table class="table mb-0" id="invoiceItemsTable">
                 <thead>
                     <tr>
                         <th style="width: 70px;">Sr. No.</th>
