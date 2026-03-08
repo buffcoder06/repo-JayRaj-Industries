@@ -162,7 +162,7 @@ namespace JayRaj_Industries.Controllers
                 foreach (DataRow row in totals.Rows)
                 {
                     totalOutMaterial += GetFirstDecimal(row, "MaterialOutQuantity", "materialOutQuantity", "f_OutMaterial_Quantity");
-                    totalPendingMaterialFromColumn += GetFirstDecimal(row, "PendingMaterialQuantity", "pendingMaterialQuantity", "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
+                    totalPendingMaterialFromColumn += GetFirstDecimal(row, "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
                     totalRejectedMaterial += GetFirstDecimal(row, "MaterialRejQuantity", "materialRejQuantity", "f_RejectMaterial_Quantity");
                 }
 

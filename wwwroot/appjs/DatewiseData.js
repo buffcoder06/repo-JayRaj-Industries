@@ -63,26 +63,20 @@ function GetTotalComponentDetails(startDate, endDate) {
 }
 
 $('#btnShowPenData').on('click', function () {
-    var startDate = $('#txtFromDate').val();
-    var endDate = $('#txtToDate').val();
-    GetTotalPenComponentDetails(startDate, endDate);
+    GetTotalPenComponentDetails();
 });
 
 $('#btnDownloadPendingPdf').on('click', function () {
     downloadPendingModalPdf();
 });
 
-function GetTotalPenComponentDetails(startDate, endDate) {
+function GetTotalPenComponentDetails() {
     $('#idTotalDtlsGrid').show();
 
     $.ajax({
         url: '/GetDatewiseData/GetTotalComponentDetails',
         type: 'GET',
         dataType: 'json',
-        data: {
-            startDate: startDate,
-            endDate: endDate
-        },
         success: function (data) {
             var rows = [];
             $.each(data || [], function (_, item) {
@@ -192,11 +186,6 @@ async function downloadPendingModalPdf() {
         return;
     }
 
-    var fromDate = $('#txtFromDate').val() || '';
-    var toDate = $('#txtToDate').val() || '';
-    var formattedFromDate = formatPdfDate(fromDate);
-    var formattedToDate = formatPdfDate(toDate);
-
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF('p', 'mm', 'a4');
     var pageWidth = doc.internal.pageSize.getWidth();
@@ -217,11 +206,9 @@ async function downloadPendingModalPdf() {
     doc.text(subtitle, subtitleX, subtitleY, { align: 'center' });
     doc.setLineWidth(0.25);
     doc.line(subtitleX - (subtitleWidth / 2), subtitleY + 1.2, subtitleX + (subtitleWidth / 2), subtitleY + 1.2);
-    doc.setFontSize(9);
-    doc.text('Date Range: ' + formattedFromDate + ' to ' + formattedToDate, subtitleX, subtitleY + 5.2, { align: 'center' });
 
     doc.autoTable({
-        startY: 35,
+        startY: 32,
         head: [['Sr.No', 'Material code & Description', 'Pending Material']],
         body: tableRows,
         theme: 'grid',
@@ -268,9 +255,7 @@ async function downloadPendingModalPdf() {
     doc.setFont('times', 'normal');
     doc.text('Authorised Signatory', signTextX, signRoleY, { align: 'left' });
 
-    var fileFrom = fromDate || 'from';
-    var fileTo = toDate || 'to';
-    doc.save('Pending_Material_' + fileFrom + '_to_' + fileTo + '.pdf');
+    doc.save('Pending_Material_All_Dates.pdf');
 }
 
 function formatPdfDate(dateText) {
