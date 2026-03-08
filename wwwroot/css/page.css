@@ -994,3 +994,23 @@
   background: linear-gradient(135deg, #10b981, #059669);
   border-color: transparent;
 }
+
+/* Final theme override: Chalan grid column header colors */
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th {
+  background: linear-gradient(180deg, #245f95, #1c4f7d) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: none !important;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th .srchTextInputCls,
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th input[type="text"],
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th select {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: #183557 !important;
+  border: 1px solid rgba(11, 49, 83, 0.16) !important;
+}
+
+#idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th input::placeholder {
+  color: #6f83a0 !important;
+}
