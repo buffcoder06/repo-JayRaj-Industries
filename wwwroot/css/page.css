@@ -1014,3 +1014,9 @@
 #idChalanProcessGrid .tableHeaderFix--chalan-grid #tblchalanProcess thead th input::placeholder {
   color: #6f83a0 !important;
 }
+
+/* Ensure chalan details modal values remain visible across theme/cache variations */
+#EmpModal #tblOutdetails tbody td {
+  color: #1f2a44 !important;
+  background: #ffffff !important;
+}
