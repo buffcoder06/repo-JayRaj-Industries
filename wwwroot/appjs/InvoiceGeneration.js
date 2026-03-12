@@ -58,21 +58,21 @@
     const invoiceProfiles = {
         kundalik_automation: {
             billTo: "KUNDALIK AUTOMATION PVT. LTD",
-            billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
+            billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
             poNo: "JW/252600012"
         },
         kundalik_engineers: {
             billTo: "KUNDALIK ENGINEERS",
-            billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
+            billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
             partyPan: "AACCK6309H",
             poNo: "JW/252600006"
         },
         scrap: {
             billTo: "STEEL TRADE",
-            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
+            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: ""
@@ -82,7 +82,7 @@
     const scrapParties = {
         kundalik_automation: {
             billTo: "KUNDALIK AUTOMATION PVT. LTD",
-            billAddress: "GAT NO.624/9, Kuruli Village, Tal Khed, Pune - 410501",
+            billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
             poNo: "JW/252600012",
@@ -90,7 +90,7 @@
         },
         steel_trade: {
             billTo: "STEEL TRADE",
-            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
+            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: "",
@@ -101,6 +101,15 @@
     function formatMoney(value) {
         const rounded = Math.round(Number(value) || 0);
         return rounded.toLocaleString("en-IN");
+    }
+
+    function formatMoneyDecimal(value) {
+        const n = Number(value) || 0;
+        return n.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function isScrapProfile() {
+        return $("#invoiceProfileSelect").val() === "scrap";
     }
 
     function getInvoiceItemsFromGrid() {
@@ -252,10 +261,8 @@
     }
 
     function updatePoDateEditState() {
-        const profileKey = $("#invoiceProfileSelect").val();
-        const scrapParty = $("#scrapPartySelect").val();
-        const allowManualPoDate = profileKey === "scrap" && scrapParty === "steel_trade";
-        $("#poDate").prop("disabled", !allowManualPoDate);
+        // PO date is always editable so users can update it as needed
+        $("#poDate").prop("disabled", false);
     }
 
     function formatDisplayDate(dateText) {
@@ -372,6 +379,8 @@
     }
 
     function updateTotals() {
+        const scrap = isScrapProfile();
+        const fmt = scrap ? formatMoneyDecimal : formatMoney;
         let subtotal = 0;
         $("#invoiceItemsTable tbody tr").each(function () {
             const qty = parseDisplayNumber($(this).find(".inv-qty").text());
@@ -381,20 +390,19 @@
                 : parseDisplayNumber($(this).find(".inv-rate").text());
             const amount = qty * rate;
             subtotal += amount;
-            $(this).find(".inv-amt").text(formatMoney(amount));
+            $(this).find(".inv-amt").text(fmt(amount));
         });
 
         const cgst = subtotal * 0.09;
         const sgst = subtotal * 0.09;
         const grandTotal = subtotal + cgst + sgst;
-        const roundedGrandTotal = Math.round(grandTotal);
 
-        $("#assessableValue").text(formatMoney(subtotal));
-        $("#subTotal").text(formatMoney(subtotal));
-        $("#cgstValue").text(formatMoney(cgst));
-        $("#sgstValue").text(formatMoney(sgst));
-        $("#grandTotal").text(formatMoney(grandTotal));
-        $("#amtWords").text(amountToWords(roundedGrandTotal));
+        $("#assessableValue").text(fmt(subtotal));
+        $("#subTotal").text(fmt(subtotal));
+        $("#cgstValue").text(fmt(cgst));
+        $("#sgstValue").text(fmt(sgst));
+        $("#grandTotal").text(fmt(grandTotal));
+        $("#amtWords").text(amountToWords(scrap ? grandTotal : Math.round(grandTotal)));
     }
 
     function renderRows(items) {
@@ -408,16 +416,21 @@
                 tbody.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
             }
             updateTotals();
+            $("#btnDownloadInvoicePdf").prop("disabled", true);
             return;
         }
 
+        $("#btnDownloadInvoicePdf").prop("disabled", false);
+
+        const scrap = isScrapProfile();
+        const fmt = scrap ? formatMoneyDecimal : formatMoney;
         items.forEach(function (item, index) {
             const qty = Number(item.qty || 0);
             const rate = Number(item.rate || 0);
             const editableRate = isRateEditableComponent(item.itemDescription || "");
             const rateCell = editableRate
-                ? `<input type="number" class="inv-rate-input" min="0" step="1" value="${Math.round(rate)}" />`
-                : `<span class="inv-rate text-center">${formatMoney(rate)}</span>`;
+                ? `<input type="number" class="inv-rate-input" min="0" step="0.01" value="${scrap ? rate : Math.round(rate)}" />`
+                : `<span class="inv-rate text-center">${fmt(rate)}</span>`;
             const row = `
                 <tr>
                     <td class="text-center">${index + 1}</td>
@@ -425,7 +438,7 @@
                     <td class="inv-qty text-center">${formatMoney(qty)}</td>
                     <td class="text-center">${item.unit || "-"}</td>
                     <td class="text-center">${rateCell}</td>
-                    <td class="inv-amt text-center">${formatMoney(0)}</td>
+                    <td class="inv-amt text-center">${fmt(0)}</td>
                 </tr>`;
             tbody.append(row);
         });
@@ -488,6 +501,7 @@
         });
 
         $("#btnLoadInvoiceData").on("click", function () {
+            const $btn = $(this);
             const selectedProfile = $("#invoiceProfileSelect").val();
             const startDate = $("#invFromDate").val();
             const endDate = $("#invToDate").val();
@@ -498,23 +512,31 @@
             }
 
             if (selectedProfile === "scrap") {
-                const qty = Number($("#scrapQty").val()) || 0;
+                const rawQty = Number($("#scrapQty").val()) || 0;
+                const qty = Math.floor(rawQty);
                 const rate = Number($("#scrapRatePerKg").val()) || 0;
+                if (rawQty !== qty) {
+                    notify("error", "Validation", "Scrap quantity must be a whole number.");
+                    return;
+                }
                 if (qty <= 0 || rate <= 0) {
                     notify("error", "Validation", "Please select scrap quantity and rate please");
                     return;
                 }
+                $("#scrapQty").val(qty);
                 renderRows(buildScrapRow());
                 notify("success", "Loaded", "Scrap invoice row prepared successfully.");
                 return;
             }
 
+            $btn.prop("disabled", true).text("Loading...");
             $.ajax({
                 url: "/Invoice/GetInvoiceLineItems",
                 type: "GET",
                 data: { startDate, endDate, invoiceProfile: selectedProfile },
                 dataType: "json",
                 success: function (res) {
+                    $btn.prop("disabled", false).text("Load Items");
                     if (!res.success) {
                         notify("error", "Error", res.message || "Failed to load invoice data.");
                         return;
@@ -523,12 +545,39 @@
                     notify("success", "Loaded", "Invoice items loaded successfully.");
                 },
                 error: function () {
+                    $btn.prop("disabled", false).text("Load Items");
                     notify("error", "Error", "Unable to fetch invoice data.");
                 }
             });
         });
 
         $("#btnDownloadInvoicePdf").on("click", async function () {
+            // Warn if any line item has a zero rate
+            let zeroRateFound = false;
+            $("#invoiceItemsTable tbody tr").each(function () {
+                const rateInput = $(this).find(".inv-rate-input");
+                const rateText = rateInput.length ? rateInput.val() : $(this).find(".inv-rate").text();
+                const rate = parseDisplayNumber(rateText);
+                const qty = parseDisplayNumber($(this).find(".inv-qty").text());
+                if (qty > 0 && rate === 0) {
+                    zeroRateFound = true;
+                    return false; // break
+                }
+            });
+
+            if (zeroRateFound) {
+                const result = await window.Swal.fire({
+                    icon: 'warning',
+                    title: 'Zero Rate Detected',
+                    text: 'One or more items have a rate of 0. Do you want to continue downloading?',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Download',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#f0a500'
+                });
+                if (!result.isConfirmed) return;
+            }
+
             await logInvoiceDownload();
             await downloadPdf();
         });

@@ -109,12 +109,14 @@ $(document).ready(function () {
 });
 
 function loadCurrentMonthSummary() {
+    $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('...');
     $.ajax({
         url: '/ChalanProcess/GetCurrentMonthSummary',
         type: 'GET',
         dataType: 'json',
         success: function (data) {
             if (!data || data.success === false) {
+                $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
                 updateSummaryCardsFromGridData(gridDataCache);
                 return;
             }
@@ -124,6 +126,7 @@ function loadCurrentMonthSummary() {
             $('#cardTotalRejectedMaterial').text(formatSummaryValue(data.totalRejectedMaterial));
         },
         error: function () {
+            $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
             updateSummaryCardsFromGridData(gridDataCache);
         }
     });
@@ -137,11 +140,20 @@ function toNumber(value) {
 function updateSummaryCardsFromGridData(list) {
     if (!Array.isArray(list) || list.length === 0) return;
 
+    var now = new Date();
+    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    monthStart.setHours(0, 0, 0, 0);
+    monthEnd.setHours(23, 59, 59, 999);
+
     var totalOut = 0;
     var totalPending = 0;
     var totalRej = 0;
     for (var i = 0; i < list.length; i++) {
         var it = list[i] || {};
+        var dt = new Date(it.date);
+        if (!(dt instanceof Date) || isNaN(dt.getTime())) continue;
+        if (dt < monthStart || dt > monthEnd) continue;
         totalOut += toNumber(it.outMaterialQuantity);
         totalPending += toNumber(it.pendingQuantity);
         totalRej += toNumber(it.rejectMaterialQuantity);
@@ -305,30 +317,6 @@ $('#btnEdit').on('click', function () {
 
 
 
-function loadImageAndOpenInNewTab(imagePath) {
-    $.ajax({
-        url: imagePath,
-        type: 'GET',
-        xhrFields: {
-            responseType: 'blob'
-        },
-        success: function (blob) {
-            var reader = new FileReader();
-            reader.onload = function () {
-                var dataUrl = reader.result;
-                var base64EncodedImage = dataUrl;
-
-                // Open the image in a new tab
-                var imageWindow = window.open();
-                imageWindow.document.write('<img src="' + base64EncodedImage + '"/>');
-            };
-            reader.readAsDataURL(blob);
-        },
-        error: function () {
-            console.error('Error loading image.');
-        }
-    });
-}
 
 
 
@@ -397,7 +385,12 @@ function InsertChalanDetails() {
             }
         },
         error: function (xhr, status, error) {
-            // Handle AJAX error
+            Swal.fire({
+                icon: 'error',
+                title: 'Save Error!',
+                text: 'Unable to save chalan. Please try again.',
+                confirmButtonColor: 'red'
+            });
         }
     });
 

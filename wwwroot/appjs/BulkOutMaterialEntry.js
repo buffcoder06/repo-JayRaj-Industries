@@ -1,4 +1,10 @@
-﻿$(document).ready(function () {
+﻿function safeParseFloat(value) {
+    var raw = String(value || '').replace(/,/g, '').trim();
+    var n = parseFloat(raw);
+    return isFinite(n) ? n : 0;
+}
+
+$(document).ready(function () {
 
 
     $('#idChalanProcessGrid').hide();
@@ -36,7 +42,7 @@ $('#ddlComponentnew').on('change', function () {
                 var totalPendingQty = 0; // Store total pending quantity
 
                 $.each(data, function (index, item) {
-                    totalPendingQty += parseFloat(item.pendingQuantity) || 0; // Summing up pending quantity
+                    totalPendingQty += safeParseFloat(item.pendingQuantity); // Summing up pending quantity
 
                     row += '<tr>';
                     var formattedDate = formatDate(item.date);
@@ -54,7 +60,7 @@ $('#ddlComponentnew').on('change', function () {
 
                 // Attach event listener to idTotAmount for allocation logic
                 $('#idTotAmount').off('input').on('input', function () {
-                    var totalAmount = parseFloat($(this).val()) || 0; // Get entered total amount
+                    var totalAmount = safeParseFloat($(this).val()); // Get entered total amount
                     var remainingAmount = totalAmount;
 
                     if (totalAmount > totalPendingQty) {
@@ -79,7 +85,7 @@ $('#ddlComponentnew').on('change', function () {
 
                     // Allocate amounts row by row
                     $('#tblchalanProcess tbody tr').each(function () {
-                        var pendingQty = parseFloat($(this).find('.pending-qty').text()) || 0;
+                        var pendingQty = safeParseFloat($(this).find('.pending-qty').text());
                         var allocatedAmount = Math.min(remainingAmount, pendingQty); // Allocate up to pending quantity
                         $(this).find('.amount-input').val(allocatedAmount); // Set value in input
                         remainingAmount -= allocatedAmount; // Reduce remaining amount
@@ -131,7 +137,7 @@ $('#idSubmit').on('click', function () {
         $('#tblchalanProcess tbody tr').each(function () {
             var hdrSeq = $(this).find('.chalan-number-link').attr('chalanProccessHdrSeq'); // Get hdrseq from anchor tag
             var pendingQty = $(this).find('.pending-qty').text().trim(); // Get pending quantity
-            var outMaterialQty = parseFloat($(this).find('.amount-input').val().trim()) || 0; // Convert to number
+            var outMaterialQty = safeParseFloat($(this).find('.amount-input').val()); // Convert to number
             var rejectMaterialQty = "0"; // You can add logic to handle reject material if needed
 
             // Only add records where Out Material Quantity > 0

@@ -1,8 +1,112 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="contComnDiv1">
+    <div class="secHeading">
+        <i class="fa fa-tachometer" aria-hidden="true"></i>
+        Dashboard &ndash; <span id="dashMonthLabel" style="font-weight:500; color:var(--primary, #2563eb);">Loading...</span>
+    </div>
+    <div class="row g-3 summaryCardsRow">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="summaryCard">
+                <div class="summaryCard__label">Incoming Chalans</div>
+                <div class="summaryCard__value" id="dashIncomingChalan">—</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="summaryCard">
+                <div class="summaryCard__label">Total Out Material</div>
+                <div class="summaryCard__value" id="dashTotalOutMaterial">—</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="summaryCard">
+                <div class="summaryCard__label">Total Pending Material</div>
+                <div class="summaryCard__value" id="dashTotalPendingMaterial">—</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <div class="summaryCard">
+                <div class="summaryCard__label">Total Rejected Material</div>
+                <div class="summaryCard__value" id="dashTotalRejectedMaterial">—</div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="contComnDiv1">
+    <div class="secHeading">
+        <i class="fa fa-th-large" aria-hidden="true"></i>
+        Modules
+    </div>
+    <div class="row g-3">
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <a asp-controller="ChalanProcess" asp-action="Index" class="dash-nav-card">
+                <div class="dash-nav-card__icon"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
+                <div class="dash-nav-card__title">Chalan Process</div>
+                <div class="dash-nav-card__sub">Manage incoming &amp; outgoing chalans</div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <a asp-controller="GetDatewiseData" asp-action="Index" class="dash-nav-card">
+                <div class="dash-nav-card__icon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
+                <div class="dash-nav-card__title">Datewise Status</div>
+                <div class="dash-nav-card__sub">View in / out / pending by date range</div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <a asp-controller="BulkOutMaterialEntry" asp-action="Index" class="dash-nav-card">
+                <div class="dash-nav-card__icon"><i class="fa fa-upload" aria-hidden="true"></i></div>
+                <div class="dash-nav-card__title">Out Material Entry</div>
+                <div class="dash-nav-card__sub">Bulk out material entry by component</div>
+            </a>
+        </div>
+        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
+            <a asp-controller="Invoice" asp-action="Index" class="dash-nav-card">
+                <div class="dash-nav-card__icon"><i class="fa fa-file-text" aria-hidden="true"></i></div>
+                <div class="dash-nav-card__title">Invoice Generation</div>
+                <div class="dash-nav-card__sub">Generate &amp; download tax invoices</div>
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/ChalanProcess/GetCurrentMonthSummary',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                if (!data || data.success === false) {
+                    setDashError();
+                    return;
+                }
+                $('#dashMonthLabel').text(data.monthLabel || '');
+                $('#dashIncomingChalan').text(formatDashValue(data.incomingChalanCount));
+                $('#dashTotalOutMaterial').text(formatDashValue(data.totalOutMaterial));
+                $('#dashTotalPendingMaterial').text(formatDashValue(data.totalPendingMaterial));
+                $('#dashTotalRejectedMaterial').text(formatDashValue(data.totalRejectedMaterial));
+            },
+            error: function () {
+                setDashError();
+            }
+        });
+
+        function setDashError() {
+            $('#dashMonthLabel').text('Current Month');
+            $('#dashIncomingChalan, #dashTotalOutMaterial, #dashTotalPendingMaterial, #dashTotalRejectedMaterial').text('—');
+        }
+
+        function formatDashValue(value) {
+            var n = Number(value);
+            if (!isFinite(n)) return '0';
+            if (Math.floor(n) === n) return n.toLocaleString('en-IN');
+            return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+    });
+</script>
+}

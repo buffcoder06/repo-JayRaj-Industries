@@ -207,8 +207,17 @@ async function downloadPendingModalPdf() {
     doc.setLineWidth(0.25);
     doc.line(subtitleX - (subtitleWidth / 2), subtitleY + 1.2, subtitleX + (subtitleWidth / 2), subtitleY + 1.2);
 
+    var fromDateRaw = $('#txtFromDate').val() || '';
+    var toDateRaw = $('#txtToDate').val() || '';
+    var fromDateDisplay = fromDateRaw ? formatPdfDate(fromDateRaw) : '-';
+    var toDateDisplay = toDateRaw ? formatPdfDate(toDateRaw) : '-';
+    doc.setFont('times', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Period: ' + fromDateDisplay + '  to  ' + toDateDisplay, subtitleX, 35, { align: 'center' });
+
     doc.autoTable({
-        startY: 32,
+        startY: 38,
         head: [['Sr.No', 'Material code & Description', 'Pending Material']],
         body: tableRows,
         theme: 'grid',
@@ -238,6 +247,14 @@ async function downloadPendingModalPdf() {
         signImageData = await loadImageAsDataUrl('/images/abhi_dada-sign-original.png');
     } catch (e) {
         console.warn('Unable to load signature image for pending PDF.', e);
+        if (window.Swal && typeof window.Swal.fire === "function") {
+            await window.Swal.fire({
+                icon: 'warning',
+                title: 'Signature Not Loaded',
+                text: 'Signature image could not be loaded. PDF will be generated without it.',
+                confirmButtonColor: '#f0a500'
+            });
+        }
     }
 
     doc.setFont('times', 'bold');

@@ -68,7 +68,11 @@ public class ApplicationAuditDAL
 
         try
         {
+            using SqlConnection con = new SqlConnection(_connectionString);
+            con.Open();
+
             long headerId = InsertInvoiceAuditHeader(
+                con,
                 startDate,
                 endDate,
                 invoiceProfile,
@@ -88,7 +92,7 @@ public class ApplicationAuditDAL
 
             foreach (var item in items)
             {
-                InsertInvoiceAuditDetail(headerId, item);
+                InsertInvoiceAuditDetail(con, headerId, item);
             }
         }
         catch
@@ -98,6 +102,7 @@ public class ApplicationAuditDAL
     }
 
     private long InsertInvoiceAuditHeader(
+        SqlConnection con,
         string? startDate,
         string? endDate,
         string? invoiceProfile,
@@ -115,7 +120,6 @@ public class ApplicationAuditDAL
         string? controllerName,
         string? sourceAction)
     {
-        using SqlConnection con = new SqlConnection(_connectionString);
         using SqlCommand cmd = new SqlCommand("sp_InsertInvoiceAuditHeader", con);
         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -142,15 +146,13 @@ public class ApplicationAuditDAL
         };
         cmd.Parameters.Add(outputParam);
 
-        con.Open();
         cmd.ExecuteNonQuery();
 
         return outputParam.Value == DBNull.Value ? 0 : Convert.ToInt64(outputParam.Value);
     }
 
-    private void InsertInvoiceAuditDetail(long headerId, InvoiceLineItem item)
+    private void InsertInvoiceAuditDetail(SqlConnection con, long headerId, InvoiceLineItem item)
     {
-        using SqlConnection con = new SqlConnection(_connectionString);
         using SqlCommand cmd = new SqlCommand("sp_InsertInvoiceAuditDetail", con);
         cmd.CommandType = CommandType.StoredProcedure;
 
@@ -162,7 +164,6 @@ public class ApplicationAuditDAL
         cmd.Parameters.AddWithValue("@Rate", item.Rate);
         cmd.Parameters.AddWithValue("@Amount", item.Amount);
 
-        con.Open();
         cmd.ExecuteNonQuery();
     }
 
