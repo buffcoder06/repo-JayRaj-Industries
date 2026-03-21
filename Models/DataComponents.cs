@@ -12,7 +12,8 @@ namespace JayRaj_Industries.Models
         {
 
             // Initialize the DAL with the connection string
-            _connectionString = configuration["ConnectionStrings:Jayraj_Industries"].ToString();
+            _connectionString = configuration["ConnectionStrings:Jayraj_Industries"]
+                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' not found in configuration.");
 
         }
             private void ExecuteNonQuery(string storedProcedure, params SqlParameter[] parameters)

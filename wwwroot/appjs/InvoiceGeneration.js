@@ -1,5 +1,6 @@
 (function () {
     const FIXED_PO_DATE_VALUE = "2025-10-01";
+    const JAYRAJ_CHAKAN_ADDRESS = "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501";
 
     function numberToWordsUnder1000(num) {
         const ones = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten",
@@ -61,21 +62,24 @@
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
-            poNo: "JW/252600012"
+            poNo: "JW/252600012",
+            hsnCode: ""
         },
         kundalik_engineers: {
             billTo: "KUNDALIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
             partyPan: "AACCK6309H",
-            poNo: "JW/252600006"
+            poNo: "JW/252600006",
+            hsnCode: ""
         },
         scrap: {
             billTo: "STEEL TRADE",
             billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
-            poNo: ""
+            poNo: "",
+            hsnCode: ""
         }
     };
 
@@ -86,7 +90,8 @@
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
             poNo: "JW/252600012",
-            allowManualPoNo: false
+            allowManualPoNo: false,
+            hsnCode: ""
         },
         steel_trade: {
             billTo: "STEEL TRADE",
@@ -94,7 +99,8 @@
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: "",
-            allowManualPoNo: true
+            allowManualPoNo: true,
+            hsnCode: "72044900"
         }
     };
 
@@ -284,10 +290,18 @@
     function syncHeader() {
         setPoDateByContext();
         updatePoDateEditState();
+        const profileKey = $("#invoiceProfileSelect").val();
+        const selectedParty = $("#scrapPartySelect").val() || "kundalik_automation";
+        const hsnCode = profileKey === "scrap"
+            ? ((scrapParties[selectedParty] && scrapParties[selectedParty].hsnCode) || "")
+            : ((invoiceProfiles[profileKey] && invoiceProfiles[profileKey].hsnCode) || "");
+        const companyTopAddress = isSteelTradeScrapCase()
+            ? JAYRAJ_CHAKAN_ADDRESS
+            : ($("#billAddress").val() || "");
 
         $("#pBillTo").text($("#billTo").val() || "");
         $("#pBillAddress").text($("#billAddress").val() || "");
-        $("#pCompanyTopAddress").text($("#billAddress").val() || "");
+        $("#pCompanyTopAddress").text(companyTopAddress);
         $("#pPartyGst").text($("#partyGst").val() || "");
         const hidePan = isSteelTradeScrapCase();
         $("#pPartyPanRow").toggle(!hidePan);
@@ -296,6 +310,7 @@
         $("#pInvDate").text(formatDisplayDate($("#invDate").val() || ""));
         $("#pPoNo").text($("#poNo").val() || "");
         $("#pPoDate").text(formatDisplayDate($("#poDate").val() || ""));
+        $("#pHsnCode").text(hsnCode);
     }
 
     function updateAuthorisedSignatureVisibility() {
@@ -337,6 +352,13 @@
         updatePoDateEditState();
     }
 
+    function normalizeScrapDescription() {
+        const current = ($("#scrapDescription").val() || "").trim();
+        if (!current || current.toLowerCase() === "scrap bill month") {
+            $("#scrapDescription").val("Casting Scrap");
+        }
+    }
+
     function applyInvoiceProfile(profileKey) {
         const profile = invoiceProfiles[profileKey] || invoiceProfiles.kundalik_automation;
         const isScrap = profileKey === "scrap";
@@ -345,6 +367,7 @@
         setStaticFieldLocks();
 
         if (isScrap) {
+            normalizeScrapDescription();
             setPoDateByContext();
             applyScrapParty();
         } else {
@@ -363,7 +386,7 @@
 
     function buildScrapRow() {
         const invoiceDate = $("#invDate").val();
-        const desc = $("#scrapDescription").val() || "Scrap Bill Month";
+        const desc = $("#scrapDescription").val() || "Casting Scrap";
         const qty = Number($("#scrapQty").val()) || 0;
         const rate = Number($("#scrapRatePerKg").val()) || 0;
         const formattedInvoiceDate = formatDisplayDate(invoiceDate);
@@ -373,7 +396,7 @@
             srNo: 1,
             itemDescription: `${desc}${period}`,
             qty: qty,
-            unit: "-",
+            unit: "Kg",
             rate: rate
         }];
     }
@@ -409,10 +432,16 @@
         const tbody = $("#invoiceItemsTable tbody");
         tbody.empty();
         const minVisibleRows = 12;
+        const entryStartOffset = 1;
+
+        function appendEntrySpacerRow() {
+            tbody.append("<tr class='invoice-entry-spacer'><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
+        }
 
         if (!items || items.length === 0) {
+            appendEntrySpacerRow();
             tbody.append("<tr><td colspan='6' class='text-center'>No data found for selected date range</td></tr>");
-            for (let i = 1; i < minVisibleRows; i++) {
+            for (let i = 1 + entryStartOffset; i < minVisibleRows; i++) {
                 tbody.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
             }
             updateTotals();
@@ -424,6 +453,7 @@
 
         const scrap = isScrapProfile();
         const fmt = scrap ? formatMoneyDecimal : formatMoney;
+        appendEntrySpacerRow();
         items.forEach(function (item, index) {
             const qty = Number(item.qty || 0);
             const rate = Number(item.rate || 0);
@@ -443,7 +473,7 @@
             tbody.append(row);
         });
 
-        for (let i = items.length; i < minVisibleRows; i++) {
+        for (let i = items.length + entryStartOffset; i < minVisibleRows; i++) {
             tbody.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
         }
 
