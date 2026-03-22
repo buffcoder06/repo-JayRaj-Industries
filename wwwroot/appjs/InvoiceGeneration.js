@@ -93,6 +93,15 @@
             allowManualPoNo: false,
             hsnCode: ""
         },
+        kundalik_engineers: {
+            billTo: "KUNDALIK ENGINEERS",
+            billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
+            partyGst: "27CQGPK7226L1ZF",
+            partyPan: "AACCK6309H",
+            poNo: "JW/252600006",
+            allowManualPoNo: false,
+            hsnCode: ""
+        },
         steel_trade: {
             billTo: "STEEL TRADE",
             billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
