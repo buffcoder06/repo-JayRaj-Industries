@@ -146,41 +146,20 @@ namespace JayRaj_Industries.Controllers
                 var monthStart = new DateTime(now.Year, now.Month, 1);
                 var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-                DataTable totals = _chalanProcessDAL.GetTotalComponentDetails(
-                    monthStart.ToString("yyyy-MM-dd"),
-                    monthEnd.ToString("yyyy-MM-dd"));
-                DataTable inTotals = _chalanProcessDAL.GetTotalInComponentDetails(
-                    monthStart.ToString("yyyy-MM-dd"),
-                    monthEnd.ToString("yyyy-MM-dd"));
                 DataTable overallTotals = _chalanProcessDAL.GetTotalComponentDetails();
 
                 decimal totalOutMaterial = 0m;
-                decimal totalPendingMaterialFromColumn = 0m;
                 decimal totalRejectedMaterial = 0m;
                 decimal totalInMaterial = 0m;
+                decimal totalPendingMaterial = 0m;
 
-                foreach (DataRow row in totals.Rows)
-                {
-                    totalOutMaterial += GetFirstDecimal(row, "MaterialOutQuantity", "materialOutQuantity", "f_OutMaterial_Quantity");
-                    totalPendingMaterialFromColumn += GetFirstDecimal(row, "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
-                    totalRejectedMaterial += GetFirstDecimal(row, "MaterialRejQuantity", "materialRejQuantity", "f_RejectMaterial_Quantity");
-                }
-
-                foreach (DataRow row in inTotals.Rows)
-                {
-                    totalInMaterial += GetFirstDecimal(row, "MaterialInQuantity", "materialInQuantity", "f_Actual_InMaterial_Quantity");
-                }
-
-                decimal livePendingAcrossAllComponents = 0m;
                 foreach (DataRow row in overallTotals.Rows)
                 {
-                    livePendingAcrossAllComponents += GetFirstDecimal(row, "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
+                    totalInMaterial += GetFirstDecimal(row, "MaterialInQuantity", "materialInQuantity", "f_Actual_InMaterial_Quantity");
+                    totalOutMaterial += GetFirstDecimal(row, "MaterialOutQuantity", "materialOutQuantity", "f_OutMaterial_Quantity");
+                    totalRejectedMaterial += GetFirstDecimal(row, "MaterialRejQuantity", "materialRejQuantity", "f_RejectMaterial_Quantity");
+                    totalPendingMaterial += GetFirstDecimal(row, "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
                 }
-
-                var computedPending = Math.Max(0m, totalInMaterial - totalOutMaterial - totalRejectedMaterial);
-                var totalPendingMaterial = livePendingAcrossAllComponents > 0m
-                    ? livePendingAcrossAllComponents
-                    : (totalPendingMaterialFromColumn > 0m ? totalPendingMaterialFromColumn : computedPending);
 
                 var allChalans = _chalanProcessDAL.GetAllChalanProcessData(null);
                 int incomingChalanCount = allChalans.Count(c =>
@@ -192,6 +171,7 @@ namespace JayRaj_Industries.Controllers
                 {
                     success = true,
                     incomingChalanCount,
+                    totalInMaterial,
                     totalOutMaterial,
                     totalPendingMaterial,
                     totalRejectedMaterial,

@@ -109,24 +109,25 @@ $(document).ready(function () {
 });
 
 function loadCurrentMonthSummary() {
-    $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('...');
+    $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('...');
     $.ajax({
         url: '/ChalanProcess/GetCurrentMonthSummary',
         type: 'GET',
         dataType: 'json',
         success: function (data) {
             if (!data || data.success === false) {
-                $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
+                $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
                 updateSummaryCardsFromGridData(gridDataCache);
                 return;
             }
 
+            $('#cardTotalInMaterial').text(formatSummaryValue(data.totalInMaterial));
             $('#cardTotalOutMaterial').text(formatSummaryValue(data.totalOutMaterial));
             $('#cardTotalPendingMaterial').text(formatSummaryValue(data.totalPendingMaterial));
             $('#cardTotalRejectedMaterial').text(formatSummaryValue(data.totalRejectedMaterial));
         },
         error: function () {
-            $('#cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
+            $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
             updateSummaryCardsFromGridData(gridDataCache);
         }
     });
@@ -146,6 +147,7 @@ function updateSummaryCardsFromGridData(list) {
     monthStart.setHours(0, 0, 0, 0);
     monthEnd.setHours(23, 59, 59, 999);
 
+    var totalIn = 0;
     var totalOut = 0;
     var totalPending = 0;
     var totalRej = 0;
@@ -154,11 +156,13 @@ function updateSummaryCardsFromGridData(list) {
         var dt = new Date(it.date);
         if (!(dt instanceof Date) || isNaN(dt.getTime())) continue;
         if (dt < monthStart || dt > monthEnd) continue;
+        totalIn += toNumber(it.actualInMaterialQuantity);
         totalOut += toNumber(it.outMaterialQuantity);
         totalPending += toNumber(it.pendingQuantity);
         totalRej += toNumber(it.rejectMaterialQuantity);
     }
 
+    $('#cardTotalInMaterial').text(formatSummaryValue(totalIn));
     $('#cardTotalOutMaterial').text(formatSummaryValue(totalOut));
     $('#cardTotalPendingMaterial').text(formatSummaryValue(totalPending));
     $('#cardTotalRejectedMaterial').text(formatSummaryValue(totalRej));

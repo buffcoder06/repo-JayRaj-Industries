@@ -34,18 +34,24 @@ function GetTotalComponentDetails(startDate, endDate) {
             var tbody = $('#tblTotalDtls tbody');
             tbody.empty(); // Clear existing rows
             var html = "";
+            var totalOutQty = 0, totalRejQty = 0;
             $.each(data, function (index, item) {
                 html += '<tr>';
-                html += '<td>' + (index + 1) + '</td>';
+                html += '<td style="text-align:center">' + (index + 1) + '</td>';
                 html += '<td>' + item.f_Component_Desc + '</td>';
-                // html += '<td>' + item.MaterialInQuantity.toLocaleString() + '</td>';
                 var outQty = getFirstValue(item, ['MaterialOutQuantity', 'materialOutQuantity', 'f_OutMaterial_Quantity'], 0);
-                html += '<td>' + formatNumber(outQty) + '</td>'; 
+                totalOutQty += parseToNumber(outQty);
+                html += '<td>' + formatNumber(outQty) + '</td>';
                 var rejQty = getFirstValue(item, ['MaterialRejQuantity', 'materialRejQuantity', 'f_RejectMaterial_Quantity'], 0);
-                html += '<td>' + formatNumber(rejQty) + '</td>'; 
-                // html += '<td>' + item.PendingQuantity.toLocaleString() + '</td>';
+                totalRejQty += parseToNumber(rejQty);
+                html += '<td>' + formatNumber(rejQty) + '</td>';
                 html += '</tr>';
             });
+            html += '<tr style="font-weight:bold;background-color:#f5f5f5;">';
+            html += '<td colspan="2" style="text-align:right">Total</td>';
+            html += '<td>' + formatNumber(totalOutQty) + '</td>';
+            html += '<td>' + formatNumber(totalRejQty) + '</td>';
+            html += '</tr>';
             tbody.html(html); // Insert the new rows
         },
         error: function (xhr, status, error) {
@@ -98,13 +104,19 @@ function GetTotalPenComponentDetails() {
             tbody.empty();
 
             var html = "";
+            var totalPendingQty = 0;
             $.each(rows, function (index, row) {
                 html += '<tr>';
-                html += '<td>' + (index + 1) + '</td>';
+                html += '<td style="text-align:center">' + (index + 1) + '</td>';
                 html += '<td>' + row.component + '</td>';
+                totalPendingQty += row.pendingQty;
                 html += '<td>' + formatNumber(row.pendingQty) + '</td>';
                 html += '</tr>';
             });
+            html += '<tr style="font-weight:bold;background-color:#f5f5f5;">';
+            html += '<td colspan="2" style="text-align:right">Total</td>';
+            html += '<td>' + formatNumber(totalPendingQty) + '</td>';
+            html += '</tr>';
 
             tbody.html(html);
         },
@@ -132,17 +144,20 @@ function GetTotalInComponentDetails(startDate, endDate) {
             var tbody = $('#tblTotalInDtls tbody');
             tbody.empty(); // Clear existing rows
             var html = "";
+            var totalInQty = 0;
             $.each(data, function (index, item) {
                 html += '<tr>';
-                html += '<td>' + (index + 1) + '</td>';
+                html += '<td style="text-align:center">' + (index + 1) + '</td>';
                 html += '<td>' + item.f_Component_Desc + '</td>';
-                // html += '<td>' + item.MaterialInQuantity.toLocaleString() + '</td>';
                 var inQty = getFirstValue(item, ['MaterialInQuantity', 'materialInQuantity', 'f_Actual_InMaterial_Quantity'], 0);
-                html += '<td>' + formatNumber(inQty) + '</td>'; 
-                //html += '<td>' + item.MaterialRejQuantity.toLocaleString() + '</td>';
-                // html += '<td>' + item.PendingQuantity.toLocaleString() + '</td>';
+                totalInQty += parseToNumber(inQty);
+                html += '<td>' + formatNumber(inQty) + '</td>';
                 html += '</tr>';
             });
+            html += '<tr style="font-weight:bold;background-color:#f5f5f5;">';
+            html += '<td colspan="2" style="text-align:right">Total</td>';
+            html += '<td>' + formatNumber(totalInQty) + '</td>';
+            html += '</tr>';
             tbody.html(html); // Insert the new rows
         },
         error: function (xhr, status, error) {
@@ -190,6 +205,18 @@ async function downloadPendingModalPdf() {
     var doc = new jsPDF('p', 'mm', 'a4');
     var pageWidth = doc.internal.pageSize.getWidth();
     var pageHeight = doc.internal.pageSize.getHeight();
+
+    var logoImageData = null;
+    try {
+        logoImageData = await loadImageAsDataUrl('/images/jr_logo.png');
+    } catch (e) {
+        console.warn('Unable to load logo image for pending PDF.', e);
+    }
+
+    if (logoImageData) {
+        doc.addImage(logoImageData, 'PNG', 10, 6, 20, 20);
+    }
+
     doc.setFont('times', 'bold');
     doc.setFontSize(14);
     doc.setTextColor(193, 18, 31);

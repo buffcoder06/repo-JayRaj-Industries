@@ -69,7 +69,7 @@
             billTo: "KUNDALIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
-            partyPan: "AACCK6309H",
+            partyPan: "CQGPK7226L",
             poNo: "JW/252600006",
             hsnCode: ""
         },
@@ -97,7 +97,7 @@
             billTo: "KUNDALIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
-            partyPan: "AACCK6309H",
+            partyPan: "CQGPK7226L",
             poNo: "JW/252600006",
             allowManualPoNo: false,
             hsnCode: ""

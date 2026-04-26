@@ -181,7 +181,7 @@ namespace JayRaj_Industries.Controllers
         {
             var rates = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
             {
-                ["JLWDREARDIFFCASE10013474030"] = 8.00m,
+                ["JLWDREARDIFFCASE10013476030"] = 8.00m,
                 ["JCASEDIFFERENTIAL40112573"] = 7.00m,
                 ["JPDIFFCASE11204001619PDNS3404145012"] = 1.00m,
                 ["JDIFFCASEELDSFM180FLANGEHALF10019886"] = 5.00m,
