@@ -115,6 +115,7 @@ D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\staticwebassets.development.json
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\swae.build.ex.cache
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\JayRaj_I.87323025.Up2Date
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\JayRaj_Industries.dll
 D:\JayRaj_Industries_v1\Original_Sql_Project\JaiRaj_Industries\obj\Debug\net8.0\refint\JayRaj_Industries.dll

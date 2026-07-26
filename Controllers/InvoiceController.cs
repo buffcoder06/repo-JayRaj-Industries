@@ -22,6 +22,11 @@ namespace JayRaj_Industries.Controllers
             "JP375REARDIFFCASE10043998"
         };
 
+        private static readonly HashSet<string> KundalikEngineersAllowedComponents = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"
+        };
+
         public InvoiceController(IConfiguration configuration, ILogger<InvoiceController> logger)
         {
             _logger = logger;
@@ -73,7 +78,7 @@ namespace JayRaj_Industries.Controllers
                         SrNo = srNo++,
                         ItemDescription = description,
                         Qty = qty,
-                        Unit = "-",
+                        Unit = "Nos",
                         Rate = GetDefaultRate(description)
                     });
                 }
@@ -144,7 +149,12 @@ namespace JayRaj_Industries.Controllers
             }
 
             var normalized = NormalizeComponent(description);
-            return normalized.Contains("JLWDREF") || normalized.Contains("JLWD");
+            if (normalized.Contains("JLWDREF") || normalized.Contains("JLWD"))
+            {
+                return true;
+            }
+
+            return KundalikEngineersAllowedComponents.Any(allowed => normalized.Contains(allowed));
         }
 
         private static bool IsKundalikAutomationComponent(string description)
@@ -189,7 +199,8 @@ namespace JayRaj_Industries.Controllers
                 ["JDIFFCASES20DC104"] = 6.00m,
                 ["JDIFFCASE32931"] = 6.00m,
                 ["JP375REARDIFFCASE10043997"] = 9.00m,
-                ["JP375REARDIFFCASE10043998"] = 9.00m
+                ["JP375REARDIFFCASE10043998"] = 9.00m,
+                ["JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"] = 5.00m
             };
 
             var normalized = NormalizeComponent(itemDescription);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -71,6 +72,13 @@ namespace JayRaj_Industries.Controllers
 
                 return Json(new { success = true, message = "Data inserted successfully" });
             }
+            catch (SqlException sqlEx) when (sqlEx.Number == 50000)
+            {
+                // Custom validation raised by the stored procedure (e.g. duplicate chalan number).
+                LogExceptionToDatabase(nameof(InsertChalanProcess), sqlEx);
+                _logger.LogWarning(sqlEx, "Chalan process insert rejected by validation.");
+                return Json(new { success = false, message = sqlEx.Message });
+            }
             catch (Exception ex)
             {
                 LogExceptionToDatabase(nameof(InsertChalanProcess), ex);
@@ -128,6 +136,13 @@ namespace JayRaj_Industries.Controllers
                     success = result,
                     message = result ? "Insert successful" : "Insert failed"
                 });
+            }
+            catch (SqlException sqlEx) when (sqlEx.Number == 50000)
+            {
+                // Custom validation raised by the stored procedure (e.g. older pending orders for the component).
+                LogExceptionToDatabase(nameof(InsertChalanProcessDtls), sqlEx, $"chalanProcessHdrseq={chalanProcessHdrseq}");
+                _logger.LogWarning(sqlEx, "Chalan process details insert rejected by validation. chalanProcessHdrseq={ChalanProcessHdrseq}", chalanProcessHdrseq);
+                return Json(new { success = false, message = sqlEx.Message });
             }
             catch (Exception ex)
             {

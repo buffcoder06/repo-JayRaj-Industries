@@ -218,6 +218,7 @@
 }
 
 .invoice-company {
+  font-family: "Spectral", Georgia, serif;
   font-size: 2.12rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -624,6 +625,7 @@
 }
 
 .custmModal .modal-title-stack .modal-title-top {
+  font-family: "Spectral", Georgia, serif;
   font-weight: 800;
   letter-spacing: 0.02em;
   color: #c1121f;
@@ -956,6 +958,7 @@
 
 /* Invoice sign heading: "For JAYRAJ INDUSTRIES" */
 .invoice-sign .right > div:first-child strong {
+  font-family: "Spectral", Georgia, serif;
   color: #c1121f;
 }
 

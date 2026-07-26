@@ -799,4 +799,5 @@ body.app-body{
 /* Brand heading color */
 .app-sidebar__title{
   color: #c1121f !important;
+  font-family: "Spectral", Georgia, serif !important;
 }

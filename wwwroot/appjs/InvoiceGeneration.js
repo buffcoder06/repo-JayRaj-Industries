@@ -58,7 +58,7 @@
 
     const invoiceProfiles = {
         kundalik_automation: {
-            billTo: "KUNDALIK AUTOMATION PVT. LTD",
+            billTo: "KUNDLIK AUTOMATION PVT. LTD",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
@@ -66,7 +66,7 @@
             hsnCode: ""
         },
         kundalik_engineers: {
-            billTo: "KUNDALIK ENGINEERS",
+            billTo: "KUNDLIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
             partyPan: "CQGPK7226L",
@@ -75,7 +75,7 @@
         },
         scrap: {
             billTo: "STEEL TRADE",
-            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
+            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: "",
@@ -85,7 +85,7 @@
 
     const scrapParties = {
         kundalik_automation: {
-            billTo: "KUNDALIK AUTOMATION PVT. LTD",
+            billTo: "KUNDLIK AUTOMATION PVT. LTD",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27AACCK6309H1ZK",
             partyPan: "AACCK6309H",
@@ -94,7 +94,7 @@
             hsnCode: ""
         },
         kundalik_engineers: {
-            billTo: "KUNDALIK ENGINEERS",
+            billTo: "KUNDLIK ENGINEERS",
             billAddress: "GAT NO.624/9, Kuruli Village, Alandi Phata, Chakan, Tal. Khed, Dist. Pune - 410501",
             partyGst: "27CQGPK7226L1ZF",
             partyPan: "CQGPK7226L",
@@ -104,7 +104,7 @@
         },
         steel_trade: {
             billTo: "STEEL TRADE",
-            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 412105",
+            billAddress: "GAT NO.- 61, Chimbali, Tal Khed, Pune - 410501",
             partyGst: "27APFPC9110F2Z9",
             partyPan: "APFPC9110F",
             poNo: "",
@@ -220,7 +220,9 @@
         const normalized = String(description || "")
             .toUpperCase()
             .replace(/[^A-Z0-9]/g, "");
-        return normalized.includes("JP375REARDIFFCASE10043997") || normalized.includes("JP375REARDIFFCASE10043998");
+        return normalized.includes("JP375REARDIFFCASE10043997") ||
+            normalized.includes("JP375REARDIFFCASE10043998") ||
+            normalized.includes("JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE");
     }
 
     function setToday(id) {
@@ -315,6 +317,9 @@
         const hidePan = isSteelTradeScrapCase();
         $("#pPartyPanRow").toggle(!hidePan);
         $("#pPartyPan").text(hidePan ? "" : ($("#partyPan").val() || ""));
+        const showVehicleNo = isSteelTradeScrapCase();
+        $("#pVehicleNoRow").toggle(showVehicleNo);
+        $("#pVehicleNo").text(showVehicleNo ? ($("#scrapVehicleNo").val() || "") : "");
         $("#pInvNo").text($("#invNo").val() || "");
         $("#pInvDate").text(formatDisplayDate($("#invDate").val() || ""));
         $("#pPoNo").text($("#poNo").val() || "");
@@ -328,7 +333,7 @@
 
         if (profileKey === "scrap") {
             const selectedParty = $("#scrapPartySelect").val() || "kundalik_automation";
-            showSignature = selectedParty === "kundalik_automation";
+            showSignature = selectedParty !== "steel_trade";
         }
 
         $(".authorised-sign-img").toggle(showSignature);
@@ -342,6 +347,10 @@
         $("#billAddress").val(party.billAddress);
         $("#partyGst").val(party.partyGst);
         $("#partyPan").val(selectedParty === "steel_trade" ? "" : party.partyPan);
+        $("#scrapVehicleSection").toggle(selectedParty === "steel_trade");
+        if (selectedParty !== "steel_trade") {
+            $("#scrapVehicleNo").val("");
+        }
 
         if (!party.allowManualPoNo) {
             $("#poNo").val(party.poNo);
@@ -474,7 +483,7 @@
                 <tr>
                     <td class="text-center">${index + 1}</td>
                     <td>${item.itemDescription || ""}</td>
-                    <td class="inv-qty text-center">${formatMoney(qty)}</td>
+                    <td class="inv-qty text-center">${fmt(qty)}</td>
                     <td class="text-center">${item.unit || "-"}</td>
                     <td class="text-center">${rateCell}</td>
                     <td class="inv-amt text-center">${fmt(0)}</td>
@@ -528,7 +537,7 @@
         $("#invNo").val(getFinancialYearPrefix(new Date()));
         applyInvoiceProfile($("#invoiceProfileSelect").val());
 
-        $("#billTo, #billAddress, #partyGst, #partyPan, #invNo, #invDate, #poNo, #poDate").on("input change", syncHeader);
+        $("#billTo, #billAddress, #partyGst, #partyPan, #invNo, #invDate, #poNo, #poDate, #scrapVehicleNo").on("input change", syncHeader);
         $(document).on("input change", ".inv-rate-input", updateTotals);
         $("#scrapPartySelect").on("change", function () {
             if ($("#invoiceProfileSelect").val() === "scrap") {
@@ -551,13 +560,8 @@
             }
 
             if (selectedProfile === "scrap") {
-                const rawQty = Number($("#scrapQty").val()) || 0;
-                const qty = Math.floor(rawQty);
+                const qty = Number($("#scrapQty").val()) || 0;
                 const rate = Number($("#scrapRatePerKg").val()) || 0;
-                if (rawQty !== qty) {
-                    notify("error", "Validation", "Scrap quantity must be a whole number.");
-                    return;
-                }
                 if (qty <= 0 || rate <= 0) {
                     notify("error", "Validation", "Please select scrap quantity and rate please");
                     return;
