@@ -436,14 +436,14 @@
 
         const cgst = subtotal * 0.09;
         const sgst = subtotal * 0.09;
-        const grandTotal = subtotal + cgst + sgst;
+        const grandTotal = Math.round(subtotal + cgst + sgst);
 
         $("#assessableValue").text(fmt(subtotal));
         $("#subTotal").text(fmt(subtotal));
         $("#cgstValue").text(fmt(cgst));
         $("#sgstValue").text(fmt(sgst));
-        $("#grandTotal").text(fmt(grandTotal));
-        $("#amtWords").text(amountToWords(scrap ? grandTotal : Math.round(grandTotal)));
+        $("#grandTotal").text(formatMoney(grandTotal));
+        $("#amtWords").text(amountToWords(grandTotal));
     }
 
     function renderRows(items) {
