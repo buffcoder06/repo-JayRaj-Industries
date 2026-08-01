@@ -200,7 +200,7 @@ namespace JayRaj_Industries.Controllers
                 ["JDIFFCASE32931"] = 6.00m,
                 ["JP375REARDIFFCASE10043997"] = 9.00m,
                 ["JP375REARDIFFCASE10043998"] = 9.00m,
-                ["JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"] = 5.00m
+                ["JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"] = 7.00m
             };
 
             var normalized = NormalizeComponent(itemDescription);

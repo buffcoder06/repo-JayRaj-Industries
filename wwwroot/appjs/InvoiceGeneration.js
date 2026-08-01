@@ -134,9 +134,12 @@
             if (tds.length < 6) return;
 
             const srText = $(tds[0]).text().trim();
-            const desc = $(tds[1]).text().trim();
-            const qtyText = $(tds[2]).text().trim();
-            const unit = $(tds[3]).text().trim() || "-";
+            const descInput = $(tds[1]).find(".inv-desc-input");
+            const desc = descInput.length ? (descInput.text() || "").trim() : $(tds[1]).text().trim();
+            const qtyInput = $(tds[2]).find(".inv-qty-input");
+            const qtyText = qtyInput.length ? qtyInput.val() : $(tds[2]).text().trim();
+            const unitInput = $(tds[3]).find(".inv-unit-input");
+            const unit = (unitInput.length ? unitInput.val() : $(tds[3]).text().trim()) || "-";
             const rateInput = $(tds[4]).find(".inv-rate-input");
             const rateText = rateInput.length ? rateInput.val() : $(tds[4]).text().trim();
             const amountText = $(tds[5]).text().trim();
@@ -223,6 +226,21 @@
         return normalized.includes("JP375REARDIFFCASE10043997") ||
             normalized.includes("JP375REARDIFFCASE10043998") ||
             normalized.includes("JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE");
+    }
+
+    function isFullyEditableComponent(description) {
+        const normalized = String(description || "")
+            .toUpperCase()
+            .replace(/[^A-Z0-9]/g, "");
+        return normalized.includes("JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE");
+    }
+
+    function escapeHtmlAttr(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/"/g, "&quot;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;");
     }
 
     function setToday(id) {
@@ -424,7 +442,10 @@
         const fmt = scrap ? formatMoneyDecimal : formatMoney;
         let subtotal = 0;
         $("#invoiceItemsTable tbody tr").each(function () {
-            const qty = parseDisplayNumber($(this).find(".inv-qty").text());
+            const qtyInput = $(this).find(".inv-qty-input");
+            const qty = qtyInput.length > 0
+                ? parseDisplayNumber(qtyInput.val())
+                : parseDisplayNumber($(this).find(".inv-qty").text());
             const rateInput = $(this).find(".inv-rate-input");
             const rate = rateInput.length > 0
                 ? parseDisplayNumber(rateInput.val())
@@ -458,9 +479,9 @@
 
         if (!items || items.length === 0) {
             appendEntrySpacerRow();
-            tbody.append("<tr><td colspan='6' class='text-center'>No data found for selected date range</td></tr>");
+            tbody.append("<tr class='invoice-nodata-row'><td colspan='6' class='text-center'>No data found for selected date range</td></tr>");
             for (let i = 1 + entryStartOffset; i < minVisibleRows; i++) {
-                tbody.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
+                tbody.append("<tr class='invoice-filler-row'><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
             }
             updateTotals();
             $("#btnDownloadInvoicePdf").prop("disabled", true);
@@ -476,15 +497,26 @@
             const qty = Number(item.qty || 0);
             const rate = Number(item.rate || 0);
             const editableRate = isRateEditableComponent(item.itemDescription || "");
+            const editableFields = isFullyEditableComponent(item.itemDescription || "");
             const rateCell = editableRate
                 ? `<input type="number" class="inv-rate-input" min="0" step="0.01" value="${scrap ? rate : Math.round(rate)}" />`
                 : `<span class="inv-rate text-center">${fmt(rate)}</span>`;
+            const descCell = editableFields
+                ? `<div class="inv-desc-input" contenteditable="true">${escapeHtmlAttr(item.itemDescription || "")}</div>`
+                : (item.itemDescription || "");
+            const qtyCell = editableFields
+                ? `<input type="number" class="inv-qty-input" min="0" step="0.01" value="${qty}" />`
+                : fmt(qty);
+            const qtyCellClass = editableFields ? "" : "inv-qty";
+            const unitCell = editableFields
+                ? `<input type="text" class="inv-unit-input" value="${escapeHtmlAttr(item.unit || "-")}" />`
+                : (item.unit || "-");
             const row = `
-                <tr>
+                <tr class="invoice-item-row">
                     <td class="text-center">${index + 1}</td>
-                    <td>${item.itemDescription || ""}</td>
-                    <td class="inv-qty text-center">${fmt(qty)}</td>
-                    <td class="text-center">${item.unit || "-"}</td>
+                    <td>${descCell}</td>
+                    <td class="${qtyCellClass} text-center">${qtyCell}</td>
+                    <td class="text-center">${unitCell}</td>
                     <td class="text-center">${rateCell}</td>
                     <td class="inv-amt text-center">${fmt(0)}</td>
                 </tr>`;
@@ -492,10 +524,66 @@
         });
 
         for (let i = items.length + entryStartOffset; i < minVisibleRows; i++) {
-            tbody.append("<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
+            tbody.append("<tr class='invoice-filler-row'><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
         }
 
         updateTotals();
+    }
+
+    function renumberInvoiceRows() {
+        $("#invoiceItemsTable tbody tr.invoice-item-row, #invoiceItemsTable tbody tr.invoice-manual-row")
+            .each(function (index) {
+                $(this).find("td").eq(0).text(index + 1);
+            });
+    }
+
+    function updateRemoveLineButtonState() {
+        const hasManualRows = $("#invoiceItemsTable tbody tr.invoice-manual-row").length > 0;
+        $("#btnRemoveInvoiceLine").prop("disabled", !hasManualRows);
+    }
+
+    function addManualInvoiceRow() {
+        const tbody = $("#invoiceItemsTable tbody");
+
+        if (tbody.find("tr.invoice-entry-spacer").length === 0) {
+            tbody.prepend("<tr class='invoice-entry-spacer'><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>");
+        }
+        tbody.find("tr.invoice-nodata-row").remove();
+
+        const row = $(
+            "<tr class='invoice-manual-row'>" +
+            "<td class='text-center'>0</td>" +
+            "<td><div class='inv-desc-input' contenteditable='true' data-placeholder='Item description'></div></td>" +
+            "<td class='text-center'><input type='number' class='inv-qty-input' min='0' step='0.01' value='0' /></td>" +
+            "<td class='text-center'><input type='text' class='inv-unit-input' value='Nos' /></td>" +
+            "<td class='text-center'><input type='number' class='inv-rate-input' min='0' step='0.01' value='0' /></td>" +
+            "<td class='inv-amt text-center'>0</td>" +
+            "</tr>"
+        );
+
+        const firstFiller = tbody.find("tr.invoice-filler-row").first();
+        if (firstFiller.length) {
+            row.insertBefore(firstFiller);
+            firstFiller.remove();
+        } else {
+            tbody.append(row);
+        }
+
+        $("#btnDownloadInvoicePdf").prop("disabled", false);
+        renumberInvoiceRows();
+        updateTotals();
+        updateRemoveLineButtonState();
+        row.find(".inv-desc-input").trigger("focus");
+    }
+
+    function removeLastManualInvoiceRow() {
+        const rows = $("#invoiceItemsTable tbody tr.invoice-manual-row");
+        if (rows.length === 0) return;
+
+        rows.last().remove();
+        renumberInvoiceRows();
+        updateTotals();
+        updateRemoveLineButtonState();
     }
 
     async function downloadPdf() {
@@ -538,7 +626,13 @@
         applyInvoiceProfile($("#invoiceProfileSelect").val());
 
         $("#billTo, #billAddress, #partyGst, #partyPan, #invNo, #invDate, #poNo, #poDate, #scrapVehicleNo").on("input change", syncHeader);
-        $(document).on("input change", ".inv-rate-input", updateTotals);
+        $(document).on("input change", ".inv-rate-input, .inv-qty-input", updateTotals);
+        $("#btnAddInvoiceLine").on("click", function () {
+            addManualInvoiceRow();
+        });
+        $("#btnRemoveInvoiceLine").on("click", function () {
+            removeLastManualInvoiceRow();
+        });
         $("#scrapPartySelect").on("change", function () {
             if ($("#invoiceProfileSelect").val() === "scrap") {
                 applyScrapParty();
