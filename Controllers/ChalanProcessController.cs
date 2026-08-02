@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using JayRaj_Industries.Models;
@@ -78,34 +77,16 @@ namespace JayRaj_Industries.Controllers
             var monthStart = new DateTime(now.Year, now.Month, 1);
             var monthEnd = monthStart.AddMonths(1).AddDays(-1);
 
-            DataTable overallTotals = _chalanProcessDAL.GetTotalComponentDetails();
-
-            decimal totalOutMaterial = 0m;
-            decimal totalRejectedMaterial = 0m;
-            decimal totalInMaterial = 0m;
-            decimal totalPendingMaterial = 0m;
-
-            foreach (DataRow row in overallTotals.Rows)
-            {
-                totalInMaterial += GetDecimal(row, "MaterialInQuantity");
-                totalOutMaterial += GetDecimal(row, "MaterialOutQuantity");
-                totalRejectedMaterial += GetDecimal(row, "MaterialRejQuantity");
-                totalPendingMaterial += GetDecimal(row, "PendingQuantity");
-            }
-
-            var allChalans = await _chalanProcessDAL.GetAllChalanProcessDataAsync(null);
-            int incomingChalanCount = allChalans.Count(c =>
-                c.Date.Date >= monthStart.Date &&
-                c.Date.Date <= monthEnd.Date);
+            var summary = await _chalanProcessDAL.GetPeriodSummaryAsync(monthStart, monthEnd);
 
             return Json(new
             {
                 success = true,
-                incomingChalanCount,
-                totalInMaterial,
-                totalOutMaterial,
-                totalPendingMaterial,
-                totalRejectedMaterial,
+                incomingChalanCount = summary.IncomingChalanCount,
+                totalInMaterial = summary.TotalInMaterial,
+                totalOutMaterial = summary.TotalOutMaterial,
+                totalPendingMaterial = summary.TotalPendingMaterial,
+                totalRejectedMaterial = summary.TotalRejectedMaterial,
                 monthLabel = monthStart.ToString("MMMM yyyy")
             });
         }
@@ -148,12 +129,6 @@ namespace JayRaj_Industries.Controllers
             {
                 return Json(new { success = false, message = "Delete failed" });
             }
-        }
-
-        private static decimal GetDecimal(DataRow row, string columnName)
-        {
-            var value = row[columnName]?.ToString();
-            return string.IsNullOrWhiteSpace(value) ? 0m : decimal.Parse(value, CultureInfo.InvariantCulture);
         }
     }
 }

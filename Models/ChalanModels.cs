@@ -41,6 +41,17 @@ namespace JayRaj_Industries.Models
         public decimal RejectMaterialQuantity { get; set; }
     }
 
+    // Read shape for GetCurrentMonthSummary — a single aggregated row scoped to
+    // a date range, computed in SQL rather than pulling every chalan into memory.
+    public class ChalanPeriodSummary
+    {
+        public int IncomingChalanCount { get; set; }
+        public decimal TotalInMaterial { get; set; }
+        public decimal TotalOutMaterial { get; set; }
+        public decimal TotalPendingMaterial { get; set; }
+        public decimal TotalRejectedMaterial { get; set; }
+    }
+
     // Write shape for creating a new incoming chalan (ChalanProcessController.InsertChalanProcess).
     public class CreateChalanRequest
     {

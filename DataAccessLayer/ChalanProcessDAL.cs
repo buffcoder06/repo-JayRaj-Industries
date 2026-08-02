@@ -142,6 +142,35 @@ public class ChalanProcessDAL
         RemarkStatusId = reader.GetInt32(reader.GetOrdinal("f_Remark_StatusID"))
     };
 
+    public async Task<ChalanPeriodSummary> GetPeriodSummaryAsync(DateTime startDate, DateTime endDate)
+    {
+        using (SqlConnection con = new SqlConnection(_connectionString))
+        using (SqlCommand cmd = new SqlCommand("sp_Get_CurrentMonth_ChalanSummary", con))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@StartDate", FormatDate(startDate));
+            cmd.Parameters.AddWithValue("@EndDate", FormatDate(endDate));
+
+            await con.OpenAsync();
+            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+            {
+                if (await reader.ReadAsync())
+                {
+                    return new ChalanPeriodSummary
+                    {
+                        IncomingChalanCount = reader.GetInt32(reader.GetOrdinal("IncomingChalanCount")),
+                        TotalInMaterial = ParseDecimal(reader["TotalInMaterial"]),
+                        TotalOutMaterial = ParseDecimal(reader["TotalOutMaterial"]),
+                        TotalPendingMaterial = ParseDecimal(reader["TotalPendingMaterial"]),
+                        TotalRejectedMaterial = ParseDecimal(reader["TotalRejectedMaterial"])
+                    };
+                }
+            }
+        }
+
+        return new ChalanPeriodSummary();
+    }
+
     public Task<List<ChalanListItem>> GetAllChalanProcessDataAsync(string? chalanProcessHdrseq = null)
     {
         return ExecuteReaderAsync("sp_GetAllChallanProcessData", ReadChalanListItem,
