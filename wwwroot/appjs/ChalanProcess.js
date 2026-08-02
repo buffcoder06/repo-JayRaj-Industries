@@ -69,14 +69,14 @@ $(document).ready(function () {
             $.each(data, function (index, item) {
                 row.push('<tr>');
                 if (item.pendingQuantity != 0) {
-                    row.push("<td><input type='button' name='action' Action='" + 'Update' + "' id='" + item.chalanProccessHdrSeq + "' class='btn btn-danger' onclick='ShowForm(this);' value='Open Chalan'></input></td>");
+                    row.push("<td><input type='button' name='action' Action='" + 'Update' + "' id='" + item.chalanProcessHdrSeq + "' class='btn btn-danger' onclick='ShowForm(this);' value='Open Chalan'></input></td>");
                 } else {
-                    row.push("<td><input type='button' name='action' Action='" + 'View' + "'  id='" + item.chalanProccessHdrSeq + "' class='btn btn-success' value='Closed Chalan'></input></td>");
+                    row.push("<td><input type='button' name='action' Action='" + 'View' + "'  id='" + item.chalanProcessHdrSeq + "' class='btn btn-success' value='Closed Chalan'></input></td>");
                 } // Replace with actual action buttons or content
                 var formattedDate = formatDate(item.date);
                 row.push('<td>' + formattedDate + '</td>');
                 row.push('<td>' + item.componentDescription + '</td>');
-                row.push('<td><a href="javascript:void(0);" class="chalan-number-link" chalanProccessHdrSeq="' + item.chalanProccessHdrSeq + '">' + item.chalanNo + '</a></td>');
+                row.push('<td><a href="javascript:void(0);" class="chalan-number-link" chalanProcessHdrSeq="' + item.chalanProcessHdrSeq + '">' + item.chalanNo + '</a></td>');
                 row.push('<td>' + item.actualInMaterialQuantity + '</td>');
                 // row += '<td>' + item.companyName + '</td>';
                 // row += '<td>' + item.vehicleNumber + '</td>';
@@ -226,26 +226,26 @@ function renderChalanDetails(data) {
     var componentDesc = '';
 
     $.each(data, function (index, item) {
-        var formattedDate = formatDate(item.f_ChalanDtls_Date);
-        var inQty = toNumber(item.f_Actual_InMaterial_Quantity);
-        var outQty = toNumber(item.f_OutMaterial_Quantity);
-        var rejQty = toNumber(item.f_RejectMaterial_Quantity);
-        var pendingQty = item.f_Pending_Quantity;
+        var formattedDate = formatDate(item.detailDate);
+        var inQty = toNumber(item.actualInMaterialQuantity);
+        var outQty = toNumber(item.outMaterialQuantity);
+        var rejQty = toNumber(item.rejectMaterialQuantity);
+        var pendingQty = item.pendingQuantity;
         if (pendingQty === null || pendingQty === undefined || pendingQty === '') {
             pendingQty = Math.max(0, inQty - outQty - rejQty);
         }
 
         rows.push('<tr>');
-        rows.push("<td><input type='button' name='action' Action='Update' id='" + item.f_ChalanProcessDtlSeq + "' class='btn btn-danger' onclick='Delete(this);' value='Delete'></input></td>");
+        rows.push("<td><input type='button' name='action' Action='Update' id='" + item.chalanDetailSeq + "' class='btn btn-danger' onclick='Delete(this);' value='Delete'></input></td>");
         rows.push('<td>' + formattedDate + '</td>');
-        rows.push('<td>' + (item.f_InChalanNo || '-') + '</td>');
-        rows.push('<td>' + (item.f_OutChalanNo || '-') + '</td>');
+        rows.push('<td>' + (item.inChalanNo || '-') + '</td>');
+        rows.push('<td>' + (item.outChalanNo || '-') + '</td>');
         rows.push('<td>' + inQty + '</td>');
         rows.push('<td>' + outQty + '</td>');
         rows.push('<td>' + rejQty + '</td>');
         rows.push('<td>' + toNumber(pendingQty) + '</td>');
         rows.push('</tr>');
-        componentDesc = item.f_Component_Desc || componentDesc;
+        componentDesc = item.componentDescription || componentDesc;
     });
 
     $('#idComponentName').text(componentDesc);
@@ -258,8 +258,8 @@ $(document).on('click', '.chalan-number-link', function (e) {
     // Perform the same actions as in your $("#btnIn").on('click', ...) function
     $('#EmpModal').modal('show');
     $('#tblOutdetails tbody').html("<tr><td colspan='8' class='text-center'>Loading...</td></tr>");
-    var chalanProccessHdrSeq = $(this).attr('chalanProccessHdrSeq');
-    GetChalanDetails(chalanProccessHdrSeq)
+    var chalanProcessHdrSeq = $(this).attr('chalanProcessHdrSeq');
+    GetChalanDetails(chalanProcessHdrSeq)
     // Additional actions can be performed here, like using the chalan number for something
     // Example: console.log("Chalan number clicked:", chalanNo);
 });
@@ -358,12 +358,11 @@ function InsertChalanDetails() {
             date: $('#idDatenew').val(),// For input type='date', use .val()
             componentDescription: $('#ddlComponentnew option:selected').text(), // For select, use .val() to get the selected option's value
             chalanNo: $('#idchalanNonew').val(),// For input type='text', use .val()
-            quantity: $('#idQuantitynew').val(),// For input type='text', use .val()
+            quantity: Number($('#idQuantitynew').val()),// Server expects a number
             companyName: "NA",
             companyCode: "NA" // For select, use .val() to get the selected option's value
             // vehicleNumber: $('#ddlVehiclenew option:selected').text(),// For select, use .val() to get the selected option's value
             // vehicleChalanNumber: $('#idVehicleChalannew').val() // Use actual values from your form or application
-            // ... other data matching the ChalanProcessBO structure
         }),
         success: function (response) {
             if (response.success) {
@@ -410,16 +409,16 @@ $("#SaveChalanOut").click(function () {
 
         if (doneQuantity > 0 && !isNaN(penQuantity) && doneQuantity >= 0 && doneQuantity <= penQuantity) {
             if ($('#ddlSelection option:selected').val() === "REJ") {
-                requestData.f_OutMaterial_Quantity = "0",
-                    requestData.f_RejectMaterial_Quantity = $("#txtDoneQuantity").val()
+                requestData.outMaterialQuantity = "0",
+                    requestData.rejectMaterialQuantity = $("#txtDoneQuantity").val()
             } else {
-                requestData.f_OutMaterial_Quantity = $("#txtDoneQuantity").val(),
-                    requestData.f_RejectMaterial_Quantity = "0"
+                requestData.outMaterialQuantity = $("#txtDoneQuantity").val(),
+                    requestData.rejectMaterialQuantity = "0"
             }
-            requestData.chalanProcessHdrseq = $('#HdnProcessHdeSeq').val(),
-                requestData.f_ChalanDtls_Date = $("#txtDate").val(),
-                requestData.f_OutChalanNo = $("#txtOutChalan").val(),
-                requestData.f_Pending_Quantity = $("#txtPenQuantity").val(),
+            requestData.chalanProcessHdrSeq = $('#HdnProcessHdeSeq').val(),
+                requestData.detailDate = $("#txtDate").val(),
+                requestData.outChalanNo = $("#txtOutChalan").val(),
+                requestData.pendingQuantity = $("#txtPenQuantity").val(),
 
 
 

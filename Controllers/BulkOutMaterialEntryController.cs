@@ -1,3 +1,4 @@
+using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JayRaj_Industries.Controllers
@@ -26,18 +27,11 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public IActionResult InsertChalanProcessDtls([FromBody] List<ChalanProcessDetail> chalanData)
+        public IActionResult InsertChalanProcessDtls([FromBody] List<RecordChalanOutRequest> chalanData)
         {
             foreach (var chalan in chalanData)
             {
-                bool result = _chalanProcessDAL.InsertIntoChalanProcessDtls(
-                    chalan.chalanProcessHdrseq,
-                    chalan.f_ChalanDtls_Date,
-                    chalan.f_OutChalanNo,
-                    chalan.f_Pending_Quantity,
-                    chalan.f_OutMaterial_Quantity,
-                    chalan.f_RejectMaterial_Quantity
-                );
+                bool result = _chalanProcessDAL.InsertIntoChalanProcessDtls(chalan);
 
                 if (!result)
                 {
@@ -45,16 +39,6 @@ namespace JayRaj_Industries.Controllers
                 }
             }
             return Json(new { success = true });
-        }
-
-        public class ChalanProcessDetail
-        {
-            public string? chalanProcessHdrseq { get; set; }
-            public string? f_ChalanDtls_Date { get; set; }
-            public string? f_OutChalanNo { get; set; }
-            public string? f_Pending_Quantity { get; set; }
-            public string? f_OutMaterial_Quantity { get; set; }
-            public string? f_RejectMaterial_Quantity { get; set; }
         }
     }
 }

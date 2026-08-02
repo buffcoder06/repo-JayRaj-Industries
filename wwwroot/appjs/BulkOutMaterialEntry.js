@@ -48,7 +48,7 @@ $('#ddlComponentnew').on('change', function () {
                     var formattedDate = formatDate(item.date);
                     row += '<td>' + formattedDate + '</td>';
                     row += '<td>' + item.componentDescription + '</td>';
-                    row += '<td><a href="javascript:void(0);" class="chalan-number-link" chalanProccessHdrSeq="' + item.chalanProccessHdrSeq + '">' + item.chalanNo + '</a></td>';
+                    row += '<td><a href="javascript:void(0);" class="chalan-number-link" chalanProcessHdrSeq="' + item.chalanProcessHdrSeq + '">' + item.chalanNo + '</a></td>';
                     row += '<td>' + item.actualInMaterialQuantity + '</td>';
                     row += '<td class="pending-qty">' + item.pendingQuantity + '</td>';
                     row += '<td><input type="text" class="amount-input" name="amount" value="0" readonly/></td>'; // Readonly input for amount
@@ -135,20 +135,20 @@ $('#idSubmit').on('click', function () {
 
         // Loop through table rows
         $('#tblchalanProcess tbody tr').each(function () {
-            var hdrSeq = $(this).find('.chalan-number-link').attr('chalanProccessHdrSeq'); // Get hdrseq from anchor tag
-            var pendingQty = $(this).find('.pending-qty').text().trim(); // Get pending quantity
+            var hdrSeq = $(this).find('.chalan-number-link').attr('chalanProcessHdrSeq'); // Get hdrseq from anchor tag
+            var pendingQty = safeParseFloat($(this).find('.pending-qty').text()); // Get pending quantity
             var outMaterialQty = safeParseFloat($(this).find('.amount-input').val()); // Convert to number
-            var rejectMaterialQty = "0"; // You can add logic to handle reject material if needed
+            var rejectMaterialQty = 0; // You can add logic to handle reject material if needed
 
             // Only add records where Out Material Quantity > 0
             if (hdrSeq && outMaterialQty > 0) {
                 chalanData.push({
-                    chalanProcessHdrseq: hdrSeq,
-                    f_ChalanDtls_Date: chalanDate,
-                    f_OutChalanNo: chalanNumber,
-                    f_Pending_Quantity: pendingQty,
-                    f_OutMaterial_Quantity: outMaterialQty.toString(), // Convert back to string
-                    f_RejectMaterial_Quantity: rejectMaterialQty
+                    chalanProcessHdrSeq: hdrSeq,
+                    detailDate: chalanDate,
+                    outChalanNo: chalanNumber,
+                    pendingQuantity: pendingQty,
+                    outMaterialQuantity: outMaterialQty,
+                    rejectMaterialQuantity: rejectMaterialQty
                 });
             }
         });

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,33 +27,15 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public ActionResult InsertChalanProcess([FromBody] ChalanProcessBO obj)
+        public ActionResult InsertChalanProcess([FromBody] CreateChalanRequest request)
         {
-            if (obj == null)
+            if (!ModelState.IsValid)
             {
-                return Json(new { success = false, message = "Invalid payload" });
+                var error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { success = false, message = error ?? "Invalid payload" });
             }
 
-            _chalanProcessDAL.InsertChalanProcess(
-                obj.Date,
-                obj.ComponentDescription,
-                obj.CompanyCode,
-                obj.ChalanNo,
-                "NA",
-                obj.CompanyName,
-                obj.VehicleNumber,
-                obj.VehicleChalanNumber,
-                obj.Quantity,
-                obj.Quantity,
-                "0",
-                "0",
-                "Done",
-                0,
-                "system",
-                "system",
-                0
-
-            );
+            _chalanProcessDAL.InsertChalanProcess(request, "system", "system", 0);
 
             return Json(new { success = true, message = "Data inserted successfully" });
         }
@@ -72,14 +55,15 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public ActionResult InsertChalanProcessDtls(string? chalanProcessHdrseq, string? f_ChalanDtls_Date, string? f_OutChalanNo, string? f_Pending_Quantity, string? f_OutMaterial_Quantity, string? f_RejectMaterial_Quantity)
+        public ActionResult InsertChalanProcessDtls(RecordChalanOutRequest request)
         {
-            if (string.IsNullOrWhiteSpace(chalanProcessHdrseq))
+            if (!ModelState.IsValid)
             {
-                return Json(new { success = false, message = "Chalan process reference is required." });
+                var error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { success = false, message = error ?? "Chalan process reference is required." });
             }
 
-            var result = _chalanProcessDAL.InsertIntoChalanProcessDtls(chalanProcessHdrseq, f_ChalanDtls_Date, f_OutChalanNo, f_Pending_Quantity, f_OutMaterial_Quantity, f_RejectMaterial_Quantity);
+            var result = _chalanProcessDAL.InsertIntoChalanProcessDtls(request);
 
             return Json(new
             {
@@ -104,17 +88,16 @@ namespace JayRaj_Industries.Controllers
 
             foreach (DataRow row in overallTotals.Rows)
             {
-                totalInMaterial += GetFirstDecimal(row, "MaterialInQuantity", "materialInQuantity", "f_Actual_InMaterial_Quantity");
-                totalOutMaterial += GetFirstDecimal(row, "MaterialOutQuantity", "materialOutQuantity", "f_OutMaterial_Quantity");
-                totalRejectedMaterial += GetFirstDecimal(row, "MaterialRejQuantity", "materialRejQuantity", "f_RejectMaterial_Quantity");
-                totalPendingMaterial += GetFirstDecimal(row, "PendingQuantity", "pendingQuantity", "f_Pending_Quantity");
+                totalInMaterial += GetDecimal(row, "MaterialInQuantity");
+                totalOutMaterial += GetDecimal(row, "MaterialOutQuantity");
+                totalRejectedMaterial += GetDecimal(row, "MaterialRejQuantity");
+                totalPendingMaterial += GetDecimal(row, "PendingQuantity");
             }
 
             var allChalans = _chalanProcessDAL.GetAllChalanProcessData(null);
             int incomingChalanCount = allChalans.Count(c =>
-                TryParseDate(c.Date, out var parsedDate) &&
-                parsedDate.Date >= monthStart.Date &&
-                parsedDate.Date <= monthEnd.Date);
+                c.Date.Date >= monthStart.Date &&
+                c.Date.Date <= monthEnd.Date);
 
             return Json(new
             {
@@ -167,53 +150,10 @@ namespace JayRaj_Industries.Controllers
             }
         }
 
-        private static decimal GetFirstDecimal(DataRow row, params string[] possibleColumns)
+        private static decimal GetDecimal(DataRow row, string columnName)
         {
-            foreach (var column in possibleColumns)
-            {
-                if (!row.Table.Columns.Contains(column))
-                {
-                    continue;
-                }
-
-                var value = row[column]?.ToString();
-                if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var dec))
-                {
-                    return dec;
-                }
-
-                if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.GetCultureInfo("en-IN"), out dec))
-                {
-                    return dec;
-                }
-            }
-
-            return 0m;
-        }
-
-        private static bool TryParseDate(string? value, out DateTime parsedDate)
-        {
-            if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate))
-            {
-                return true;
-            }
-
-            if (DateTime.TryParse(value, CultureInfo.GetCultureInfo("en-IN"), DateTimeStyles.None, out parsedDate))
-            {
-                return true;
-            }
-
-            string[] formats =
-            {
-                "yyyy-MM-dd",
-                "dd-MM-yyyy",
-                "MM-dd-yyyy",
-                "dd/MM/yyyy",
-                "MM/dd/yyyy",
-                "yyyy/MM/dd"
-            };
-
-            return DateTime.TryParseExact(value ?? string.Empty, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out parsedDate);
+            var value = row[columnName]?.ToString();
+            return string.IsNullOrWhiteSpace(value) ? 0m : decimal.Parse(value, CultureInfo.InvariantCulture);
         }
     }
 }
