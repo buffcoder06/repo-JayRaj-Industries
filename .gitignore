@@ -1,0 +1,41 @@
+## .NET build output
+[Bb]in/
+[Oo]bj/
+_temp_build_out/
+
+## Visual Studio / VS Code workspace files
+.vs/
+.vscode/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+
+## Rider
+.idea/
+
+## OS files
+.DS_Store
+Thumbs.db
+
+## Publish artifacts
+*.pubxml
+*.publishproj
+
+## NuGet
+*.nupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+## dotnet user-secrets are stored outside the repo (%APPDATA%/Microsoft/UserSecrets) —
+## nothing to ignore here, but never commit a secrets.json if one appears locally.
