@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Threading.Tasks;
 using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,9 @@ namespace JayRaj_Industries.Controllers
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
 
-        public ChalanProcessController(IConfiguration configuration)
+        public ChalanProcessController(ChalanProcessDAL chalanProcessDAL)
         {
-            var connectionString = configuration.GetConnectionString("Jayraj_Industries")
-                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
-            _chalanProcessDAL = new ChalanProcessDAL(connectionString);
+            _chalanProcessDAL = chalanProcessDAL;
         }
 
         public IActionResult Index()
@@ -27,7 +26,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public ActionResult InsertChalanProcess([FromBody] CreateChalanRequest request)
+        public async Task<ActionResult> InsertChalanProcess([FromBody] CreateChalanRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -35,27 +34,27 @@ namespace JayRaj_Industries.Controllers
                 return Json(new { success = false, message = error ?? "Invalid payload" });
             }
 
-            _chalanProcessDAL.InsertChalanProcess(request, "system", "system", 0);
+            await _chalanProcessDAL.InsertChalanProcessAsync(request, "system", "system", 0);
 
             return Json(new { success = true, message = "Data inserted successfully" });
         }
 
         [HttpGet]
-        public ActionResult GetAllChalanProcessData(string? chalanProcessHdrseq)
+        public async Task<ActionResult> GetAllChalanProcessData(string? chalanProcessHdrseq)
         {
-            var data = _chalanProcessDAL.GetAllChalanProcessData(chalanProcessHdrseq);
+            var data = await _chalanProcessDAL.GetAllChalanProcessDataAsync(chalanProcessHdrseq);
             return Json(data);
         }
 
         [HttpGet]
-        public ActionResult GetAllChalanProcessDetails(string? chalanProcessHdrseq)
+        public async Task<ActionResult> GetAllChalanProcessDetails(string? chalanProcessHdrseq)
         {
-            var data = _chalanProcessDAL.GetAllChalanProcessDetails(chalanProcessHdrseq);
+            var data = await _chalanProcessDAL.GetAllChalanProcessDetailsAsync(chalanProcessHdrseq);
             return Json(data);
         }
 
         [HttpPost]
-        public ActionResult InsertChalanProcessDtls(RecordChalanOutRequest request)
+        public async Task<ActionResult> InsertChalanProcessDtls(RecordChalanOutRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -63,7 +62,7 @@ namespace JayRaj_Industries.Controllers
                 return Json(new { success = false, message = error ?? "Chalan process reference is required." });
             }
 
-            var result = _chalanProcessDAL.InsertIntoChalanProcessDtls(request);
+            var result = await _chalanProcessDAL.InsertIntoChalanProcessDtlsAsync(request);
 
             return Json(new
             {
@@ -73,7 +72,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetCurrentMonthSummary()
+        public async Task<ActionResult> GetCurrentMonthSummary()
         {
             var now = DateTime.Now;
             var monthStart = new DateTime(now.Year, now.Month, 1);
@@ -94,7 +93,7 @@ namespace JayRaj_Industries.Controllers
                 totalPendingMaterial += GetDecimal(row, "PendingQuantity");
             }
 
-            var allChalans = _chalanProcessDAL.GetAllChalanProcessData(null);
+            var allChalans = await _chalanProcessDAL.GetAllChalanProcessDataAsync(null);
             int incomingChalanCount = allChalans.Count(c =>
                 c.Date.Date >= monthStart.Date &&
                 c.Date.Date <= monthEnd.Date);
@@ -131,14 +130,14 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public ActionResult DeleteDetals(string? chalanProcessdtlseq)
+        public async Task<ActionResult> DeleteDetals(string? chalanProcessdtlseq)
         {
             if (string.IsNullOrWhiteSpace(chalanProcessdtlseq))
             {
                 return Json(new { success = false, message = "Detail reference is required." });
             }
 
-            var result = _chalanProcessDAL.DeactivateRecord(chalanProcessdtlseq);
+            var result = await _chalanProcessDAL.DeactivateRecordAsync(chalanProcessdtlseq);
 
             if (result)
             {

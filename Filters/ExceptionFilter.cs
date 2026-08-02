@@ -1,29 +1,28 @@
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace JayRaj_Industries.Filters
 {
-    public class ExceptionFilter : IExceptionFilter
+    public class ExceptionFilter : IAsyncExceptionFilter
     {
         private readonly ApplicationAuditDAL _applicationAuditDAL;
         private readonly ILogger<ExceptionFilter> _logger;
 
-        public ExceptionFilter(IConfiguration configuration, ILogger<ExceptionFilter> logger)
+        public ExceptionFilter(ApplicationAuditDAL applicationAuditDAL, ILogger<ExceptionFilter> logger)
         {
+            _applicationAuditDAL = applicationAuditDAL;
             _logger = logger;
-            var connectionString = configuration.GetConnectionString("Jayraj_Industries")
-                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
-            _applicationAuditDAL = new ApplicationAuditDAL(connectionString);
         }
 
-        public void OnException(ExceptionContext context)
+        public async Task OnExceptionAsync(ExceptionContext context)
         {
             var ex = context.Exception;
             var controllerName = context.RouteData.Values["controller"]?.ToString() ?? "Unknown";
             var actionName = context.RouteData.Values["action"]?.ToString() ?? "Unknown";
 
-            _applicationAuditDAL.LogException(
+            await _applicationAuditDAL.LogExceptionAsync(
                 controllerName,
                 actionName,
                 ex,

@@ -11,6 +11,9 @@ builder.Services.AddControllersWithViews(options =>
 
 builder.Services.Configure<InvoicePricingOptions>(builder.Configuration.GetSection("InvoicePricing"));
 
+builder.Services.AddScoped<ChalanProcessDAL>();
+builder.Services.AddScoped<ApplicationAuditDAL>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

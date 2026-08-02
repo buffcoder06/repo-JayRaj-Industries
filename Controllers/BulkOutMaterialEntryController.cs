@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,11 +8,9 @@ namespace JayRaj_Industries.Controllers
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
 
-        public BulkOutMaterialEntryController(IConfiguration configuration)
+        public BulkOutMaterialEntryController(ChalanProcessDAL chalanProcessDAL)
         {
-            var connectionString = configuration.GetConnectionString("Jayraj_Industries")
-                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
-            _chalanProcessDAL = new ChalanProcessDAL(connectionString);
+            _chalanProcessDAL = chalanProcessDAL;
         }
 
         public IActionResult Index()
@@ -20,18 +19,18 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpGet]
-        public ActionResult GetChalanProcessDataBasedOnComp(string? CompDesc)
+        public async Task<ActionResult> GetChalanProcessDataBasedOnComp(string? CompDesc)
         {
-            var data = _chalanProcessDAL.GetChalanProcessDataBasedOnComp(CompDesc);
+            var data = await _chalanProcessDAL.GetChalanProcessDataBasedOnCompAsync(CompDesc);
             return Json(data);
         }
 
         [HttpPost]
-        public IActionResult InsertChalanProcessDtls([FromBody] List<RecordChalanOutRequest> chalanData)
+        public async Task<IActionResult> InsertChalanProcessDtls([FromBody] List<RecordChalanOutRequest> chalanData)
         {
             foreach (var chalan in chalanData)
             {
-                bool result = _chalanProcessDAL.InsertIntoChalanProcessDtls(chalan);
+                bool result = await _chalanProcessDAL.InsertIntoChalanProcessDtlsAsync(chalan);
 
                 if (!result)
                 {

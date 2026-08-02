@@ -2,18 +2,23 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Threading.Tasks;
 using JayRaj_Industries.Models;
+using Microsoft.Extensions.Logging;
 
 public class ApplicationAuditDAL
 {
     private readonly string _connectionString;
+    private readonly ILogger<ApplicationAuditDAL> _logger;
 
-    public ApplicationAuditDAL(string connectionString)
+    public ApplicationAuditDAL(IConfiguration configuration, ILogger<ApplicationAuditDAL> logger)
     {
-        _connectionString = connectionString;
+        _connectionString = configuration.GetConnectionString("Jayraj_Industries")
+            ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
+        _logger = logger;
     }
 
-    public void LogException(
+    public async Task LogExceptionAsync(
         string controllerName,
         string actionName,
         Exception ex,
@@ -36,16 +41,18 @@ public class ApplicationAuditDAL
             cmd.Parameters.AddWithValue("@RequestMethod", (object?)requestMethod ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@Payload", (object?)payload ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@UserName", (object?)userName ?? DBNull.Value);
-            con.Open();
-            cmd.ExecuteNonQuery();
+            await con.OpenAsync();
+            await cmd.ExecuteNonQueryAsync();
         }
-        catch
+        catch (Exception logEx)
         {
-            // Never throw from audit logging.
+            // Never throw from audit logging — but make the failure visible in logs
+            // instead of swallowing it silently.
+            _logger.LogError(logEx, "Failed to write exception audit log for {Controller}.{Action}.", controllerName, actionName);
         }
     }
 
-    public void LogInvoiceData(
+    public async Task LogInvoiceDataAsync(
         string? startDate,
         string? endDate,
         string? invoiceProfile,
@@ -69,9 +76,9 @@ public class ApplicationAuditDAL
         try
         {
             using SqlConnection con = new SqlConnection(_connectionString);
-            con.Open();
+            await con.OpenAsync();
 
-            long headerId = InsertInvoiceAuditHeader(
+            long headerId = await InsertInvoiceAuditHeaderAsync(
                 con,
                 startDate,
                 endDate,
@@ -92,16 +99,18 @@ public class ApplicationAuditDAL
 
             foreach (var item in items)
             {
-                InsertInvoiceAuditDetail(con, headerId, item);
+                await InsertInvoiceAuditDetailAsync(con, headerId, item);
             }
         }
-        catch
+        catch (Exception logEx)
         {
-            // Never throw from audit logging.
+            // Never throw from audit logging — but make the failure visible in logs
+            // instead of swallowing it silently.
+            _logger.LogError(logEx, "Failed to write invoice audit log for {Controller}.{Action}.", controllerName, sourceAction);
         }
     }
 
-    private long InsertInvoiceAuditHeader(
+    private async Task<long> InsertInvoiceAuditHeaderAsync(
         SqlConnection con,
         string? startDate,
         string? endDate,
@@ -146,12 +155,12 @@ public class ApplicationAuditDAL
         };
         cmd.Parameters.Add(outputParam);
 
-        cmd.ExecuteNonQuery();
+        await cmd.ExecuteNonQueryAsync();
 
         return outputParam.Value == DBNull.Value ? 0 : Convert.ToInt64(outputParam.Value);
     }
 
-    private void InsertInvoiceAuditDetail(SqlConnection con, long headerId, InvoiceLineItem item)
+    private async Task InsertInvoiceAuditDetailAsync(SqlConnection con, long headerId, InvoiceLineItem item)
     {
         using SqlCommand cmd = new SqlCommand("sp_InsertInvoiceAuditDetail", con);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -164,7 +173,7 @@ public class ApplicationAuditDAL
         cmd.Parameters.AddWithValue("@Rate", item.Rate);
         cmd.Parameters.AddWithValue("@Amount", item.Amount);
 
-        cmd.ExecuteNonQuery();
+        await cmd.ExecuteNonQueryAsync();
     }
 
     private static decimal SumQty(IEnumerable<InvoiceLineItem> items)

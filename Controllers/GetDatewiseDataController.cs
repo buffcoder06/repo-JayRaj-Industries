@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -11,11 +10,9 @@ namespace JayRaj_Industries.Controllers
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
 
-        public GetDatewiseDataController(IConfiguration configuration)
+        public GetDatewiseDataController(ChalanProcessDAL chalanProcessDAL)
         {
-            var connectionString = configuration.GetConnectionString("Jayraj_Industries")
-                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
-            _chalanProcessDAL = new ChalanProcessDAL(connectionString);
+            _chalanProcessDAL = chalanProcessDAL;
         }
 
         public IActionResult Index()

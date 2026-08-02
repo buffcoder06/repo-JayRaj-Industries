@@ -1,4 +1,5 @@
 using System.Data;
+using System.Threading.Tasks;
 using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -13,12 +14,10 @@ namespace JayRaj_Industries.Controllers
         private readonly HashSet<string> _kundalikAutomationAllowedComponents;
         private readonly HashSet<string> _kundalikEngineersAllowedComponents;
 
-        public InvoiceController(IConfiguration configuration, IOptions<InvoicePricingOptions> pricingOptions)
+        public InvoiceController(ChalanProcessDAL chalanProcessDAL, ApplicationAuditDAL applicationAuditDAL, IOptions<InvoicePricingOptions> pricingOptions)
         {
-            var connectionString = configuration.GetConnectionString("Jayraj_Industries")
-                ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
-            _chalanProcessDAL = new ChalanProcessDAL(connectionString);
-            _applicationAuditDAL = new ApplicationAuditDAL(connectionString);
+            _chalanProcessDAL = chalanProcessDAL;
+            _applicationAuditDAL = applicationAuditDAL;
 
             _pricing = pricingOptions.Value;
             _kundalikAutomationAllowedComponents = new HashSet<string>(_pricing.KundalikAutomationAllowedComponents, StringComparer.OrdinalIgnoreCase);
@@ -74,14 +73,14 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
-        public IActionResult LogInvoiceDownload([FromBody] InvoiceDownloadLogRequest request)
+        public async Task<IActionResult> LogInvoiceDownload([FromBody] InvoiceDownloadLogRequest request)
         {
             if (request == null)
             {
                 return Json(new { success = false, message = "Invalid payload." });
             }
 
-            _applicationAuditDAL.LogInvoiceData(
+            await _applicationAuditDAL.LogInvoiceDataAsync(
                 request.StartDate,
                 request.EndDate,
                 request.InvoiceProfile,

@@ -3,26 +3,28 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
+using System.Threading.Tasks;
 using JayRaj_Industries.Models;
 
 public class ChalanProcessDAL
 {
     private readonly string _connectionString;
 
-    public ChalanProcessDAL(string connectionString)
+    public ChalanProcessDAL(IConfiguration configuration)
     {
-        _connectionString = connectionString;
+        _connectionString = configuration.GetConnectionString("Jayraj_Industries")
+            ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
     }
 
-    private int ExecuteNonQuery(string storedProcedure, params SqlParameter[] parameters)
+    private async Task<int> ExecuteNonQueryAsync(string storedProcedure, params SqlParameter[] parameters)
     {
         using (SqlConnection con = new SqlConnection(_connectionString))
         using (SqlCommand cmd = new SqlCommand(storedProcedure, con))
         {
             cmd.CommandType = CommandType.StoredProcedure;
             if (parameters != null) cmd.Parameters.AddRange(parameters);
-            con.Open();
-            return cmd.ExecuteNonQuery();
+            await con.OpenAsync();
+            return await cmd.ExecuteNonQueryAsync();
         }
     }
 
@@ -58,6 +60,9 @@ public class ChalanProcessDAL
         return string.IsNullOrWhiteSpace(text) ? 0m : decimal.Parse(text, CultureInfo.InvariantCulture);
     }
 
+    // SqlDataAdapter.Fill has no async overload in ADO.NET (true of both
+    // System.Data.SqlClient and Microsoft.Data.SqlClient), so this stays
+    // synchronous — called directly (not awaited) from async callers.
     private DataTable ExecuteDataTable(string storedProcedure, params SqlParameter[] parameters)
     {
         using (SqlConnection con = new SqlConnection(_connectionString))
@@ -72,7 +77,7 @@ public class ChalanProcessDAL
         }
     }
 
-    private List<T> ExecuteReader<T>(string storedProcedure, Func<SqlDataReader, T> readRow, params SqlParameter[] parameters)
+    private async Task<List<T>> ExecuteReaderAsync<T>(string storedProcedure, Func<SqlDataReader, T> readRow, params SqlParameter[] parameters)
     {
         var results = new List<T>();
 
@@ -81,11 +86,11 @@ public class ChalanProcessDAL
         {
             cmd.CommandType = CommandType.StoredProcedure;
             if (parameters != null) cmd.Parameters.AddRange(parameters);
-            con.Open();
+            await con.OpenAsync();
 
-            using (SqlDataReader reader = cmd.ExecuteReader())
+            using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
             {
-                while (reader.Read())
+                while (await reader.ReadAsync())
                 {
                     results.Add(readRow(reader));
                 }
@@ -95,9 +100,9 @@ public class ChalanProcessDAL
         return results;
     }
 
-    public void InsertChalanProcess(CreateChalanRequest request, string createdBy, string updatedBy, long sessionId)
+    public Task InsertChalanProcessAsync(CreateChalanRequest request, string createdBy, string updatedBy, long sessionId)
     {
-        ExecuteNonQuery("sp_InsertIntoChallanProcess",
+        return ExecuteNonQueryAsync("sp_InsertIntoChallanProcess",
             new SqlParameter("@ChalanDate", FormatDate(request.Date)),
             new SqlParameter("@Component_Desc", DbValue(request.ComponentDescription)),
             new SqlParameter("@Company_Cd", DbValue(request.CompanyCode)),
@@ -137,16 +142,16 @@ public class ChalanProcessDAL
         RemarkStatusId = reader.GetInt32(reader.GetOrdinal("f_Remark_StatusID"))
     };
 
-    public List<ChalanListItem> GetAllChalanProcessData(string? chalanProcessHdrseq = null)
+    public Task<List<ChalanListItem>> GetAllChalanProcessDataAsync(string? chalanProcessHdrseq = null)
     {
-        return ExecuteReader("sp_GetAllChallanProcessData", ReadChalanListItem,
+        return ExecuteReaderAsync("sp_GetAllChallanProcessData", ReadChalanListItem,
             new SqlParameter("@ChalanProcessHdrseq", chalanProcessHdrseq ?? (object)DBNull.Value)
         );
     }
 
-    public List<ChalanListItem> GetChalanProcessDataBasedOnComp(string? compDesc = null)
+    public Task<List<ChalanListItem>> GetChalanProcessDataBasedOnCompAsync(string? compDesc = null)
     {
-        return ExecuteReader("sp_GetChalanEntriesByComp", ReadChalanListItem,
+        return ExecuteReaderAsync("sp_GetChalanEntriesByComp", ReadChalanListItem,
             new SqlParameter("@ComponentDesc", compDesc ?? (object)DBNull.Value)
         );
     }
@@ -167,9 +172,9 @@ public class ChalanProcessDAL
         );
     }
 
-    public List<ChalanDetailItem> GetAllChalanProcessDetails(string? chalanProcessHdrseq)
+    public Task<List<ChalanDetailItem>> GetAllChalanProcessDetailsAsync(string? chalanProcessHdrseq)
     {
-        return ExecuteReader("sp_GetChalanProcessDtls", reader => new ChalanDetailItem
+        return ExecuteReaderAsync("sp_GetChalanProcessDtls", reader => new ChalanDetailItem
         {
             ChalanDetailSeq = reader["f_Chalan_Proccess_DtlsSeq"].ToString() ?? string.Empty,
             DetailDate = ParseDate(reader["f_ChalanDtls_Date"]),
@@ -186,23 +191,25 @@ public class ChalanProcessDAL
         );
     }
 
-    public bool InsertIntoChalanProcessDtls(RecordChalanOutRequest request)
+    public async Task<bool> InsertIntoChalanProcessDtlsAsync(RecordChalanOutRequest request)
     {
-        return ExecuteNonQuery("sp_InsertIntoChalanProcessDtls",
+        var rows = await ExecuteNonQueryAsync("sp_InsertIntoChalanProcessDtls",
             new SqlParameter("@chalanProcessHdrseq", DbValue(request.ChalanProcessHdrSeq)),
             new SqlParameter("@f_ChalanDtls_Date", FormatDate(request.DetailDate)),
             new SqlParameter("@f_OutChalanNo", DbValue(request.OutChalanNo)),
             new SqlParameter("@f_Pending_Quantity", FormatQuantity(request.PendingQuantity)),
             new SqlParameter("@f_OutMaterial_Quantity", FormatQuantity(request.OutMaterialQuantity)),
             new SqlParameter("@f_RejectMaterial_Quantity", FormatQuantity(request.RejectMaterialQuantity))
-        ) > 0;
+        );
+        return rows > 0;
     }
 
-    public bool DeactivateRecord(string? dtlseq)
+    public async Task<bool> DeactivateRecordAsync(string? dtlseq)
     {
-        return ExecuteNonQuery("sp_Deactivate_Records",
+        var rows = await ExecuteNonQueryAsync("sp_Deactivate_Records",
             new SqlParameter("@dtlseq", DbValue(dtlseq))
-        ) > 0;
+        );
+        return rows > 0;
     }
 
 }
