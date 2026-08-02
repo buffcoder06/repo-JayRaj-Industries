@@ -11,12 +11,5 @@
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Remove="JaiRaj_Industries_v2\**\*.cs" />
-    <Content Remove="JaiRaj_Industries_v2\**\*" />
-    <EmbeddedResource Remove="JaiRaj_Industries_v2\**\*" />
-    <None Remove="JaiRaj_Industries_v2\**\*" />
-  </ItemGroup>
-
 </Project>
   
