@@ -1,6 +1,7 @@
 using System.Data;
 using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace JayRaj_Industries.Controllers
 {
@@ -8,29 +9,20 @@ namespace JayRaj_Industries.Controllers
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
         private readonly ApplicationAuditDAL _applicationAuditDAL;
-        private static readonly HashSet<string> KundalikAutomationAllowedComponents = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "JCASEDIFFERENTIAL40112573DOSTDIFFCASE",
-            "JPDIFFCASE11204001619PDNS3404145012",
-            "JDIFFCASEELDSFM180FLANGEHALF10019886",
-            "JDIFFCASES20DC103",
-            "JDIFFCASES20DC104",
-            "JDIFFCASE32931",
-            "JP375REARDIFFCASE10043997",
-            "JP375REARDIFFCASE10043998"
-        };
+        private readonly InvoicePricingOptions _pricing;
+        private readonly HashSet<string> _kundalikAutomationAllowedComponents;
+        private readonly HashSet<string> _kundalikEngineersAllowedComponents;
 
-        private static readonly HashSet<string> KundalikEngineersAllowedComponents = new(StringComparer.OrdinalIgnoreCase)
-        {
-            "JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"
-        };
-
-        public InvoiceController(IConfiguration configuration)
+        public InvoiceController(IConfiguration configuration, IOptions<InvoicePricingOptions> pricingOptions)
         {
             var connectionString = configuration.GetConnectionString("Jayraj_Industries")
                 ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
             _chalanProcessDAL = new ChalanProcessDAL(connectionString);
             _applicationAuditDAL = new ApplicationAuditDAL(connectionString);
+
+            _pricing = pricingOptions.Value;
+            _kundalikAutomationAllowedComponents = new HashSet<string>(_pricing.KundalikAutomationAllowedComponents, StringComparer.OrdinalIgnoreCase);
+            _kundalikEngineersAllowedComponents = new HashSet<string>(_pricing.KundalikEngineersAllowedComponents, StringComparer.OrdinalIgnoreCase);
         }
 
         public IActionResult Index()
@@ -108,7 +100,7 @@ namespace JayRaj_Industries.Controllers
             return Json(new { success = true });
         }
 
-        private static bool IsKundalikEngineersComponent(string description)
+        private bool IsKundalikEngineersComponent(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -121,10 +113,10 @@ namespace JayRaj_Industries.Controllers
                 return true;
             }
 
-            return KundalikEngineersAllowedComponents.Any(allowed => normalized.Contains(allowed));
+            return _kundalikEngineersAllowedComponents.Any(allowed => normalized.Contains(allowed));
         }
 
-        private static bool IsKundalikAutomationComponent(string description)
+        private bool IsKundalikAutomationComponent(string description)
         {
             if (string.IsNullOrWhiteSpace(description))
             {
@@ -132,7 +124,7 @@ namespace JayRaj_Industries.Controllers
             }
 
             var normalized = NormalizeComponent(description);
-            return KundalikAutomationAllowedComponents.Any(allowed => normalized.Contains(allowed));
+            return _kundalikAutomationAllowedComponents.Any(allowed => normalized.Contains(allowed));
         }
 
         private static string NormalizeComponent(string value)
@@ -154,26 +146,12 @@ namespace JayRaj_Industries.Controllers
             return decimal.TryParse(raw, out var result) ? result : 0m;
         }
 
-        private static decimal GetDefaultRate(string itemDescription)
+        private decimal GetDefaultRate(string itemDescription)
         {
-            var rates = new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["JLWDREARDIFFCASE10013476030"] = 8.00m,
-                ["JCASEDIFFERENTIAL40112573"] = 7.00m,
-                ["JPDIFFCASE11204001619PDNS3404145012"] = 1.00m,
-                ["JDIFFCASEELDSFM180FLANGEHALF10019886"] = 5.00m,
-                ["JDIFFCASES20DC103"] = 6.00m,
-                ["JDIFFCASES20DC104"] = 6.00m,
-                ["JDIFFCASE32931"] = 6.00m,
-                ["JP375REARDIFFCASE10043997"] = 9.00m,
-                ["JP375REARDIFFCASE10043998"] = 9.00m,
-                ["JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"] = 7.00m
-            };
-
             var normalized = NormalizeComponent(itemDescription);
-            foreach (var kv in rates)
+            foreach (var kv in _pricing.ComponentRates)
             {
-                if (normalized.Contains(kv.Key))
+                if (normalized.Contains(kv.Key, StringComparison.OrdinalIgnoreCase))
                 {
                     return kv.Value;
                 }
@@ -182,14 +160,19 @@ namespace JayRaj_Industries.Controllers
             return 0m;
         }
 
-        private static string NormalizeDisplayComponent(string itemDescription)
+        private string NormalizeDisplayComponent(string itemDescription)
         {
             if (string.IsNullOrWhiteSpace(itemDescription))
             {
                 return itemDescription;
             }
 
-            return itemDescription.Replace("10043998", "10043997", StringComparison.OrdinalIgnoreCase);
+            foreach (var kv in _pricing.ComponentDisplaySubstitutions)
+            {
+                itemDescription = itemDescription.Replace(kv.Key, kv.Value, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return itemDescription;
         }
     }
 }

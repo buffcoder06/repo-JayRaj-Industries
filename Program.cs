@@ -1,4 +1,5 @@
 using JayRaj_Industries.Filters;
+using JayRaj_Industries.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,8 @@ builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<ExceptionFilter>();
 });
+
+builder.Services.Configure<InvoicePricingOptions>(builder.Configuration.GetSection("InvoicePricing"));
 
 var app = builder.Build();
 
