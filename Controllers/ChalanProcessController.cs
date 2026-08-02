@@ -5,12 +5,10 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using JayRaj_Industries.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JayRaj_Industries.Controllers
 {
-    [AllowAnonymous]
     public class ChalanProcessController : Controller
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
@@ -26,6 +24,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> InsertChalanProcess([FromBody] CreateChalanRequest request)
         {
             if (!ModelState.IsValid)
@@ -54,6 +53,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> InsertChalanProcessDtls(RecordChalanOutRequest request)
         {
             if (!ModelState.IsValid)
@@ -130,6 +130,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<ActionResult> DeleteDetals(string? chalanProcessdtlseq)
         {
             if (string.IsNullOrWhiteSpace(chalanProcessdtlseq))

@@ -73,6 +73,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> LogInvoiceDownload([FromBody] InvoiceDownloadLogRequest request)
         {
             if (request == null)

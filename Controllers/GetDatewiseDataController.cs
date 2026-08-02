@@ -1,11 +1,9 @@
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JayRaj_Industries.Controllers
 {
-    [AllowAnonymous]
     public class GetDatewiseDataController : Controller
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;

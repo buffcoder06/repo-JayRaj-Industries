@@ -26,6 +26,7 @@ namespace JayRaj_Industries.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertChalanProcessDtls([FromBody] List<RecordChalanOutRequest> chalanData)
         {
             foreach (var chalan in chalanData)

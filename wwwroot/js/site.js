@@ -6,6 +6,32 @@
   const root = document.documentElement;
   const shell = document.querySelector(".app-shell");
 
+  // Send the antiforgery token as a header on every AJAX call so
+  // [ValidateAntiForgeryToken] POST actions accept requests that aren't
+  // traditional form posts (JSON bodies, query-string POSTs, etc.).
+  const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+  if (tokenInput && window.jQuery) {
+    window.jQuery.ajaxSetup({
+      headers: { "X-CSRF-TOKEN": tokenInput.value }
+    });
+  }
+
+  const logoutBtn = document.getElementById("btnLogout");
+  if (logoutBtn && window.jQuery) {
+    logoutBtn.addEventListener("click", function () {
+      window.jQuery.ajax({
+        url: "/Account/Logout",
+        type: "POST",
+        success: function () {
+          window.location.href = "/Account/Login";
+        },
+        error: function () {
+          window.location.href = "/Account/Login";
+        }
+      });
+    });
+  }
+
   // Theme: system/light/dark
   function applyTheme(mode) {
     if (!mode || mode === "system") {
