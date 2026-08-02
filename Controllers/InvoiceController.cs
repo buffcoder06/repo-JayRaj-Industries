@@ -1,7 +1,6 @@
 using System.Data;
 using JayRaj_Industries.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace JayRaj_Industries.Controllers
 {
@@ -9,7 +8,6 @@ namespace JayRaj_Industries.Controllers
     {
         private readonly ChalanProcessDAL _chalanProcessDAL;
         private readonly ApplicationAuditDAL _applicationAuditDAL;
-        private readonly ILogger<InvoiceController> _logger;
         private static readonly HashSet<string> KundalikAutomationAllowedComponents = new(StringComparer.OrdinalIgnoreCase)
         {
             "JCASEDIFFERENTIAL40112573DOSTDIFFCASE",
@@ -27,9 +25,8 @@ namespace JayRaj_Industries.Controllers
             "JRAWCASEDIFFP40233011PHONIXINTIGRALDIFFCASE"
         };
 
-        public InvoiceController(IConfiguration configuration, ILogger<InvoiceController> logger)
+        public InvoiceController(IConfiguration configuration)
         {
-            _logger = logger;
             var connectionString = configuration.GetConnectionString("Jayraj_Industries")
                 ?? throw new InvalidOperationException("Connection string 'Jayraj_Industries' was not found.");
             _chalanProcessDAL = new ChalanProcessDAL(connectionString);
@@ -49,96 +46,66 @@ namespace JayRaj_Industries.Controllers
                 return Json(new { success = false, message = "Start date and end date are required." });
             }
 
-            try
+            var dt = _chalanProcessDAL.GetTotalComponentDetails(startDate, endDate);
+            var rows = new List<InvoiceLineItem>();
+            var srNo = 1;
+
+            foreach (DataRow row in dt.Rows)
             {
-                var dt = _chalanProcessDAL.GetTotalComponentDetails(startDate, endDate);
-                var rows = new List<InvoiceLineItem>();
-                var srNo = 1;
-
-                foreach (DataRow row in dt.Rows)
+                var description = row["f_Component_Desc"]?.ToString() ?? string.Empty;
+                description = NormalizeDisplayComponent(description);
+                if (string.Equals(invoiceProfile, "kundalik_automation", StringComparison.OrdinalIgnoreCase) &&
+                    !IsKundalikAutomationComponent(description))
                 {
-                    var description = row["f_Component_Desc"]?.ToString() ?? string.Empty;
-                    description = NormalizeDisplayComponent(description);
-                    if (string.Equals(invoiceProfile, "kundalik_automation", StringComparison.OrdinalIgnoreCase) &&
-                        !IsKundalikAutomationComponent(description))
-                    {
-                        continue;
-                    }
-
-                    if (string.Equals(invoiceProfile, "kundalik_engineers", StringComparison.OrdinalIgnoreCase) &&
-                        !IsKundalikEngineersComponent(description))
-                    {
-                        continue;
-                    }
-
-                    var qty = TryToDecimal(row, "MaterialOutQuantity");
-
-                    rows.Add(new InvoiceLineItem
-                    {
-                        SrNo = srNo++,
-                        ItemDescription = description,
-                        Qty = qty,
-                        Unit = "Nos",
-                        Rate = GetDefaultRate(description)
-                    });
+                    continue;
                 }
 
-                return Json(new { success = true, items = rows });
+                if (string.Equals(invoiceProfile, "kundalik_engineers", StringComparison.OrdinalIgnoreCase) &&
+                    !IsKundalikEngineersComponent(description))
+                {
+                    continue;
+                }
+
+                var qty = TryToDecimal(row, "MaterialOutQuantity");
+
+                rows.Add(new InvoiceLineItem
+                {
+                    SrNo = srNo++,
+                    ItemDescription = description,
+                    Qty = qty,
+                    Unit = "Nos",
+                    Rate = GetDefaultRate(description)
+                });
             }
-            catch (Exception ex)
-            {
-                LogExceptionToDatabase(nameof(GetInvoiceLineItems), ex, $"startDate={startDate};endDate={endDate};invoiceProfile={invoiceProfile}");
-                _logger.LogError(ex, "Failed to load invoice line items. startDate={StartDate}, endDate={EndDate}, profile={InvoiceProfile}", startDate, endDate, invoiceProfile);
-                return Json(new { success = false, message = "Unable to load invoice data right now." });
-            }
+
+            return Json(new { success = true, items = rows });
         }
 
         [HttpPost]
         public IActionResult LogInvoiceDownload([FromBody] InvoiceDownloadLogRequest request)
         {
-            try
+            if (request == null)
             {
-                if (request == null)
-                {
-                    return Json(new { success = false, message = "Invalid payload." });
-                }
-
-                _applicationAuditDAL.LogInvoiceData(
-                    request.StartDate,
-                    request.EndDate,
-                    request.InvoiceProfile,
-                    request.InvoiceNo,
-                    request.InvoiceDate,
-                    User?.Identity?.Name ?? "system",
-                    nameof(InvoiceController),
-                    nameof(LogInvoiceDownload),
-                    request.AssessableValue,
-                    request.CgstAmount,
-                    request.SgstAmount,
-                    request.GstAmount,
-                    request.GrandTotal,
-                    request.Items ?? new List<InvoiceLineItem>());
-
-                return Json(new { success = true });
+                return Json(new { success = false, message = "Invalid payload." });
             }
-            catch (Exception ex)
-            {
-                LogExceptionToDatabase(nameof(LogInvoiceDownload), ex);
-                _logger.LogError(ex, "Failed to log invoice download.");
-                return Json(new { success = false, message = "Unable to log invoice download right now." });
-            }
-        }
 
-        private void LogExceptionToDatabase(string actionName, Exception ex, string? payload = null)
-        {
-            _applicationAuditDAL.LogException(
+            _applicationAuditDAL.LogInvoiceData(
+                request.StartDate,
+                request.EndDate,
+                request.InvoiceProfile,
+                request.InvoiceNo,
+                request.InvoiceDate,
+                User?.Identity?.Name ?? "system",
                 nameof(InvoiceController),
-                actionName,
-                ex,
-                HttpContext?.Request?.Path.Value,
-                HttpContext?.Request?.Method,
-                payload,
-                User?.Identity?.Name);
+                nameof(LogInvoiceDownload),
+                request.AssessableValue,
+                request.CgstAmount,
+                request.SgstAmount,
+                request.GstAmount,
+                request.GrandTotal,
+                request.Items ?? new List<InvoiceLineItem>());
+
+            return Json(new { success = true });
         }
 
         private static bool IsKundalikEngineersComponent(string description)
