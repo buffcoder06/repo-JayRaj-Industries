@@ -316,8 +316,10 @@
         return profileKey === "scrap" && selectedParty === "steel_trade";
     }
 
+    // Render-only: runs on every edit to any header field, so it must not
+    // re-apply defaults. The default PO date is set explicitly on load and
+    // when the invoice type or scrap party changes (setPoDateByContext callers).
     function syncHeader() {
-        setPoDateByContext();
         updatePoDateEditState();
         const profileKey = $("#invoiceProfileSelect").val();
         const selectedParty = $("#scrapPartySelect").val() || "kundalik_automation";
@@ -598,17 +600,21 @@
         const pageHeight = pdf.internal.pageSize.getHeight();
         const imgWidth = pageWidth;
         const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        // The sheet is exactly 210x297mm, but px rounding in the capture makes
+        // it ~0.04mm taller than A4; without slack an exact comparison spills
+        // a sliver of the bottom border onto an otherwise blank extra page.
+        const PAGE_FIT_TOLERANCE_MM = 1;
 
         let y = 0;
-        if (imgHeight <= pageHeight) {
-            pdf.addImage(imageData, "PNG", 0, 0, imgWidth, imgHeight);
+        if (imgHeight <= pageHeight + PAGE_FIT_TOLERANCE_MM) {
+            pdf.addImage(imageData, "PNG", 0, 0, imgWidth, Math.min(imgHeight, pageHeight));
         } else {
             let remainingHeight = imgHeight;
-            while (remainingHeight > 0) {
+            while (remainingHeight > PAGE_FIT_TOLERANCE_MM) {
                 pdf.addImage(imageData, "PNG", 0, y, imgWidth, imgHeight);
                 remainingHeight -= pageHeight;
                 y -= pageHeight;
-                if (remainingHeight > 0) pdf.addPage();
+                if (remainingHeight > PAGE_FIT_TOLERANCE_MM) pdf.addPage();
             }
         }
 
