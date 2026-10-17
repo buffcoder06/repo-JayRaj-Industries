@@ -40,8 +40,6 @@ $(document).ready(function () {
         $('#idChalanNew').prop('hidden', true);
     });
 
-    $('#btnExportCsv').on('click', exportVisibleRowsToCsv);
-
     $('#SaveChalanStatus').on('click', function () {
         if (fnValidations1()) InsertChalanDetails();
     });
@@ -262,28 +260,6 @@ function buildRow(item) {
 
 function escapeHtml(value) {
     return $('<div>').text(value || '').html();
-}
-
-function exportVisibleRowsToCsv() {
-    var rows = [['Date', 'Component', 'Chalan No', 'Qty In', 'Pending', 'Status']];
-    $('#tblchalanProcess tbody tr').each(function () {
-        var item = $(this).data('item');
-        if (!item) return;
-        var status = rowStatus(item);
-        rows.push([formatDate(item.date), item.componentDescription, item.chalanNo, item.actualInMaterialQuantity, item.pendingQuantity, status.label]);
-    });
-    var csv = rows.map(function (r) {
-        return r.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'chalan-process.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
 }
 
 // ---------------------------------------------------------------------
