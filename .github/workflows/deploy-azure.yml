@@ -1,0 +1,60 @@
+# Builds the app and deploys it to Azure App Service on every push to main.
+# Live site: https://jayrajindustries.azurewebsites.net
+#
+# Signs in to Azure with GitHub OIDC, so no secrets are stored in GitHub.
+# Azure trusts only this repo's main branch (federated credential
+# "github-main" on the "github-deploy-jayrajindustries" app registration),
+# and that identity can only manage the jayrajindustries web app.
+# The IDs below are identifiers, not secrets.
+#
+# The database connection string and time zone live in the web app's
+# configuration in Azure, not in this repo.
+
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+concurrency:
+  group: deploy-azure
+  cancel-in-progress: false
+
+env:
+  AZURE_WEBAPP_NAME: jayrajindustries
+  AZURE_CLIENT_ID: 7c3f7e26-c065-4de3-a4ae-44ea09dadf6e
+  AZURE_TENANT_ID: 6a01c756-1b50-41eb-a5aa-a458e57e4626
+  AZURE_SUBSCRIPTION_ID: ef8e81f1-51e6-4e06-96ea-79b32437d697
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # No `environment:` here on purpose: it would change the OIDC subject
+    # to "environment:..." and Azure only trusts "ref:refs/heads/main".
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish
+        run: dotnet publish JayRaj_Industries.csproj -c Release -o publish
+
+      - name: Sign in to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: publish
