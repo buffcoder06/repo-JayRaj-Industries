@@ -299,31 +299,6 @@ html, body.app-body {
   flex: none;
 }
 
-.jr-icon-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--jr-line-strong);
-  border-radius: var(--jr-r-ctrl);
-  background: var(--jr-surface);
-  color: var(--jr-icon);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex: none;
-}
-
-.jr-icon-btn:hover {
-  background: var(--jr-hover);
-  color: var(--jr-ink-2);
-}
-
-.jr-icon-btn svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
-
 .app-content {
   padding: 22px 24px 28px;
   flex: 1;
