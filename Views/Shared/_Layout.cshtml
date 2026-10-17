@@ -26,7 +26,8 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body class="app-body jr-app">
+<body class="app-body jr-app"
+      data-session-idle-seconds="@(User?.Identity?.IsAuthenticated == true ? ((int)JayRaj_Industries.Filters.SessionPolicy.IdleTimeout.TotalSeconds).ToString() : "")">
     @Html.AntiForgeryToken()
     <div class="app-shell" data-theme="system">
         <aside class="app-sidebar" aria-label="Primary navigation">

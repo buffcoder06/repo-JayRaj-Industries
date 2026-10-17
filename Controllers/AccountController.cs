@@ -22,11 +22,12 @@ namespace JayRaj_Industries.Controllers
             _usersDAL = usersDAL;
         }
 
-        // How long "Keep me signed in" keeps the session alive.
-        private static readonly TimeSpan RememberMeLifetime = TimeSpan.FromDays(7);
+        // Verified against when the username doesn't exist, so an unknown user
+        // takes as long to reject as a wrong password (no username probing by timing).
+        private static readonly string DummyPasswordHash = PasswordHasher.Hash(Guid.NewGuid().ToString());
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null, bool throttled = false)
+        public IActionResult Login(string? returnUrl = null, bool throttled = false, bool expired = false)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -37,6 +38,10 @@ namespace JayRaj_Industries.Controllers
             if (throttled)
             {
                 ModelState.AddModelError(string.Empty, "Too many sign-in attempts. Please wait a few minutes and try again.");
+            }
+            else if (expired)
+            {
+                ViewData["Notice"] = $"You were signed out after {SessionPolicy.IdleTimeout.TotalMinutes:0.#} minutes of inactivity. Please sign in again.";
             }
             return View(new LoginRequest());
         }
@@ -54,7 +59,8 @@ namespace JayRaj_Industries.Controllers
             }
 
             var user = await _usersDAL.FindByUsernameAsync(request.Username);
-            if (user == null || !PasswordHasher.Verify(request.Password, user.PasswordHash))
+            var passwordOk = PasswordHasher.Verify(request.Password, user?.PasswordHash ?? DummyPasswordHash);
+            if (user == null || !passwordOk)
             {
                 ModelState.AddModelError(string.Empty, "Incorrect username or password.");
                 request.Password = string.Empty;
@@ -72,13 +78,9 @@ namespace JayRaj_Industries.Controllers
             }
 
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var properties = new AuthenticationProperties
-            {
-                IsPersistent = request.RememberMe,
-                // Unset → the cookie options' 8-hour sliding expiry applies.
-                ExpiresUtc = request.RememberMe ? DateTimeOffset.UtcNow.Add(RememberMeLifetime) : null
-            };
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity), properties);
+            // Browser-session cookie with the 15-min idle / 12-h absolute limits (SessionPolicy).
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(identity), SessionPolicy.NewSessionProperties());
 
             return LocalRedirect(SafeReturnUrl(returnUrl));
         }

@@ -79,6 +79,14 @@
                 <h1 class="jr-login__title">Sign in</h1>
                 <p class="jr-login__subtitle">Welcome back. Enter your details to continue.</p>
 
+                @if (!hasErrors && ViewData["Notice"] is string notice)
+                {
+                    <div class="jr-login__alert jr-login__alert--info" role="status">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-6h2zm0-8h-2V7h2z" /></svg>
+                        <div>@notice</div>
+                    </div>
+                }
+
                 @if (hasErrors)
                 {
                     <div class="jr-login__alert" role="alert">
@@ -117,11 +125,6 @@
                         </div>
                     </div>
 
-                    <label class="jr-login__remember">
-                        <input type="checkbox" name="RememberMe" value="true" @(Model.RememberMe ? "checked" : "") />
-                        Keep me signed in for 7 days
-                    </label>
-
                     <button type="submit" class="jr-login__submit" id="loginSubmit">
                         <span class="jr-login__spinner" aria-hidden="true"></span>
                         <span class="jr-login__submit-label">Sign in</span>
@@ -131,7 +134,7 @@
 
                 <div class="jr-login__secure">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5zm-1.5 15.5-4-4 1.4-1.4 2.6 2.6 6.1-6.1 1.4 1.4z" /></svg>
-                    Secure, encrypted sign-in
+                    Secure sign-in · signs out after @JayRaj_Industries.Filters.SessionPolicy.IdleTimeout.TotalMinutes.ToString("0.#") minutes of inactivity
                 </div>
             </div>
 

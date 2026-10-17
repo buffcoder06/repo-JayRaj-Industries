@@ -595,6 +595,60 @@
 .jr-modal > :first-child { border-radius: 14px 14px 0 0; }
 .jr-modal > :last-child { border-radius: 0 0 14px 14px; }
 
+/* Idle-session warning (built by site.js); sits above other popups */
+.jr-session-warning {
+  z-index: 2000;
+  align-items: center;
+}
+
+.jr-modal--session {
+  max-width: 400px;
+}
+
+.jr-session-warning__body {
+  padding: 28px 28px 8px;
+  text-align: center;
+}
+
+.jr-session-warning__icon {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--jr-warning-bg);
+  border: 1px solid var(--jr-warning-line);
+  color: var(--jr-warning-dot);
+}
+
+.jr-session-warning__icon svg { width: 22px; height: 22px; fill: currentColor; }
+
+.jr-session-warning__title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  margin: 0 0 6px;
+  color: var(--jr-ink);
+}
+
+.jr-session-warning__text {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--jr-ink-2);
+  margin: 0;
+}
+
+.jr-session-warning__text strong { color: var(--jr-ink); }
+
+.jr-session-warning__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 28px 24px;
+}
+
 /* Static (in-markup) popups are toggled with [hidden] */
 .jr-modal-backdrop[hidden] {
   display: none;

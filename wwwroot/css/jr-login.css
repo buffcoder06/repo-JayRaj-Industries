@@ -240,6 +240,12 @@ body.jr-login {
   line-height: 1.45;
 }
 
+.jr-login__alert--info {
+  border-color: #bfdbfe;
+  background: var(--jr-blue-50);
+  color: var(--jr-blue-800);
+}
+
 .jr-login__alert svg { width: 16px; height: 16px; flex: none; fill: currentColor; margin-top: 1px; }
 
 .jr-login__form {
@@ -333,25 +339,6 @@ body.jr-login {
 
 .jr-login__hint[hidden] { display: none; }
 .jr-login__hint svg { width: 13px; height: 13px; fill: currentColor; }
-
-.jr-login__remember {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 13px;
-  color: var(--jr-ink-2);
-  cursor: pointer;
-  user-select: none;
-  width: fit-content;
-}
-
-.jr-login__remember input {
-  width: 16px;
-  height: 16px;
-  margin: 0;
-  accent-color: var(--jr-accent);
-  cursor: pointer;
-}
 
 .jr-login__submit {
   height: 44px;

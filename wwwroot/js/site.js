@@ -122,6 +122,109 @@
     if (clean !== el.value) el.value = clean;
   }, true);
 
+  // -------------------------------------------------------------------
+  // Idle session timeout (server limit: SessionPolicy.IdleTimeout).
+  // The server renews the session on every request; this mirrors that clock
+  // in the browser so the user is warned 2 minutes before sign-out, and any
+  // real activity (typing, clicking) quietly keeps the session alive.
+  // The clock is shared across tabs through localStorage.
+  // -------------------------------------------------------------------
+  const idleSeconds = parseInt(document.body.dataset.sessionIdleSeconds || "", 10);
+  if (idleSeconds > 0 && window.jQuery) {
+    const $ = window.jQuery;
+    const IDLE_MS = idleSeconds * 1000 - 5000;   // a little before the server's limit
+    const WARN_MS = 2 * 60 * 1000;
+    const PING_EVERY_MS = 60 * 1000;           // at most one keep-alive per minute
+    const KEY = "jr.lastServerActivity";
+    let lastLocal = Date.now();
+    let pinging = false;
+    let signingOut = false;
+    let $warning = null;
+
+    const readLast = () => {
+      try { return Math.max(lastLocal, parseInt(localStorage.getItem(KEY) || "0", 10) || 0); }
+      catch (e) { return lastLocal; }
+    };
+    const markServerActivity = () => {
+      lastLocal = Date.now();
+      try { localStorage.setItem(KEY, String(lastLocal)); } catch (e) { /* private mode */ }
+    };
+    const goToLogin = () => {
+      if (signingOut) return;
+      signingOut = true;
+      const back = window.location.pathname + window.location.search;
+      window.location.href = "/Account/Login?expired=true&returnUrl=" + encodeURIComponent(back);
+    };
+    const signOutNow = () => {
+      if (signingOut) return;
+      $.ajax({ url: "/Account/Logout", type: "POST", global: false, complete: goToLogin });
+    };
+    const keepAlive = () => {
+      if (pinging || signingOut) return;
+      pinging = true;
+      $.ajax({ url: "/Session/KeepAlive", type: "GET", cache: false })
+        .always(() => { pinging = false; });
+    };
+
+    // Every successful server round-trip renews the session.
+    $(document).ajaxSuccess(markServerActivity);
+    // Session already gone (e.g. laptop slept): go to sign-in instead of a
+    // confusing "Load Error".
+    $(document).ajaxError((e, xhr) => { if (xhr.status === 401) goToLogin(); });
+    markServerActivity();
+
+    // Real user activity extends the session (unless the warning is showing,
+    // where the user must choose explicitly).
+    ["keydown", "mousedown", "touchstart", "wheel"].forEach((evt) =>
+      document.addEventListener(evt, () => {
+        if ($warning) return;
+        if (Date.now() - readLast() > PING_EVERY_MS) keepAlive();
+      }, { passive: true, capture: true }));
+
+    const formatLeft = (ms) => {
+      const s = Math.max(0, Math.ceil(ms / 1000));
+      return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+    };
+
+    const showWarning = () => {
+      $warning = $(
+        '<div class="jr-modal-backdrop jr-session-warning" role="presentation">' +
+          '<div class="jr-modal jr-modal--session" role="alertdialog" aria-modal="true" aria-labelledby="jrSessionTitle" aria-describedby="jrSessionText">' +
+            '<div class="jr-session-warning__body">' +
+              '<div class="jr-session-warning__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm.5 5v5.2l4.3 2.6-.8 1.3-5-3V7z"/></svg></div>' +
+              '<h2 class="jr-session-warning__title" id="jrSessionTitle">Still there?</h2>' +
+              '<p class="jr-session-warning__text" id="jrSessionText">For security you\'ll be signed out in <strong class="jr-tabular" id="jrSessionLeft"></strong> because of inactivity.</p>' +
+            '</div>' +
+            '<div class="jr-session-warning__actions">' +
+              '<button type="button" class="jr-btn jr-btn--ghost" id="jrSessionSignOut">Sign out</button>' +
+              '<button type="button" class="jr-btn jr-btn--accent" id="jrSessionStay">Stay signed in</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>');
+      $("body").append($warning);
+      requestAnimationFrame(() => requestAnimationFrame(() => $warning && $warning.addClass("is-open")));
+      $warning.find("#jrSessionStay").on("click", () => { keepAlive(); hideWarning(); }).trigger("focus");
+      $warning.find("#jrSessionSignOut").on("click", signOutNow);
+    };
+    const hideWarning = () => {
+      if (!$warning) return;
+      $warning.remove();
+      $warning = null;
+    };
+
+    setInterval(() => {
+      if (signingOut) return;
+      const left = readLast() + IDLE_MS - Date.now();
+      if (left <= 0) { hideWarning(); signOutNow(); return; }
+      if (left <= WARN_MS) {
+        if (!$warning) showWarning();
+        $warning.find("#jrSessionLeft").text(formatLeft(left));
+      } else if ($warning) {
+        hideWarning();   // another tab (or a ping) extended the session
+      }
+    }, 1000);
+  }
+
   // Apply global SweetAlert2 branding once library is available.
   function setupSwalTheme() {
     if (!window.Swal || window.__jrSwalPatched) return false;
