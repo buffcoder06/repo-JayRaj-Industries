@@ -42,13 +42,23 @@
     </div>
 </section>
 
-<section class="jr-card" id="idChalanNew" hidden>
-    <div class="jr-card__header">
-        <span class="jr-card__title">Chalan In Material Entry</span>
-        <button type="button" class="jr-row-btn jr-row-btn--borderless" id="btnCancelNewChalan">Cancel</button>
+<!-- New incoming chalan popup. Closes only via Cancel, ✕ or a successful
+     Save — no backdrop-click or Escape close (see ChalanProcess.js). -->
+<div class="jr-modal-backdrop" id="idChalanNew" hidden>
+<div class="jr-modal jr-modal--form" role="dialog" aria-modal="true" aria-labelledby="newChalanTitle">
+    <div class="jr-docked__header">
+        <div>
+            <span class="jr-docked__title" id="newChalanTitle">New incoming chalan</span>
+            <span class="jr-docked__subtitle">Material received in from the customer</span>
+        </div>
+        <div class="jr-docked__actions">
+            <button type="button" class="jr-modal__close" id="btnCloseNewChalan" aria-label="Close" title="Close">
+                <svg viewBox="0 0 24 24"><path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.29-6.3z" /></svg>
+            </button>
+        </div>
     </div>
-    <div class="jr-card__body" style="display:flex;flex-wrap:wrap;gap:14px;align-items:end;">
-        <div class="jr-field">
+    <div class="jr-docked__body">
+        <div class="jr-field" data-field="date">
             <label class="jr-field__label">Date<span class="jr-field__required">*</span></label>
             <div class="jr-daterange" data-jr-daterange>
                 <input type="hidden" data-jr-role="start" id="idDatenew" />
@@ -58,8 +68,9 @@
                 </button>
                 <div class="jr-daterange__panel" hidden></div>
             </div>
+            <div class="jr-field__error"></div>
         </div>
-        <div class="jr-field" style="min-width:260px;">
+        <div class="jr-field jr-field--wide" data-field="component">
             <label class="jr-field__label" for="ddlComponentnew">Component description<span class="jr-field__required">*</span></label>
             <div class="jr-dropdown" data-jr-dropdown>
                 <select id="ddlComponentnew" hidden>
@@ -79,8 +90,8 @@
                     <option value="JR_JDCR252596A130E1">J Diff Cover R252596-A130E1(Sona)</option>
                     <option value="JR_JRCDP40233011">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
                 </select>
-                <button type="button" class="jr-dropdown__trigger" style="width:100%;min-width:260px;"><span class="jr-dropdown__label"></span><svg class="jr-dropdown__caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg></button>
-                <div class="jr-dropdown__panel" hidden>
+                <button type="button" class="jr-dropdown__trigger" style="width:100%;"><span class="jr-dropdown__label"></span><svg class="jr-dropdown__caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg></button>
+                <div class="jr-dropdown__panel" hidden style="width:100%;">
                     <div class="jr-dropdown__filter">
                         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" /></svg>
                         <input class="jr-dropdown__filter-input" type="text" placeholder="Filter components…" />
@@ -89,18 +100,25 @@
                     <div class="jr-dropdown__footer"><span>↑↓ to move · Enter to select</span><span>Esc to close</span></div>
                 </div>
             </div>
+            <div class="jr-field__error"></div>
         </div>
-        <div class="jr-field">
+        <div class="jr-field" data-field="chalanNo">
             <label class="jr-field__label" for="idchalanNonew">Chalan no<span class="jr-field__required">*</span></label>
-            <input type="text" class="jr-input" id="idchalanNonew" autocomplete="off" inputmode="numeric" data-jr-digits />
+            <input type="text" class="jr-input" id="idchalanNonew" placeholder="At least 7 digits" autocomplete="off" inputmode="numeric" data-jr-digits />
+            <div class="jr-field__error"></div>
         </div>
-        <div class="jr-field">
+        <div class="jr-field" data-field="qty">
             <label class="jr-field__label" for="idQuantitynew">Quantity<span class="jr-field__required">*</span></label>
-            <input type="text" class="jr-input" id="idQuantitynew" />
+            <input type="text" class="jr-input" id="idQuantitynew" placeholder="Nos" autocomplete="off" inputmode="numeric" data-jr-digits />
+            <div class="jr-field__error"></div>
         </div>
-        <button type="button" class="jr-btn jr-btn--accent" id="SaveChalanStatus">Save entry</button>
     </div>
-</section>
+    <div class="jr-docked__save-row">
+        <button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="SaveChalanStatus">Save entry</button>
+        <button type="button" class="jr-btn jr-btn--text jr-btn--sm" id="btnCancelNewChalan">Cancel</button>
+    </div>
+</div>
+</div>
 
 <section class="jr-card" id="idChalanProcessGrid">
     <div class="jr-toolbar">

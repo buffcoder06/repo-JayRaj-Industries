@@ -27,22 +27,18 @@ $(document).ready(function () {
         currentPage++; renderGrid();
     });
 
-    $('#btnHeaderNewChalan').on('click', function () {
-        closeDockedPanel();
-        var dateInput = document.getElementById('idDatenew');
-        if (!dateInput.value) {
-            dateInput.value = new Date().toISOString().split('T')[0];
-            dateInput.dispatchEvent(new Event('change'));
-        }
-        $('#idChalanNew').prop('hidden', false)[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
-    $('#btnCancelNewChalan').on('click', function () {
-        $('#idChalanNew').prop('hidden', true);
-    });
+    $('#btnHeaderNewChalan').on('click', openNewChalanModal);
+    $('#btnCancelNewChalan, #btnCloseNewChalan').on('click', function () { closeNewChalanModal(); });
 
     $('#SaveChalanStatus').on('click', function () {
         if (fnValidations1()) InsertChalanDetails();
     });
+    $('#idchalanNonew, #idQuantitynew').on('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); $('#SaveChalanStatus').trigger('click'); }
+    });
+    $('#idchalanNonew').on('input', function () { setNewChalanError('chalanNo', ''); });
+    $('#idQuantitynew').on('input', function () { setNewChalanError('qty', ''); });
+    $('#ddlComponentnew').on('change', function () { setNewChalanError('component', ''); });
 
     // Record out → entry form only; chalan number (or View on closed rows)
     // → previous out entries with Delete.
@@ -277,8 +273,7 @@ function toggleDockedPanel(hdrSeq, mode) {
 }
 
 function closeDockedPanel() {
-    var $backdrop = $('.jr-modal-backdrop');
-    $(document).off('keydown.jrDockedModal');
+    var $backdrop = $('.jr-modal-backdrop--docked');
     openDockedHdrSeq = null;
     openDockedMode = null;
     if (!$backdrop.length) return;
@@ -287,9 +282,8 @@ function closeDockedPanel() {
 }
 
 function openDockedPanel(hdrSeq, mode) {
-    $('#idChalanNew').prop('hidden', true);
-    $('.jr-modal-backdrop').remove();
-    $(document).off('keydown.jrDockedModal');
+    closeNewChalanModal(true);
+    $('.jr-modal-backdrop--docked').remove();
 
     var item = gridDataCache.find(function (it) { return String(it.chalanProcessHdrSeq) === hdrSeq; });
     if (!item) return;
@@ -301,7 +295,7 @@ function openDockedPanel(hdrSeq, mode) {
     openDockedHdrSeq = hdrSeq;
     openDockedMode = mode;
 
-    var today = new Date().toISOString().split('T')[0];
+    var today = jrToday();
 
     var headerHtml = '<div class="jr-docked__header">' +
         '<div><span class="jr-docked__title">' + (isRecord ? 'Record out material' : 'Out entries') + '</span>' +
@@ -340,7 +334,7 @@ function openDockedPanel(hdrSeq, mode) {
             '</tr></thead><tbody></tbody></table></div></div>';
     }
 
-    var $backdrop = $('<div class="jr-modal-backdrop"></div>');
+    var $backdrop = $('<div class="jr-modal-backdrop jr-modal-backdrop--docked"></div>');
     var $modal = $('<div class="jr-modal' + (isRecord ? '' : ' jr-modal--narrow') + '" role="dialog" aria-modal="true"></div>');
     $modal.html(headerHtml + bodyHtml);
     $backdrop.append($modal);
@@ -354,13 +348,8 @@ function openDockedPanel(hdrSeq, mode) {
         requestAnimationFrame(function () { $backdrop.addClass('is-open'); });
     });
 
-    $backdrop.on('mousedown', function (e) {
-        if (e.target === $backdrop[0]) closeDockedPanel();
-    });
-    $(document).on('keydown.jrDockedModal', function (e) {
-        if (e.key === 'Escape') closeDockedPanel();
-    });
-
+    // Deliberately no backdrop-click / Escape close: the popup only closes
+    // via Cancel, ✕ or a successful Save, so a stray click can't lose input.
     $docked.find('#dockedCancel, #dockedClose').on('click', closeDockedPanel);
 
     if (!isRecord) {
@@ -562,31 +551,61 @@ function deleteDockedEntry(chalanDetailSeq) {
 // ---------------------------------------------------------------------
 // New incoming chalan
 // ---------------------------------------------------------------------
+// Static popup in the view; closes only via Cancel, ✕ or a successful Save.
+function openNewChalanModal() {
+    closeDockedPanel();
+    resetNewChalanForm();
+    var $backdrop = $('#idChalanNew').prop('hidden', false);
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () { $backdrop.addClass('is-open'); });
+    });
+    setTimeout(function () { $('#idchalanNonew').trigger('focus'); }, 220);
+}
+
+function closeNewChalanModal(immediate) {
+    var $backdrop = $('#idChalanNew');
+    if ($backdrop.prop('hidden')) return;
+    $backdrop.removeClass('is-open');
+    if (immediate) { $backdrop.prop('hidden', true); return; }
+    setTimeout(function () { if (!$backdrop.hasClass('is-open')) $backdrop.prop('hidden', true); }, 200);
+}
+
+function resetNewChalanForm() {
+    var dateInput = document.getElementById('idDatenew');
+    dateInput.value = jrToday();
+    dateInput.dispatchEvent(new Event('change'));
+    var select = document.getElementById('ddlComponentnew');
+    select.value = '0';
+    select.dispatchEvent(new Event('change'));
+    $('#idchalanNonew, #idQuantitynew').val('');
+    $('#idChalanNew .jr-field').removeClass('is-invalid').find('.jr-field__error').text('');
+}
+
+function setNewChalanError(name, message) {
+    var $field = $('#idChalanNew [data-field="' + name + '"]');
+    $field.toggleClass('is-invalid', !!message);
+    $field.find('.jr-field__error').text(message || '');
+}
+
 function fnValidations1() {
-    if ($('#idDatenew').val() === '') {
-        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please Enter Chalan Date.', confirmButtonColor: 'red' });
-        return false;
-    }
-    if ($('#ddlComponentnew').val() === '0') {
-        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Component Name', confirmButtonColor: 'red' });
-        return false;
-    }
-    if ($('#idchalanNonew').val() === '') {
-        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Chalan Number', confirmButtonColor: 'red' });
-        return false;
-    }
-    if ($('#idQuantitynew').val() === '') {
-        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Quantity', confirmButtonColor: 'red' });
-        return false;
-    }
-    if ($('#idchalanNonew').val().length < 7) {
-        Swal.fire({ icon: 'error', title: 'Validation Error!', text: 'Chalan Number must be at least 7 digits', confirmButtonColor: 'red' });
+    var chalanNo = $('#idchalanNonew').val();
+    var qty = Number($('#idQuantitynew').val());
+    setNewChalanError('date', $('#idDatenew').val() ? '' : 'Pick the chalan date.');
+    setNewChalanError('component', $('#ddlComponentnew').val() !== '0' ? '' : 'Select a component.');
+    setNewChalanError('chalanNo', !chalanNo ? 'Enter the chalan number.' :
+        (chalanNo.length < 7 ? 'Chalan number must be at least 7 digits.' : ''));
+    setNewChalanError('qty', qty > 0 ? '' : 'Enter a quantity above 0.');
+
+    var $firstInvalid = $('#idChalanNew .jr-field.is-invalid').first();
+    if ($firstInvalid.length) {
+        $firstInvalid.find('input:not([type=hidden]), button').first().trigger('focus');
         return false;
     }
     return true;
 }
 
 function InsertChalanDetails() {
+    var $save = $('#SaveChalanStatus').prop('disabled', true);
     $.ajax({
         url: '/ChalanProcess/InsertChalanProcess',
         type: 'POST',
@@ -600,16 +619,20 @@ function InsertChalanDetails() {
             companyCode: 'NA'
         }),
         success: function (response) {
-            if (response.success) {
-                Swal.fire({ icon: 'success', title: 'Saved!', text: response.message, confirmButtonColor: '#28a745' }).then(function () {
-                    window.location.reload();
-                });
+            if (response && response.success) {
+                closeNewChalanModal();
+                loadGridData();
+                Swal.fire({ icon: 'success', title: 'Saved!', text: response.message, confirmButtonColor: '#28a745' });
             } else {
-                Swal.fire({ icon: 'error', title: 'Save Error!', text: response.message, confirmButtonColor: 'red' });
+                // Popup stays open so nothing typed is lost.
+                Swal.fire({ icon: 'error', title: 'Save Error!', text: (response && response.message) || 'Unable to save chalan.', confirmButtonColor: 'red' });
             }
         },
         error: function () {
             Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Unable to save chalan. Please try again.', confirmButtonColor: 'red' });
+        },
+        complete: function () {
+            $save.prop('disabled', false);
         }
     });
 }

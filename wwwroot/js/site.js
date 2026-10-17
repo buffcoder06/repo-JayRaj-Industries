@@ -104,6 +104,15 @@
     });
   }
 
+  // Today's date as YYYY-MM-DD in the user's local time zone. Don't use
+  // toISOString() for this: it's UTC, so in India it gives yesterday's date
+  // between midnight and 5:30 AM.
+  window.jrToday = function () {
+    const d = new Date();
+    const pad = (n) => String(n).padStart(2, "0");
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  };
+
   // Digits-only inputs (chalan numbers): mark with data-jr-digits. Delegated
   // so inputs rendered later (e.g. inside popups) are covered too.
   document.addEventListener("input", (e) => {

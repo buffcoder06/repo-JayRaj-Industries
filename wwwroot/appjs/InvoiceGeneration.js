@@ -244,7 +244,7 @@
     }
 
     function setToday(id) {
-        const today = new Date().toISOString().split("T")[0];
+        const today = jrToday();
         const el = document.getElementById(id);
         if (el) el.value = today;
     }

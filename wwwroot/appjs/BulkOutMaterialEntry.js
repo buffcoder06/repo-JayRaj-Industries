@@ -12,7 +12,7 @@ $(document).ready(function () {
     $('#divChalan').hide();
     $('#idSubmit').hide();
 
-    var today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    var today = jrToday(); // local date, YYYY-MM-DD
     var txtDateEl = document.getElementById('txtDate');
     txtDateEl.value = today;
     txtDateEl.dispatchEvent(new Event('change'));
