@@ -1,0 +1,426 @@
+/* JayRaj Industries — sign-in page. Split layout: brand panel + form. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body.jr-login {
+  margin: 0;
+  min-height: 100%;
+}
+
+body.jr-login {
+  font-family: var(--jr-font);
+  -webkit-font-smoothing: antialiased;
+  color: var(--jr-ink);
+  background: var(--jr-surface);
+}
+
+.jr-login__shell {
+  display: grid;
+  grid-template-columns: minmax(420px, 46%) 1fr;
+  min-height: 100vh;
+}
+
+/* ---------- Brand panel ---------- */
+.jr-login__brand {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 48px;
+  color: #e7eaf0;
+  background:
+    radial-gradient(90% 70% at 100% 0%, rgba(37, 99, 235, .38) 0, transparent 60%),
+    radial-gradient(70% 60% at 0% 100%, rgba(29, 78, 216, .28) 0, transparent 60%),
+    #101318;
+}
+
+/* Faint engineering grid behind the content */
+.jr-login__brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(120% 90% at 30% 40%, #000 30%, transparent 85%);
+  -webkit-mask-image: radial-gradient(120% 90% at 30% 40%, #000 30%, transparent 85%);
+  pointer-events: none;
+}
+
+.jr-login__brand > * { position: relative; }
+
+.jr-login__mark {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.jr-login__logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #fff;
+  padding: 3px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .35);
+  flex: none;
+}
+
+.jr-login__logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 9px;
+}
+
+.jr-login__company {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+
+.jr-login__product {
+  font-size: 12px;
+  color: #9aa3b2;
+  font-weight: 500;
+}
+
+.jr-login__pitch {
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: 48px 0;
+  max-width: 440px;
+}
+
+.jr-login__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #93b4fb;
+  margin-bottom: 18px;
+}
+
+.jr-login__eyebrow::before {
+  content: "";
+  width: 18px;
+  height: 1px;
+  background: currentColor;
+}
+
+.jr-login__headline {
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -.025em;
+  color: #fff;
+  margin: 0 0 14px;
+  text-wrap: balance;
+}
+
+.jr-login__lede {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #aeb6c4;
+  margin: 0 0 32px;
+}
+
+.jr-login__features {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+}
+
+.jr-login__feature {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.jr-login__feature-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .10);
+  color: #bcd0fd;
+}
+
+.jr-login__feature-icon svg { width: 16px; height: 16px; fill: currentColor; }
+
+.jr-login__feature strong {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #f1f3f7;
+  margin-bottom: 2px;
+}
+
+.jr-login__feature span {
+  font-size: 12.5px;
+  color: #8f98a8;
+  line-height: 1.5;
+}
+
+.jr-login__brand-foot {
+  font-size: 12px;
+  color: #6f7888;
+}
+
+/* ---------- Form panel ---------- */
+.jr-login__main {
+  display: flex;
+  flex-direction: column;
+  padding: 32px 24px;
+  background:
+    radial-gradient(60% 50% at 100% 0%, rgba(37, 99, 235, .05) 0, transparent 70%),
+    var(--jr-surface);
+}
+
+.jr-login__form-wrap {
+  width: 100%;
+  max-width: 380px;
+  margin: auto;
+}
+
+/* Logo row shown only when the brand panel is hidden (narrow screens) */
+.jr-login__compact-mark {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+
+.jr-login__compact-mark .jr-login__logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--jr-line);
+  box-shadow: none;
+}
+
+.jr-login__compact-mark .jr-login__company { color: var(--jr-ink); font-size: 14px; }
+.jr-login__compact-mark .jr-login__product { color: var(--jr-muted); }
+
+.jr-login__title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  margin: 0 0 6px;
+}
+
+.jr-login__subtitle {
+  font-size: 14px;
+  color: var(--jr-muted);
+  margin: 0 0 28px;
+}
+
+.jr-login__alert {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 11px 13px;
+  margin-bottom: 20px;
+  border-radius: 9px;
+  border: 1px solid #fecdd3;
+  background: var(--jr-danger-bg);
+  color: #9f1239;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.jr-login__alert svg { width: 16px; height: 16px; flex: none; fill: currentColor; margin-top: 1px; }
+
+.jr-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.jr-login__field { display: flex; flex-direction: column; gap: 7px; }
+
+.jr-login__label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--jr-ink-2);
+}
+
+.jr-login__control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.jr-login__control > svg {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  fill: var(--jr-muted-2);
+  pointer-events: none;
+  transition: fill .15s ease;
+}
+
+.jr-login__input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px 0 38px;
+  border: 1px solid var(--jr-line-strong);
+  border-radius: 9px;
+  background: var(--jr-surface);
+  font: 400 14px var(--jr-font);
+  color: var(--jr-ink);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.jr-login__input::placeholder { color: var(--jr-faint); }
+
+.jr-login__input:hover { border-color: #d3d7de; }
+
+.jr-login__input:focus {
+  outline: none;
+  border-color: var(--jr-accent);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .14);
+}
+
+.jr-login__control:focus-within > svg { fill: var(--jr-accent); }
+
+.jr-login__input--password { padding-right: 44px; }
+
+.jr-login__input.is-invalid { border-color: var(--jr-danger); }
+
+.jr-login__reveal {
+  position: absolute;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--jr-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jr-login__reveal:hover { background: var(--jr-hover); color: var(--jr-ink); }
+.jr-login__reveal:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, .18); }
+.jr-login__reveal svg { width: 17px; height: 17px; fill: currentColor; }
+.jr-login__reveal .icon-hide { display: none; }
+.jr-login__reveal[aria-pressed="true"] .icon-show { display: none; }
+.jr-login__reveal[aria-pressed="true"] .icon-hide { display: block; }
+
+.jr-login__hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--jr-warning);
+}
+
+.jr-login__hint[hidden] { display: none; }
+.jr-login__hint svg { width: 13px; height: 13px; fill: currentColor; }
+
+.jr-login__remember {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--jr-ink-2);
+  cursor: pointer;
+  user-select: none;
+  width: fit-content;
+}
+
+.jr-login__remember input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--jr-accent);
+  cursor: pointer;
+}
+
+.jr-login__submit {
+  height: 44px;
+  margin-top: 4px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--jr-accent);
+  color: #fff;
+  font: 600 14px var(--jr-font);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .08), inset 0 1px 0 rgba(255, 255, 255, .12);
+  transition: background-color .15s ease, transform .05s ease;
+}
+
+.jr-login__submit:hover { background: var(--jr-accent-hover); }
+.jr-login__submit:active { transform: translateY(1px); }
+.jr-login__submit:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(37, 99, 235, .3); }
+.jr-login__submit svg { width: 16px; height: 16px; fill: currentColor; }
+
+.jr-login__submit[disabled] { cursor: progress; opacity: .85; }
+
+.jr-login__spinner {
+  display: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, .45);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: jr-login-spin .7s linear infinite;
+}
+
+.jr-login__submit.is-loading .jr-login__spinner { display: inline-block; }
+.jr-login__submit.is-loading .jr-login__arrow { display: none; }
+
+@keyframes jr-login-spin { to { transform: rotate(360deg); } }
+
+.jr-login__secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--jr-line-soft);
+  font-size: 12px;
+  color: var(--jr-muted);
+}
+
+.jr-login__secure svg { width: 13px; height: 13px; fill: var(--jr-success); }
+
+.jr-login__foot {
+  text-align: center;
+  font-size: 12px;
+  color: var(--jr-faint);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .jr-login__shell { grid-template-columns: 1fr; }
+  .jr-login__brand { display: none; }
+  .jr-login__compact-mark { display: flex; }
+  .jr-login__main { padding: 28px 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jr-login__spinner { animation-duration: 1.6s; }
+  .jr-login__input, .jr-login__submit { transition: none; }
+}

@@ -9,5 +9,8 @@ namespace JayRaj_Industries.Models
 
         [Required(ErrorMessage = "Password is required.")]
         public string Password { get; set; } = string.Empty;
+
+        // "Keep me signed in": persistent cookie instead of a browser-session one.
+        public bool RememberMe { get; set; }
     }
 }

@@ -2,6 +2,14 @@
 @{
     Layout = null;
     ViewData["Title"] = "Sign In";
+    var errors = ViewData.ModelState.Values
+        .SelectMany(v => v.Errors)
+        .Select(e => e.ErrorMessage)
+        .Where(m => !string.IsNullOrWhiteSpace(m))
+        .Distinct()
+        .ToList();
+    var hasErrors = errors.Count > 0;
+    var year = DateTime.Now.Year;
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -9,94 +17,185 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In - JayRaj_Industries</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Sign in · JayRaj Industries</title>
     <link rel="icon" type="image/png" href="~/images/jr_logo.png" />
+    <link rel="apple-touch-icon" href="~/images/jr_logo.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Spectral:wght@500;600;700;800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
     <link rel="stylesheet" href="~/css/jr-tokens.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/jr-components.css" asp-append-version="true" />
-    <style>
-        body.login-body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--jr-font);
-            background:
-                radial-gradient(120% 120% at 0% 0%, rgba(37, 99, 235, 0.07) 0, transparent 46%),
-                radial-gradient(120% 120% at 100% 0%, rgba(14, 165, 233, 0.06) 0, transparent 40%),
-                var(--jr-bg-2);
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 380px;
-            background: var(--jr-surface);
-            border: 1px solid var(--jr-line);
-            border-radius: var(--jr-radius-frame);
-            box-shadow: 0 14px 32px rgba(16, 40, 75, .10);
-            padding: 32px 28px;
-        }
-
-        .login-brand {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 22px;
-        }
-
-        .login-brand img {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
-        }
-
-        .login-brand h1 {
-            font-family: var(--jr-font-serif);
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--jr-brand-red);
-            margin: 0;
-        }
-
-        .login-error {
-            background: rgba(220, 38, 38, 0.08);
-            border: 1px solid rgba(220, 38, 38, 0.25);
-            color: #7f1d1d;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 0.85rem;
-            margin-bottom: 16px;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/jr-login.css" asp-append-version="true" />
 </head>
 
-<body class="login-body">
-    <div class="login-card">
-        <div class="login-brand">
-            <img src="~/images/jr_logo.png" alt="JR logo" />
-            <h1>JayRaj Industries</h1>
-        </div>
+<body class="jr-login">
+    <div class="jr-login__shell">
 
-        <div asp-validation-summary="All" class="login-error" style="@(ViewData.ModelState.IsValid ? "display:none;" : "")"></div>
+        <aside class="jr-login__brand" aria-hidden="true">
+            <div class="jr-login__mark">
+                <span class="jr-login__logo"><img src="~/images/jr_logo.png" alt="" /></span>
+                <div>
+                    <div class="jr-login__company">JayRaj Industries</div>
+                    <div class="jr-login__product">Chalan Control</div>
+                </div>
+            </div>
 
-        <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" style="display:flex; flex-direction:column; gap:14px;">
-            <div class="jr-field">
-                <label class="jr-field__label" for="Username">Username</label>
-                <input type="text" class="jr-input" id="Username" name="Username" autofocus autocomplete="username" />
+            <div class="jr-login__pitch">
+                <div class="jr-login__eyebrow">Material &amp; billing</div>
+                <h2 class="jr-login__headline">Every chalan, accounted for.</h2>
+                <p class="jr-login__lede">Track incoming material, record what goes out or gets rejected, and bill it, all in one place.</p>
+
+                <ul class="jr-login__features">
+                    <li class="jr-login__feature">
+                        <span class="jr-login__feature-icon"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z" /></svg></span>
+                        <div><strong>Incoming chalans</strong><span>Log material as it arrives and see what's still pending at a glance.</span></div>
+                    </li>
+                    <li class="jr-login__feature">
+                        <span class="jr-login__feature-icon"><svg viewBox="0 0 24 24"><path d="M5 4h9v2H5v3L1 5.5 5 2zM19 20h-9v-2h9v-3l4 3.5L19 22z" /></svg></span>
+                        <div><strong>Out &amp; rejected material</strong><span>Record dispatches against each chalan, one at a time or in bulk.</span></div>
+                    </li>
+                    <li class="jr-login__feature">
+                        <span class="jr-login__feature-icon"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm7 1.5V8h4.5L13 3.5zM8 12v2h8v-2zm0 4v2h8v-2z" /></svg></span>
+                        <div><strong>GST invoices</strong><span>Generate print-ready invoices straight from recorded dispatches.</span></div>
+                    </li>
+                </ul>
             </div>
-            <div class="jr-field">
-                <label class="jr-field__label" for="Password">Password</label>
-                <input type="password" class="jr-input" id="Password" name="Password" autocomplete="current-password" />
+
+            <div class="jr-login__brand-foot">&copy; @year JayRaj Industries</div>
+        </aside>
+
+        <main class="jr-login__main">
+            <div class="jr-login__form-wrap">
+                <div class="jr-login__compact-mark">
+                    <span class="jr-login__logo"><img src="~/images/jr_logo.png" alt="JayRaj Industries logo" /></span>
+                    <div>
+                        <div class="jr-login__company">JayRaj Industries</div>
+                        <div class="jr-login__product">Chalan Control</div>
+                    </div>
+                </div>
+
+                <h1 class="jr-login__title">Sign in</h1>
+                <p class="jr-login__subtitle">Welcome back. Enter your details to continue.</p>
+
+                @if (hasErrors)
+                {
+                    <div class="jr-login__alert" role="alert">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm1 15h-2v-2h2zm0-4h-2V7h2z" /></svg>
+                        <div>@string.Join(" ", errors)</div>
+                    </div>
+                }
+
+                <form class="jr-login__form" id="loginForm" asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" novalidate>
+                    <div class="jr-login__field">
+                        <label class="jr-login__label" for="Username">Username</label>
+                        <div class="jr-login__control">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5z" /></svg>
+                            <input class="jr-login__input@(hasErrors ? " is-invalid" : "")" id="Username" name="Username" type="text"
+                                   value="@Model.Username" placeholder="e.g. Firstname.Lastname"
+                                   autocomplete="username" autocapitalize="none" spellcheck="false" required
+                                   aria-invalid="@(hasErrors ? "true" : "false")" />
+                        </div>
+                    </div>
+
+                    <div class="jr-login__field">
+                        <label class="jr-login__label" for="Password">Password</label>
+                        <div class="jr-login__control">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 9V7A5 5 0 0 0 7 7v2H5v13h14V9zM9 7a3 3 0 0 1 6 0v2H9zm4 9.7V19h-2v-2.3a2 2 0 1 1 2 0z" /></svg>
+                            <input class="jr-login__input jr-login__input--password@(hasErrors ? " is-invalid" : "")" id="Password" name="Password" type="password"
+                                   placeholder="Enter your password" autocomplete="current-password" required
+                                   aria-invalid="@(hasErrors ? "true" : "false")" aria-describedby="capsHint" />
+                            <button type="button" class="jr-login__reveal" id="togglePassword" aria-label="Show password" aria-pressed="false" title="Show password">
+                                <svg class="icon-show" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5C6.5 5 2.7 9.4 1.5 12c1.2 2.6 5 7 10.5 7s9.3-4.4 10.5-7C21.3 9.4 17.5 5 12 5zm0 11.5a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>
+                                <svg class="icon-hide" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.3 2 2 3.3l3.2 3.2C3.3 7.9 2 9.9 1.5 12c1.2 2.6 5 7 10.5 7 1.9 0 3.6-.5 5-1.3l3.7 3.6 1.3-1.3zM12 16.5A4.5 4.5 0 0 1 7.5 12c0-.8.2-1.5.6-2.1l1.5 1.5a2.5 2.5 0 0 0 3 3l1.5 1.5c-.6.4-1.3.6-2.1.6zM12 5c-1.3 0-2.5.2-3.6.6l2.1 2.1A4.5 4.5 0 0 1 16.3 13.5l3.1 3.1c1.4-1.3 2.5-3 3.1-4.6C21.3 9.4 17.5 5 12 5z" /></svg>
+                            </button>
+                        </div>
+                        <div class="jr-login__hint" id="capsHint" hidden>
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 1 21h22zm1 16h-2v-2h2zm0-4h-2v-4h2z" /></svg>
+                            Caps Lock is on
+                        </div>
+                    </div>
+
+                    <label class="jr-login__remember">
+                        <input type="checkbox" name="RememberMe" value="true" @(Model.RememberMe ? "checked" : "") />
+                        Keep me signed in for 7 days
+                    </label>
+
+                    <button type="submit" class="jr-login__submit" id="loginSubmit">
+                        <span class="jr-login__spinner" aria-hidden="true"></span>
+                        <span class="jr-login__submit-label">Sign in</span>
+                        <svg class="jr-login__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.2 5.3 11.8 6.7l4.3 4.3H4v2h12.1l-4.3 4.3 1.4 1.4L20 12z" /></svg>
+                    </button>
+                </form>
+
+                <div class="jr-login__secure">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5zm-1.5 15.5-4-4 1.4-1.4 2.6 2.6 6.1-6.1 1.4 1.4z" /></svg>
+                    Secure, encrypted sign-in
+                </div>
             </div>
-            <button type="submit" class="jr-btn jr-btn--accent" style="width:100%; justify-content:center; height:36px;">Sign In</button>
-        </form>
+
+            <div class="jr-login__foot">&copy; @year JayRaj Industries</div>
+        </main>
     </div>
+
+    <script>
+        (function () {
+            var form = document.getElementById('loginForm');
+            var user = document.getElementById('Username');
+            var pass = document.getElementById('Password');
+            var toggle = document.getElementById('togglePassword');
+            var caps = document.getElementById('capsHint');
+            var submit = document.getElementById('loginSubmit');
+
+            // Username already filled (failed attempt) → go straight to password.
+            (user.value ? pass : user).focus();
+
+            toggle.addEventListener('click', function () {
+                var show = pass.type === 'password';
+                pass.type = show ? 'text' : 'password';
+                toggle.setAttribute('aria-pressed', String(show));
+                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+                toggle.title = show ? 'Hide password' : 'Show password';
+                pass.focus();
+            });
+
+            function checkCaps(e) {
+                if (e.getModifierState) caps.hidden = !e.getModifierState('CapsLock');
+            }
+            pass.addEventListener('keydown', checkCaps);
+            pass.addEventListener('keyup', checkCaps);
+            pass.addEventListener('blur', function () { caps.hidden = true; });
+
+            [user, pass].forEach(function (el) {
+                el.addEventListener('input', function () {
+                    el.classList.remove('is-invalid');
+                    el.setAttribute('aria-invalid', 'false');
+                });
+            });
+
+            form.addEventListener('submit', function (e) {
+                var missing = [user, pass].filter(function (el) { return !el.value.trim(); });
+                if (missing.length) {
+                    e.preventDefault();
+                    missing.forEach(function (el) { el.classList.add('is-invalid'); el.setAttribute('aria-invalid', 'true'); });
+                    missing[0].focus();
+                    return;
+                }
+                if (submit.disabled) { e.preventDefault(); return; }
+                submit.disabled = true;
+                submit.classList.add('is-loading');
+                submit.querySelector('.jr-login__submit-label').textContent = 'Signing in…';
+            });
+
+            // Re-enable if the page is restored from the back/forward cache.
+            window.addEventListener('pageshow', function () {
+                submit.disabled = false;
+                submit.classList.remove('is-loading');
+                submit.querySelector('.jr-login__submit-label').textContent = 'Sign in';
+            });
+        })();
+    </script>
 </body>
 
 </html>
