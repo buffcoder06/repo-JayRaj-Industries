@@ -53,24 +53,46 @@ namespace JayRaj_Industries.Models
     }
 
     // Write shape for creating a new incoming chalan (ChalanProcessController.InsertChalanProcess).
+    // Input rules shared by the write shapes below. Server-side on purpose: the
+    // browser's digits-only fields can be bypassed by posting directly.
+    internal static class InputRules
+    {
+        public const string NoMarkup = @"^[^<>]*$";
+        public const string NoMarkupMessage = "{0} contains characters that aren't allowed (< or >).";
+    }
+
     public class CreateChalanRequest
     {
         [Required]
         public DateTime Date { get; set; }
 
         [Required]
+        [StringLength(150)]
+        [RegularExpression(InputRules.NoMarkup, ErrorMessage = InputRules.NoMarkupMessage)]
         public string ComponentDescription { get; set; } = string.Empty;
 
         [Required]
+        [RegularExpression(@"^\d{7,30}$", ErrorMessage = "Chalan number must be at least 7 digits (numbers only).")]
         public string ChalanNo { get; set; } = string.Empty;
 
         [Required]
         [Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public decimal Quantity { get; set; }
 
+        [StringLength(100)]
+        [RegularExpression(InputRules.NoMarkup, ErrorMessage = InputRules.NoMarkupMessage)]
         public string? CompanyName { get; set; }
+
+        [StringLength(50)]
+        [RegularExpression(InputRules.NoMarkup, ErrorMessage = InputRules.NoMarkupMessage)]
         public string? CompanyCode { get; set; }
+
+        [StringLength(50)]
+        [RegularExpression(InputRules.NoMarkup, ErrorMessage = InputRules.NoMarkupMessage)]
         public string? VehicleNumber { get; set; }
+
+        [StringLength(50)]
+        [RegularExpression(InputRules.NoMarkup, ErrorMessage = InputRules.NoMarkupMessage)]
         public string? VehicleChalanNumber { get; set; }
     }
 
@@ -81,12 +103,14 @@ namespace JayRaj_Industries.Models
     public class RecordChalanOutRequest
     {
         [Required]
+        [RegularExpression(@"^JRCP\d+$", ErrorMessage = "Invalid chalan reference.")]
         public string ChalanProcessHdrSeq { get; set; } = string.Empty;
 
         [Required]
         public DateTime DetailDate { get; set; }
 
         [Required]
+        [RegularExpression(@"^\d{1,30}$", ErrorMessage = "Out chalan number must contain numbers only.")]
         public string OutChalanNo { get; set; } = string.Empty;
 
         [Range(0, double.MaxValue)]

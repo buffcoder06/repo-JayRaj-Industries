@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using JayRaj_Industries.DataAccessLayer;
 using JayRaj_Industries.Filters;
 using JayRaj_Industries.Models;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -16,10 +17,12 @@ namespace JayRaj_Industries.Controllers
     public class AccountController : Controller
     {
         private readonly UsersDAL _usersDAL;
+        private readonly IAntiforgery _antiforgery;
 
-        public AccountController(UsersDAL usersDAL)
+        public AccountController(UsersDAL usersDAL, IAntiforgery antiforgery)
         {
             _usersDAL = usersDAL;
+            _antiforgery = antiforgery;
         }
 
         // Verified against when the username doesn't exist, so an unknown user
@@ -27,7 +30,7 @@ namespace JayRaj_Industries.Controllers
         private static readonly string DummyPasswordHash = PasswordHasher.Hash(Guid.NewGuid().ToString());
 
         [HttpGet]
-        public IActionResult Login(string? returnUrl = null, bool throttled = false, bool expired = false)
+        public IActionResult Login(string? returnUrl = null, bool throttled = false, bool expired = false, bool signedOut = false)
         {
             if (User?.Identity?.IsAuthenticated == true)
             {
@@ -43,15 +46,32 @@ namespace JayRaj_Industries.Controllers
             {
                 ViewData["Notice"] = $"You were signed out after {SessionPolicy.IdleTimeout.TotalMinutes:0.#} minutes of inactivity. Please sign in again.";
             }
+            else if (signedOut)
+            {
+                ViewData["Notice"] = "You have been signed out.";
+            }
             return View(new LoginRequest());
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken]   // validated manually below, to handle stale tabs gracefully
         [EnableRateLimiting(LoginRateLimit.PolicyName)]
         public async Task<IActionResult> Login(LoginRequest request, string? returnUrl = null)
         {
             ViewData["ReturnUrl"] = returnUrl;
+
+            // A login form left open in another tab carries a token issued before
+            // the user signed in (or out) elsewhere, so it no longer validates.
+            // Instead of a bare 400: continue if already signed in, else ask again.
+            if (!await _antiforgery.IsRequestValidAsync(HttpContext))
+            {
+                if (User?.Identity?.IsAuthenticated == true)
+                {
+                    return LocalRedirect(SafeReturnUrl(returnUrl));
+                }
+                ModelState.AddModelError(string.Empty, "This sign-in page had expired. Please sign in again.");
+                return View(new LoginRequest { Username = request.Username });
+            }
 
             if (!ModelState.IsValid)
             {

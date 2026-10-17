@@ -505,14 +505,14 @@
                 : `<span class="inv-rate text-center">${fmt(rate)}</span>`;
             const descCell = editableFields
                 ? `<div class="inv-desc-input" contenteditable="true">${escapeHtmlAttr(item.itemDescription || "")}</div>`
-                : (item.itemDescription || "");
+                : escapeHtmlAttr(item.itemDescription || "");   // stored text: always escape
             const qtyCell = editableFields
                 ? `<input type="number" class="inv-qty-input" min="0" step="0.01" value="${qty}" />`
                 : fmt(qty);
             const qtyCellClass = editableFields ? "" : "inv-qty";
             const unitCell = editableFields
                 ? `<input type="text" class="inv-unit-input" value="${escapeHtmlAttr(item.unit || "-")}" />`
-                : (item.unit || "-");
+                : escapeHtmlAttr(item.unit || "-");
             const row = `
                 <tr class="invoice-item-row">
                     <td class="text-center">${index + 1}</td>

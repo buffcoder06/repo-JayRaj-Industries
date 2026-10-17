@@ -27,7 +27,8 @@
 </head>
 
 <body class="app-body jr-app"
-      data-session-idle-seconds="@(User?.Identity?.IsAuthenticated == true ? ((int)JayRaj_Industries.Filters.SessionPolicy.IdleTimeout.TotalSeconds).ToString() : "")">
+      data-session-idle-seconds="@(User?.Identity?.IsAuthenticated == true ? ((int)JayRaj_Industries.Filters.SessionPolicy.IdleTimeout.TotalSeconds).ToString() : "")"
+      data-session-user="@(User?.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
     @Html.AntiForgeryToken()
     <div class="app-shell" data-theme="system">
         <aside class="app-sidebar" aria-label="Primary navigation">

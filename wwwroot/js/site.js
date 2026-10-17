@@ -16,17 +16,54 @@
     });
   }
 
+  // -------------------------------------------------------------------
+  // Multi-tab sign-in state. Every tab of the app shares one cookie, so a
+  // sign-out (manual or idle) in one tab is broadcast through localStorage
+  // and every other tab leaves for the sign-in page at once instead of
+  // showing data until its next click. A different user signing in
+  // elsewhere makes this tab reload as that user.
+  // -------------------------------------------------------------------
+  const AUTH_KEY = "jr.authState";
+  const sessionUser = document.body.dataset.sessionUser || "";
+  const broadcastAuth = (user, reason) => {
+    try { localStorage.setItem(AUTH_KEY, JSON.stringify({ user: user, reason: reason || "", at: Date.now() })); }
+    catch (e) { /* storage unavailable: tabs just won't sync */ }
+  };
+  window.jrBroadcastSignOut = (reason) => broadcastAuth(null, reason);
+
+  if (sessionUser) {
+    let known = null;
+    try { known = JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); } catch (e) { /* ignore */ }
+    if (!known || known.user !== sessionUser) broadcastAuth(sessionUser, "signin");
+
+    window.addEventListener("storage", (e) => {
+      if (e.key !== AUTH_KEY || !e.newValue) return;
+      let state;
+      try { state = JSON.parse(e.newValue); } catch (err) { return; }
+      if (!state) return;
+      if (!state.user) {
+        const back = window.location.pathname + window.location.search;
+        const flag = state.reason === "idle" ? "expired=true" : "signedOut=true";
+        window.location.replace("/Account/Login?" + flag + "&returnUrl=" + encodeURIComponent(back));
+      } else if (state.user !== sessionUser) {
+        window.location.reload();
+      }
+    });
+  }
+
   const logoutBtn = document.getElementById("btnLogout");
   if (logoutBtn && window.jQuery) {
     logoutBtn.addEventListener("click", function () {
       window.jQuery.ajax({
         url: "/Account/Logout",
         type: "POST",
-        success: function () {
-          window.location.href = "/Account/Login";
-        },
-        error: function () {
-          window.location.href = "/Account/Login";
+        global: false,
+        // Tell other tabs only once the server has cleared the session;
+        // announcing earlier lets them reach the login page while still
+        // signed in, and get bounced straight back into the app.
+        complete: function () {
+          broadcastAuth(null, "signout");
+          window.location.href = "/Account/Login?signedOut=true";
         }
       });
     });
@@ -157,7 +194,13 @@
     };
     const signOutNow = () => {
       if (signingOut) return;
-      $.ajax({ url: "/Account/Logout", type: "POST", global: false, complete: goToLogin });
+      $.ajax({
+        url: "/Account/Logout", type: "POST", global: false,
+        complete: () => {
+          if (window.jrBroadcastSignOut) window.jrBroadcastSignOut("idle");   // after the server sign-out
+          goToLogin();
+        }
+      });
     };
     const keepAlive = () => {
       if (pinging || signingOut) return;

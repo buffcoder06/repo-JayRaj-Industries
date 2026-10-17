@@ -29,6 +29,12 @@ namespace JayRaj_Industries.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> InsertChalanProcessDtls([FromBody] List<RecordChalanOutRequest> chalanData)
         {
+            if (!ModelState.IsValid || chalanData == null || chalanData.Count == 0)
+            {
+                var error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage;
+                return Json(new { success = false, message = error ?? "Nothing to save." });
+            }
+
             foreach (var chalan in chalanData)
             {
                 bool result = await _chalanProcessDAL.InsertIntoChalanProcessDtlsAsync(chalan);

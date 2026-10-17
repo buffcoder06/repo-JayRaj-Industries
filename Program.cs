@@ -52,10 +52,27 @@ if (!app.Environment.IsDevelopment())
 // access. Turn this on once a certificate/reverse proxy is in place.
 //app.UseHttpsRedirection();
 
+// Content-Security-Policy: the browser only runs scripts from this site and
+// the jsDelivr CDN the pages use (SweetAlert2, html2canvas, jsPDF), and never
+// inline <script> blocks — so even if markup were ever injected into a page,
+// it couldn't execute. Inline *styles* stay allowed (style="" is used widely).
+const string contentSecurityPolicy =
+    "default-src 'self'; " +
+    "script-src 'self' https://cdn.jsdelivr.net; " +
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+    "font-src 'self' https://fonts.gstatic.com data:; " +
+    "img-src 'self' data: blob:; " +
+    "connect-src 'self'; " +
+    "object-src 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self'; " +
+    "frame-ancestors 'none'";
+
 // Baseline security headers on every response.
 app.Use(async (context, next) =>
 {
     var headers = context.Response.Headers;
+    headers.ContentSecurityPolicy = contentSecurityPolicy;
     headers.XContentTypeOptions = "nosniff";
     headers.XFrameOptions = "DENY";
     headers["Referrer-Policy"] = "strict-origin-when-cross-origin";

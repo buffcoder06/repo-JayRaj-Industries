@@ -142,63 +142,7 @@
         </main>
     </div>
 
-    <script>
-        (function () {
-            var form = document.getElementById('loginForm');
-            var user = document.getElementById('Username');
-            var pass = document.getElementById('Password');
-            var toggle = document.getElementById('togglePassword');
-            var caps = document.getElementById('capsHint');
-            var submit = document.getElementById('loginSubmit');
-
-            // Username already filled (failed attempt) → go straight to password.
-            (user.value ? pass : user).focus();
-
-            toggle.addEventListener('click', function () {
-                var show = pass.type === 'password';
-                pass.type = show ? 'text' : 'password';
-                toggle.setAttribute('aria-pressed', String(show));
-                toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
-                toggle.title = show ? 'Hide password' : 'Show password';
-                pass.focus();
-            });
-
-            function checkCaps(e) {
-                if (e.getModifierState) caps.hidden = !e.getModifierState('CapsLock');
-            }
-            pass.addEventListener('keydown', checkCaps);
-            pass.addEventListener('keyup', checkCaps);
-            pass.addEventListener('blur', function () { caps.hidden = true; });
-
-            [user, pass].forEach(function (el) {
-                el.addEventListener('input', function () {
-                    el.classList.remove('is-invalid');
-                    el.setAttribute('aria-invalid', 'false');
-                });
-            });
-
-            form.addEventListener('submit', function (e) {
-                var missing = [user, pass].filter(function (el) { return !el.value.trim(); });
-                if (missing.length) {
-                    e.preventDefault();
-                    missing.forEach(function (el) { el.classList.add('is-invalid'); el.setAttribute('aria-invalid', 'true'); });
-                    missing[0].focus();
-                    return;
-                }
-                if (submit.disabled) { e.preventDefault(); return; }
-                submit.disabled = true;
-                submit.classList.add('is-loading');
-                submit.querySelector('.jr-login__submit-label').textContent = 'Signing in…';
-            });
-
-            // Re-enable if the page is restored from the back/forward cache.
-            window.addEventListener('pageshow', function () {
-                submit.disabled = false;
-                submit.classList.remove('is-loading');
-                submit.querySelector('.jr-login__submit-label').textContent = 'Sign in';
-            });
-        })();
-    </script>
+    <script src="~/js/login.js" asp-append-version="true"></script>
 </body>
 
 </html>
