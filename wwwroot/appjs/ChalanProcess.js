@@ -344,7 +344,7 @@ function openDockedPanel(hdrSeq, mode) {
             '<button type="button" class="jr-daterange__trigger"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z"/><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/></svg><span class="jr-daterange__label jr-tabular"></span></button>' +
             '<div class="jr-daterange__panel" hidden></div></div><div class="jr-field__error"></div></div>' +
             '<div class="jr-field" data-field="outChalan"><label class="jr-field__label" for="dockedOutChalan">Out chalan no<span class="jr-field__required">*</span></label>' +
-            '<input type="text" class="jr-input" id="dockedOutChalan" placeholder="e.g. 3391" autocomplete="off" /><div class="jr-field__error"></div></div>' +
+            '<input type="text" class="jr-input" id="dockedOutChalan" placeholder="e.g. 3391" autocomplete="off" inputmode="numeric" data-jr-digits /><div class="jr-field__error"></div></div>' +
             '<div class="jr-field"><label class="jr-field__label">Movement<span class="jr-field__required">*</span></label>' +
             '<div class="jr-toggle"><button type="button" class="jr-toggle__btn is-active" data-move="APR">Out material</button>' +
             '<button type="button" class="jr-toggle__btn" data-move="REJ">Rejected</button></div></div>' +

@@ -104,6 +104,15 @@
     });
   }
 
+  // Digits-only inputs (chalan numbers): mark with data-jr-digits. Delegated
+  // so inputs rendered later (e.g. inside popups) are covered too.
+  document.addEventListener("input", (e) => {
+    const el = e.target;
+    if (!el.matches || !el.matches("input[data-jr-digits]")) return;
+    const clean = el.value.replace(/\D/g, "");
+    if (clean !== el.value) el.value = clean;
+  }, true);
+
   // Apply global SweetAlert2 branding once library is available.
   function setupSwalTheme() {
     if (!window.Swal || window.__jrSwalPatched) return false;
