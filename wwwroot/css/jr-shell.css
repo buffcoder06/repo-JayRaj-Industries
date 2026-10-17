@@ -360,7 +360,7 @@ html, body.app-body {
 /* Shared control primitives used across the redesigned screens */
 .jr-search {
   height: 32px;
-  min-width: 262px;
+  min-width: 300px;
   border: 1px solid var(--jr-line-strong);
   border-radius: var(--jr-radius-control);
   background: var(--jr-surface-2);

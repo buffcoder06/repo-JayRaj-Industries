@@ -89,6 +89,25 @@
     }
   });
 
+  // Header search shortcut: Ctrl+K (Cmd+K on Mac) or "/" focuses the search.
+  const searchInput = document.querySelector(".jr-search input");
+  if (searchInput) {
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    const kbd = document.querySelector(".jr-search .jr-search__kbd");
+    if (kbd && isMac) kbd.textContent = "⌘K";
+
+    document.addEventListener("keydown", (e) => {
+      const target = e.target;
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable;
+      const modK = (e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "k";
+      if (modK || (e.key === "/" && !typing && !e.ctrlKey && !e.metaKey)) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+      }
+    });
+  }
+
   // Apply global SweetAlert2 branding once library is available.
   function setupSwalTheme() {
     if (!window.Swal || window.__jrSwalPatched) return false;
