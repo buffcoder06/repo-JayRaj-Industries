@@ -1,0 +1,194 @@
+/* Invoice Generation — settings rail + live sheet layout.
+   The sheet itself (.invoice-canvas and children, page.css) is the printed
+   template and is intentionally not restyled here. */
+
+.jr-invoice-layout {
+  display: grid;
+  grid-template-columns: 372px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+/* Sticky so the totals and the Download action stay reachable while the
+   operator scrolls the A4 preview beside it. */
+.jr-invoice-rail {
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.jr-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jr-stack--tight {
+  gap: 8px;
+}
+
+.jr-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.jr-row {
+  display: flex;
+  gap: 8px;
+}
+
+.jr-row > * {
+  flex: 1;
+}
+
+.jr-chip-row {
+  display: flex;
+  gap: 6px;
+  margin-top: -4px;
+}
+
+.jr-full,
+.jr-full .jr-dropdown__trigger,
+.jr-full .jr-daterange__trigger {
+  width: 100%;
+}
+
+.jr-full .jr-dropdown__panel {
+  width: 100%;
+}
+
+.jr-btn--block {
+  width: 100%;
+  justify-content: center;
+}
+
+.jr-btn--cta {
+  height: var(--jr-h-cta);
+  font-size: 13px;
+}
+
+.jr-alert {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 9px 12px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.jr-alert--warning {
+  background: var(--jr-warning-bg);
+  border-color: var(--jr-warning-line);
+  color: var(--jr-warning);
+}
+
+.jr-divider {
+  height: 1px;
+  background: var(--jr-line-soft);
+  margin: 2px 0;
+}
+
+/* Totals */
+.jr-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.jr-totals__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: var(--jr-ink-2);
+}
+
+.jr-totals__row strong {
+  font-weight: 600;
+  color: var(--jr-ink);
+}
+
+.jr-totals__grand {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 3px;
+  padding-top: 10px;
+  border-top: 1px solid var(--jr-line);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--jr-muted);
+}
+
+.jr-totals__grand strong {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  text-transform: none;
+  color: var(--jr-ink);
+}
+
+.jr-caption {
+  text-align: center;
+  font-size: 11px;
+  color: var(--jr-muted);
+}
+
+/* The "desk" the A4 sheet sits on */
+.jr-invoice-desk {
+  background: #eceef1;
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-r-card);
+  padding: 24px;
+  overflow-x: auto;
+}
+
+.jr-invoice-desk .invoice-canvas {
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .08), 0 12px 32px rgba(16, 24, 40, .08);
+}
+
+/* The sheet is a fixed 210mm (~794px) wide. Below ~1500px viewport it no
+   longer fits beside the rail, so stack them instead of scrolling sideways. */
+@media (max-width: 1500px) {
+  .jr-invoice-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .jr-invoice-rail {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+
+@media (max-width: 900px) {
+  .jr-invoice-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media print {
+  .jr-page-title,
+  .jr-invoice-rail {
+    display: none !important;
+  }
+
+  .jr-invoice-layout {
+    display: block !important;
+  }
+
+  .jr-invoice-desk {
+    background: #ffffff !important;
+    border: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .jr-invoice-desk .invoice-canvas {
+    box-shadow: none !important;
+  }
+}

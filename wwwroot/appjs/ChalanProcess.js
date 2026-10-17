@@ -1,136 +1,65 @@
-﻿var originalPendingQuantity = "";
-var lastDoneQuantity = "";
+var gridDataCache = [];
 var chalanDetailsCache = {};
 var activeDetailsRequest = null;
-var gridDataCache = [];
+var activeTab = 'open';
+var openDockedHdrSeq = null;
+var monthLabelText = '';
+var currentPage = 1;
+var PAGE_SIZE = 7;
 
 $(document).ready(function () {
+    loadCurrentMonthLabel();
+    loadGridData();
 
-    var today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
-    $('#txtDate').val(today);
-    $('#idDatenew').val(today);
-    loadCurrentMonthSummary();
+    $('#componentSearch, #chalanGlobalSearch').on('input change', debounce(resetPageAndRender, 120));
+    $('#chalanDateFrom, #chalanDateTo').on('change', resetPageAndRender);
 
-    function normalizeText(value) {
-        return String(value || '').trim().toLowerCase();
-    }
-
-    function debounce(fn, wait) {
-        var timer = null;
-        return function () {
-            var ctx = this;
-            var args = arguments;
-            clearTimeout(timer);
-            timer = setTimeout(function () { fn.apply(ctx, args); }, wait);
-        };
-    }
-
-    function applyChalanGridFilter() {
-        var dateQ = normalizeText($('#chalanSearchDate').val());
-        var compQ = normalizeText($('#componentSearch').val());
-        var noQ = normalizeText($('#chalanSearchNo').val());
-        var qtyQ = normalizeText($('#chalanSearchQty').val());
-        var pendingQ = normalizeText($('#chalanSearchPending').val());
-
-        $('#tblchalanProcess tbody tr').each(function () {
-            var $row = $(this);
-            var isVisible =
-                (!dateQ || String($row.data('dateKey')).indexOf(dateQ) !== -1) &&
-                (!compQ || String($row.data('componentKey')).indexOf(compQ) !== -1) &&
-                (!noQ || String($row.data('chalanKey')).indexOf(noQ) !== -1) &&
-                (!qtyQ || String($row.data('qtyKey')).indexOf(qtyQ) !== -1) &&
-                (!pendingQ || String($row.data('pendingKey')).indexOf(pendingQ) !== -1);
-            $row.toggle(isVisible);
-        });
-    }
-
-    var debouncedGridFilter = debounce(applyChalanGridFilter, 120);
-    $('#tblchalanProcess thead .srchTextInputCls').on('input change', debouncedGridFilter);
-
-
-    $.ajax({
-        url: '/ChalanProcess/GetAllChalanProcessData?chalanProcessHdrseq=' + "",  // Adjust the URL as needed
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            if (!Array.isArray(data)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Load Error',
-                    text: data && data.message ? data.message : 'Unable to load chalan process data.',
-                    confirmButtonColor: 'red'
-                });
-                return;
-            }
-            gridDataCache = data || [];
-            var tbody = $('#tblchalanProcess tbody');
-            tbody.empty(); // Clear existing rows
-            var row = [];
-            $.each(data, function (index, item) {
-                row.push('<tr>');
-                if (item.pendingQuantity != 0) {
-                    row.push("<td><input type='button' name='action' Action='" + 'Update' + "' id='" + item.chalanProcessHdrSeq + "' class='btn btn-danger' onclick='ShowForm(this);' value='Open Chalan'></input></td>");
-                } else {
-                    row.push("<td><input type='button' name='action' Action='" + 'View' + "'  id='" + item.chalanProcessHdrSeq + "' class='btn btn-success' value='Closed Chalan'></input></td>");
-                } // Replace with actual action buttons or content
-                var formattedDate = formatDate(item.date);
-                row.push('<td>' + formattedDate + '</td>');
-                row.push('<td>' + item.componentDescription + '</td>');
-                row.push('<td><a href="javascript:void(0);" class="chalan-number-link" chalanProcessHdrSeq="' + item.chalanProcessHdrSeq + '">' + item.chalanNo + '</a></td>');
-                row.push('<td>' + item.actualInMaterialQuantity + '</td>');
-                // row += '<td>' + item.companyName + '</td>';
-                // row += '<td>' + item.vehicleNumber + '</td>';
-                // row += '<td>' + item.vehicleChalanNumber + '</td>';
-                // row += '<td>' + item.quantity + '</td>'; // Add corresponding BO property
-                // row += '<td>' + item.outMaterialQuantity + '</td>'; // Add corresponding BO property
-                row.push('<td>' + item.pendingQuantity + '</td>'); // Add corresponding BO property
-                row.push('</tr>');
-            });
-            tbody.html(row.join(''));
-            updateSummaryCardsFromGridData(gridDataCache);
-
-            tbody.find('tr').each(function () {
-                var $r = $(this);
-                var $td = $r.children('td');
-                $r.data('dateKey', normalizeText($td.eq(1).text()));
-                $r.data('componentKey', normalizeText($td.eq(2).text()));
-                $r.data('chalanKey', normalizeText($td.eq(3).text()));
-                $r.data('qtyKey', normalizeText($td.eq(4).text()));
-                $r.data('pendingKey', normalizeText($td.eq(5).text()));
-            });
-            applyChalanGridFilter();
-        },
-        error: function (error) {
-            console.error('Error fetching data: ', error);
-        }
+    $('.jr-segmented[role="tablist"] .jr-segmented__btn').on('click', function () {
+        $(this).addClass('is-active').siblings().removeClass('is-active');
+        activeTab = $(this).data('tab');
+        resetPageAndRender();
     });
 
+    $('#chalanPagePrev').on('click', function () {
+        if (currentPage > 1) { currentPage--; renderGrid(); }
+    });
+    $('#chalanPageNext').on('click', function () {
+        currentPage++; renderGrid();
+    });
 
+    $('#btnHeaderNewChalan').on('click', function () {
+        closeDockedPanel();
+        var dateInput = document.getElementById('idDatenew');
+        if (!dateInput.value) {
+            dateInput.value = new Date().toISOString().split('T')[0];
+            dateInput.dispatchEvent(new Event('change'));
+        }
+        $('#idChalanNew').prop('hidden', false)[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+    $('#btnCancelNewChalan').on('click', function () {
+        $('#idChalanNew').prop('hidden', true);
+    });
+
+    $('#btnExportCsv').on('click', exportVisibleRowsToCsv);
+
+    $('#SaveChalanStatus').on('click', function () {
+        if (fnValidations1()) InsertChalanDetails();
+    });
+
+    $('#tblchalanProcess tbody').on('click', '.chalan-number-link, .jr-row-action', function (e) {
+        e.preventDefault();
+        var hdrSeq = $(this).closest('tr').data('hdrseq');
+        toggleDockedPanel(String(hdrSeq));
+    });
 });
 
-function loadCurrentMonthSummary() {
-    $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('...');
-    $.ajax({
-        url: '/ChalanProcess/GetCurrentMonthSummary',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            if (!data || data.success === false) {
-                $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
-                updateSummaryCardsFromGridData(gridDataCache);
-                return;
-            }
-
-            $('#cardTotalInMaterial').text(formatSummaryValue(data.totalInMaterial));
-            $('#cardTotalOutMaterial').text(formatSummaryValue(data.totalOutMaterial));
-            $('#cardTotalPendingMaterial').text(formatSummaryValue(data.totalPendingMaterial));
-            $('#cardTotalRejectedMaterial').text(formatSummaryValue(data.totalRejectedMaterial));
-        },
-        error: function () {
-            $('#cardTotalInMaterial, #cardTotalOutMaterial, #cardTotalPendingMaterial, #cardTotalRejectedMaterial').text('—');
-            updateSummaryCardsFromGridData(gridDataCache);
-        }
-    });
+function debounce(fn, wait) {
+    var timer = null;
+    return function () {
+        var ctx = this, args = arguments;
+        clearTimeout(timer);
+        timer = setTimeout(function () { fn.apply(ctx, args); }, wait);
+    };
 }
 
 function toNumber(value) {
@@ -138,524 +67,541 @@ function toNumber(value) {
     return isFinite(n) ? n : 0;
 }
 
-function updateSummaryCardsFromGridData(list) {
-    if (!Array.isArray(list) || list.length === 0) return;
-
-    var now = new Date();
-    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    var monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    monthStart.setHours(0, 0, 0, 0);
-    monthEnd.setHours(23, 59, 59, 999);
-
-    var totalIn = 0;
-    var totalOut = 0;
-    var totalPending = 0;
-    var totalRej = 0;
-    for (var i = 0; i < list.length; i++) {
-        var it = list[i] || {};
-        var dt = new Date(it.date);
-        if (!(dt instanceof Date) || isNaN(dt.getTime())) continue;
-        if (dt < monthStart || dt > monthEnd) continue;
-        totalIn += toNumber(it.actualInMaterialQuantity);
-        totalOut += toNumber(it.outMaterialQuantity);
-        totalPending += toNumber(it.pendingQuantity);
-        totalRej += toNumber(it.rejectMaterialQuantity);
-    }
-
-    $('#cardTotalInMaterial').text(formatSummaryValue(totalIn));
-    $('#cardTotalOutMaterial').text(formatSummaryValue(totalOut));
-    $('#cardTotalPendingMaterial').text(formatSummaryValue(totalPending));
-    $('#cardTotalRejectedMaterial').text(formatSummaryValue(totalRej));
-}
-
-function formatSummaryValue(value) {
-    var n = Number(value);
-    if (!isFinite(n)) n = 0;
-    if (Math.floor(n) === n) {
-        return n.toLocaleString('en-IN');
-    }
+function formatNumber(value) {
+    var n = toNumber(value);
+    if (Math.floor(n) === n) return n.toLocaleString('en-IN');
     return n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-
 function formatDate(dateString) {
     var date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
     var day = date.getDate().toString().padStart(2, '0');
-    var month = (date.getMonth() + 1).toString().padStart(2, '0');
-    var year = date.getFullYear().toString();
-    return day + "-" + month + "-" + year;
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return day + ' ' + months[date.getMonth()] + ' ' + date.getFullYear();
 }
 
-function GetChalanDetails(btn) {
-    if (chalanDetailsCache[btn]) {
-        renderChalanDetails(chalanDetailsCache[btn]);
-        return;
-    }
+function loadCurrentMonthLabel() {
+    $.ajax({
+        url: '/ChalanProcess/GetCurrentMonthSummary',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            monthLabelText = (data && data.monthLabel) || '';
+            updateHeaderMeta();
+        }
+    });
+}
 
-    if (activeDetailsRequest && activeDetailsRequest.readyState !== 4) {
-        activeDetailsRequest.abort();
-    }
+function updateHeaderMeta() {
+    var openCount = 0, totalPending = 0;
+    gridDataCache.forEach(function (it) {
+        if (toNumber(it.pendingQuantity) !== 0) openCount++;
+        totalPending += toNumber(it.pendingQuantity);
+    });
+    var parts = [];
+    if (monthLabelText) parts.push(monthLabelText);
+    parts.push(openCount + ' open chalan' + (openCount === 1 ? '' : 's'));
+    parts.push(formatNumber(totalPending) + ' Nos pending');
+    parts.push('synced just now');
+    $('#chalanPageMeta').text(parts.join(' · '));
+}
 
-    activeDetailsRequest = $.ajax({
-        url: '/ChalanProcess/GetAllChalanProcessDetails?chalanProcessHdrseq=' + btn,  // Adjust the URL as needed
+function loadGridData() {
+    $.ajax({
+        url: '/ChalanProcess/GetAllChalanProcessData?chalanProcessHdrseq=',
         type: 'GET',
         dataType: 'json',
         success: function (data) {
             if (!Array.isArray(data)) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Load Error',
-                    text: data && data.message ? data.message : 'Unable to load chalan details.',
-                    confirmButtonColor: 'red'
-                });
+                Swal.fire({ icon: 'error', title: 'Load Error', text: (data && data.message) || 'Unable to load chalan process data.', confirmButtonColor: 'red' });
                 return;
             }
-            chalanDetailsCache[btn] = data;
-            renderChalanDetails(data);
+            gridDataCache = data;
+            updateHeaderMeta();
+            updateKpis();
+            renderGrid();
         },
-        error: function (error) {
-            if (error && error.statusText === 'abort') return;
-            console.error('Error fetching data: ', error);
+        error: function () {
+            Swal.fire({ icon: 'error', title: 'Load Error', text: 'Unable to load chalan process data.', confirmButtonColor: 'red' });
         }
     });
 }
 
-function renderChalanDetails(data) {
-    var tbody = $('#tblOutdetails tbody');
-    var rows = [];
-    var componentDesc = '';
-
-    $.each(data, function (index, item) {
-        var formattedDate = formatDate(item.detailDate);
-        var inQty = toNumber(item.actualInMaterialQuantity);
-        var outQty = toNumber(item.outMaterialQuantity);
-        var rejQty = toNumber(item.rejectMaterialQuantity);
-        var pendingQty = item.pendingQuantity;
-        if (pendingQty === null || pendingQty === undefined || pendingQty === '') {
-            pendingQty = Math.max(0, inQty - outQty - rejQty);
-        }
-
-        rows.push('<tr>');
-        rows.push("<td><input type='button' name='action' Action='Update' id='" + item.chalanDetailSeq + "' class='btn btn-danger' onclick='Delete(this);' value='Delete'></input></td>");
-        rows.push('<td>' + formattedDate + '</td>');
-        rows.push('<td>' + (item.inChalanNo || '-') + '</td>');
-        rows.push('<td>' + (item.outChalanNo || '-') + '</td>');
-        rows.push('<td>' + inQty + '</td>');
-        rows.push('<td>' + outQty + '</td>');
-        rows.push('<td>' + rejQty + '</td>');
-        rows.push('<td>' + toNumber(pendingQty) + '</td>');
-        rows.push('</tr>');
-        componentDesc = item.componentDescription || componentDesc;
+function updateKpis() {
+    var totalIn = 0, totalOut = 0, totalPending = 0, totalRej = 0, openCount = 0;
+    gridDataCache.forEach(function (it) {
+        totalIn += toNumber(it.actualInMaterialQuantity);
+        totalOut += toNumber(it.outMaterialQuantity);
+        totalPending += toNumber(it.pendingQuantity);
+        totalRej += toNumber(it.rejectMaterialQuantity);
+        if (toNumber(it.pendingQuantity) !== 0) openCount++;
     });
 
-    $('#idComponentName').text(componentDesc);
-    tbody.html(rows.join(''));
+    $('#kpiIncoming').text(formatNumber(totalIn));
+    $('#kpiOut').text(formatNumber(totalOut));
+    $('#kpiOutPct').text(totalIn > 0 ? (totalOut / totalIn * 100).toFixed(1) + '%' : '');
+    $('#kpiPending').text(formatNumber(totalPending));
+    $('#kpiPendingTrack').css('width', (totalIn > 0 ? Math.min(100, totalPending / totalIn * 100) : 0) + '%');
+    $('#kpiPendingQualifier').text('across ' + openCount + ' chalan' + (openCount === 1 ? '' : 's'));
+    $('#kpiRejected').text(formatNumber(totalRej));
+    $('#kpiRejectedPct').text(totalIn > 0 ? (totalRej / totalIn * 100).toFixed(2) + '%' : '');
 }
 
-$(document).on('click', '.chalan-number-link', function (e) {
-    e.preventDefault(); // Prevent the default action of the link
+function rowStatus(item) {
+    var pending = toNumber(item.pendingQuantity);
+    var inQty = toNumber(item.actualInMaterialQuantity);
+    var out = toNumber(item.outMaterialQuantity);
+    var rej = toNumber(item.rejectMaterialQuantity);
 
-    // Perform the same actions as in your $("#btnIn").on('click', ...) function
-    $('#EmpModal').modal('show');
-    $('#tblOutdetails tbody').html("<tr><td colspan='8' class='text-center'>Loading...</td></tr>");
-    var chalanProcessHdrSeq = $(this).attr('chalanProcessHdrSeq');
-    GetChalanDetails(chalanProcessHdrSeq)
-    // Additional actions can be performed here, like using the chalan number for something
-    // Example: console.log("Chalan number clicked:", chalanNo);
-});
+    if (pending === 0) {
+        return { tab: 'closed', cls: 'jr-pill--closed', label: 'Closed' };
+    }
+    if (out === 0 && rej === 0) {
+        var days = 0;
+        var d = new Date(item.date);
+        if (!isNaN(d.getTime())) days = Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+        return { tab: 'open', cls: 'jr-pill--stalled', label: 'Nothing out · ' + days + ' days' };
+    }
+    var pct = inQty > 0 ? Math.round(pending / inQty * 100) : 0;
+    return { tab: 'open', cls: 'jr-pill--pending', label: pct + '% pending' };
+}
 
+function resetPageAndRender() {
+    currentPage = 1;
+    renderGrid();
+}
 
-$("#btnIn, #btnInCard").on('click', function (e) {
+function renderGrid() {
+    closeDockedPanel();
+    var compQ = ($('#componentSearch').val() || '').toLowerCase();
+    var searchQ = ($('#chalanGlobalSearch').val() || '').trim().toLowerCase();
+    var fromVal = $('#chalanDateFrom').val();
+    var toVal = $('#chalanDateTo').val();
+    var fromDate = fromVal ? new Date(fromVal) : null;
+    var toDate = toVal ? new Date(toVal) : null;
+    if (toDate) toDate.setHours(23, 59, 59, 999);
 
-    $('#idChalanNew').show();
-    $('#idChalanProcessGrid').hide();
-    $('#idChalanEntry').hide();
-    $('#idChalanTotalView').hide();
-    $('#idTotalDtlsGrid').hide();
-})
+    $('#tabOpenCount').text(gridDataCache.filter(function (it) { return toNumber(it.pendingQuantity) !== 0; }).length);
+    $('#tabClosedCount').text(gridDataCache.filter(function (it) { return toNumber(it.pendingQuantity) === 0; }).length);
 
+    var filtered = gridDataCache.filter(function (it) {
+        var status = rowStatus(it);
+        if (activeTab !== 'all' && status.tab !== activeTab) return false;
+        if (compQ && String(it.componentDescription || '').toLowerCase().indexOf(compQ) === -1) return false;
+        if (searchQ) {
+            var hay = (String(it.chalanNo || '') + ' ' + String(it.componentDescription || '')).toLowerCase();
+            if (hay.indexOf(searchQ) === -1) return false;
+        }
+        if (fromDate || toDate) {
+            var d = new Date(it.date);
+            if (isNaN(d.getTime())) return false;
+            if (fromDate && d < fromDate) return false;
+            if (toDate && d > toDate) return false;
+        }
+        return true;
+    });
 
-// Trigger the AJAX call, for example, on a button click or on document ready
-function ShowForm(btn) {
-    // Retrieve the chalanProcessHdrseq value
-    var chalanProcessHdrseq = $(btn).attr('id');
+    var totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
 
-    $('#HdnProcessHdeSeq').val(chalanProcessHdrseq);// Adjust the selector as needed
-    $('#idChalanOut').show();
-    $('#idChalanProcessGrid').hide();
-    $('#idChalanEntry').hide();
-    $('#idChalanTotalView').hide();
+    var pageStart = (currentPage - 1) * PAGE_SIZE;
+    var pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+    var tbody = $('#tblchalanProcess tbody');
+    tbody.empty();
+
+    if (filtered.length === 0) {
+        tbody.html('<tr><td colspan="8" class="jr-table-empty">No chalans match the current filters.</td></tr>');
+    } else {
+        pageItems.forEach(function (item) {
+            tbody.append(buildRow(item));
+        });
+    }
+
+    $('#chalanRowCount').text(filtered.length + ' of ' + gridDataCache.length + ' rows');
+
+    if (filtered.length === 0) {
+        $('#chalanPageSummary').text('');
+    } else {
+        $('#chalanPageSummary').text('Showing ' + (pageStart + 1) + '–' + Math.min(pageStart + PAGE_SIZE, filtered.length) + ' of ' + filtered.length);
+    }
+    $('#chalanPageIndicator').text('Page ' + currentPage + ' of ' + totalPages);
+    $('#chalanPagePrev').prop('disabled', currentPage <= 1);
+    $('#chalanPageNext').prop('disabled', currentPage >= totalPages);
+}
+
+function buildRow(item) {
+    var status = rowStatus(item);
+    var actionHtml = status.tab === 'open'
+        ? '<button type="button" class="jr-row-btn jr-row-btn--bordered jr-row-action">Record out</button>'
+        : '<button type="button" class="jr-row-btn jr-row-btn--borderless jr-row-action">View</button>';
+
+    var inQty = toNumber(item.actualInMaterialQuantity);
+    var pendingQty = toNumber(item.pendingQuantity);
+    var pendingPct = inQty > 0 ? Math.min(100, pendingQty / inQty * 100) : 0;
+    var pendingBarCls = status.tab === 'closed' ? '' : (status.cls === 'jr-pill--stalled' ? 'jr-mini-bar__fill--danger' : 'jr-mini-bar__fill--warning');
+
+    var $tr = $('<tr></tr>').data('hdrseq', item.chalanProcessHdrSeq).data('item', item);
+    $tr.append('<td>' + formatDate(item.date) + '</td>');
+    $tr.append($('<td class="jr-truncate"></td>').text(item.componentDescription || ''));
+    $tr.append('<td><a href="javascript:void(0)" class="jr-link chalan-number-link">' + escapeHtml(item.chalanNo) + '</a></td>');
+    $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(inQty) + '</td>');
+    $tr.append('<td class="jr-text-right jr-tabular ' + (toNumber(item.outMaterialQuantity) > 0 ? '' : 'jr-cell-muted') + '">' + formatNumber(item.outMaterialQuantity) + '</td>');
+    $tr.append('<td class="jr-text-right jr-tabular"><span class="jr-mini-bar-cell">' +
+        (pendingQty > 0 ? '<span class="jr-mini-bar"><span class="jr-mini-bar__fill ' + pendingBarCls + '" style="width:' + pendingPct + '%"></span></span>' : '') +
+        '<span class="' + (pendingQty > 0 ? 'jr-cell-strong' : 'jr-cell-muted') + '">' + formatNumber(pendingQty) + '</span></span></td>');
+    $tr.append('<td><span class="jr-pill ' + status.cls + '"><span class="jr-pill__dot"></span>' + status.label + '</span></td>');
+    $tr.append('<td class="jr-text-right">' + actionHtml + '</td>');
+    return $tr;
+}
+
+function escapeHtml(value) {
+    return $('<div>').text(value || '').html();
+}
+
+function exportVisibleRowsToCsv() {
+    var rows = [['Date', 'Component', 'Chalan No', 'Qty In', 'Pending', 'Status']];
+    $('#tblchalanProcess tbody tr').each(function () {
+        var item = $(this).data('item');
+        if (!item) return;
+        var status = rowStatus(item);
+        rows.push([formatDate(item.date), item.componentDescription, item.chalanNo, item.actualInMaterialQuantity, item.pendingQuantity, status.label]);
+    });
+    var csv = rows.map(function (r) {
+        return r.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
+    }).join('\r\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'chalan-process.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ---------------------------------------------------------------------
+// "Record out material" popup
+// ---------------------------------------------------------------------
+function toggleDockedPanel(hdrSeq) {
+    if (openDockedHdrSeq === hdrSeq) {
+        closeDockedPanel();
+        return;
+    }
+    openDockedPanel(hdrSeq);
+}
+
+function closeDockedPanel() {
+    var $backdrop = $('.jr-modal-backdrop');
+    $(document).off('keydown.jrDockedModal');
+    openDockedHdrSeq = null;
+    if (!$backdrop.length) return;
+    $backdrop.removeClass('is-open');
+    setTimeout(function () { $backdrop.remove(); }, 200);
+}
+
+function openDockedPanel(hdrSeq) {
+    $('#idChalanNew').prop('hidden', true);
+    $('.jr-modal-backdrop').remove();
+    openDockedHdrSeq = hdrSeq;
+
+    var item = gridDataCache.find(function (it) { return String(it.chalanProcessHdrSeq) === hdrSeq; });
+    if (!item) return;
+
+    var status = rowStatus(item);
+    var today = new Date().toISOString().split('T')[0];
+
+    var headerHtml = '<div class="jr-docked__header">' +
+        '<div><span class="jr-docked__title">Record out material</span>' +
+        '<span class="jr-docked__subtitle">Chalan ' + escapeHtml(item.chalanNo) + ' · ' + escapeHtml(item.componentDescription) + '</span></div>' +
+        '<div class="jr-docked__actions">' +
+        '<button type="button" class="jr-row-btn jr-row-btn--borderless" id="dockedCancel">Cancel</button>' +
+        (status.tab === 'open' ? '<button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="dockedSave">Save</button>' : '') +
+        '<button type="button" class="jr-modal__close" id="dockedClose" aria-label="Close" title="Close">' +
+        '<svg viewBox="0 0 24 24"><path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.29-6.3z"/></svg>' +
+        '</button>' +
+        '</div></div>';
+
+    var bodyHtml = '';
+    if (status.tab === 'open') {
+        bodyHtml = '<div class="jr-docked__body">' +
+            '<div class="jr-field"><label class="jr-field__label">Date<span class="jr-field__required">*</span></label>' +
+            '<div class="jr-daterange" data-jr-daterange><input type="hidden" data-jr-role="start" id="dockedDate" value="' + today + '" />' +
+            '<button type="button" class="jr-daterange__trigger"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z"/><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/></svg><span class="jr-daterange__label jr-tabular"></span></button>' +
+            '<div class="jr-daterange__panel" hidden></div></div></div>' +
+            '<div class="jr-field"><label class="jr-field__label" for="dockedOutChalan">Out chalan no<span class="jr-field__required">*</span></label>' +
+            '<input type="text" class="jr-input" id="dockedOutChalan" placeholder="e.g. 3391" /></div>' +
+            '<div class="jr-field"><label class="jr-field__label">Movement<span class="jr-field__required">*</span></label>' +
+            '<div class="jr-toggle"><button type="button" class="jr-toggle__btn is-active" data-move="APR">Out material</button>' +
+            '<button type="button" class="jr-toggle__btn" data-move="REJ">Rejected</button></div></div>' +
+            '<div class="jr-field"><label class="jr-field__label" for="dockedQty">Quantity<span class="jr-field__required">*</span></label>' +
+            '<input type="number" class="jr-input" id="dockedQty" min="0" value="0" /></div>' +
+            '<div class="jr-docked__hint jr-tabular" id="dockedBalanceLabel">' + formatNumber(item.pendingQuantity) + ' Nos will remain pending</div>' +
+            '</div>' +
+            '<div class="jr-docked__save-row">' +
+            '<button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="dockedSaveEntry">Save entry</button>' +
+            '<button type="button" class="jr-btn jr-btn--ghost jr-btn--sm" id="dockedSaveAnother">Save &amp; add another</button>' +
+            '</div>';
+    }
+
+    bodyHtml += '<div class="jr-docked__history">' +
+        '<div class="jr-docked__history-title">Previous entries on this chalan</div>' +
+        '<div class="jr-table-wrap"><table class="jr-table" id="tblDockedHistory"><thead><tr>' +
+        '<th>Date</th><th>Delivery chalan</th><th class="jr-text-right">Out</th><th class="jr-text-right">Rejected</th><th class="jr-text-right">Balance</th><th></th>' +
+        '</tr></thead><tbody></tbody></table></div></div>';
+
+    var $backdrop = $('<div class="jr-modal-backdrop"></div>');
+    var $modal = $('<div class="jr-modal" role="dialog" aria-modal="true"></div>');
+    $modal.html(headerHtml + bodyHtml);
+    $backdrop.append($modal);
+    $('body').append($backdrop);
+    var $docked = $modal;
+
+    // Insert in its pre-transition state first, then flip to .is-open on the
+    // next frame so the CSS transition actually animates in (adding the class
+    // in the same tick as the insert would skip straight to the end state).
+    requestAnimationFrame(function () {
+        requestAnimationFrame(function () { $backdrop.addClass('is-open'); });
+    });
+
+    $backdrop.on('mousedown', function (e) {
+        if (e.target === $backdrop[0]) closeDockedPanel();
+    });
+    $(document).on('keydown.jrDockedModal', function (e) {
+        if (e.key === 'Escape') closeDockedPanel();
+    });
+
+    JRControls.initAll($docked[0]);
+
+    $docked.find('#dockedCancel, #dockedClose').on('click', closeDockedPanel);
+
+    $docked.find('.jr-toggle__btn').on('click', function () {
+        $(this).addClass('is-active').siblings().removeClass('is-active');
+    });
+
+    // Kept as one mutually-exclusive Quantity + Movement toggle rather than
+    // simultaneous Qty-out/Rejected fields: sp_Deactivate_Records only
+    // reverses whichever of the two is nonzero on delete, so a row with both
+    // set would silently corrupt the header's pending quantity on delete.
+    function currentRemaining() {
+        var qty = toNumber($docked.find('#dockedQty').val());
+        return Math.max(0, toNumber(item.pendingQuantity) - qty);
+    }
+    $docked.find('#dockedQty').on('input', function () {
+        $docked.find('#dockedBalanceLabel').text(formatNumber(currentRemaining()) + ' Nos will remain pending');
+    });
+
+    function saveDockedEntry(keepOpen) {
+        var qty = toNumber($docked.find('#dockedQty').val());
+        var pending = toNumber(item.pendingQuantity);
+        var dateVal = $docked.find('#dockedDate').val();
+        var outChalanVal = $docked.find('#dockedOutChalan').val();
+        var movement = $docked.find('.jr-toggle__btn.is-active').data('move');
+
+        if (!dateVal) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please enter chalan out date.', confirmButtonColor: 'red' }); return; }
+        if (!outChalanVal) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please enter out chalan number.', confirmButtonColor: 'red' }); return; }
+        if (!(qty > 0 && qty <= pending)) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Quantity should be greater than 0 and no more than the pending quantity.', confirmButtonColor: 'red' }); return; }
+
+        var requestData = {
+            chalanProcessHdrSeq: hdrSeq,
+            detailDate: dateVal,
+            outChalanNo: outChalanVal,
+            pendingQuantity: pending,
+            outMaterialQuantity: movement === 'REJ' ? 0 : qty,
+            rejectMaterialQuantity: movement === 'REJ' ? qty : 0
+        };
+
+        $.ajax({
+            url: '/ChalanProcess/InsertChalanProcessDtls',
+            type: 'POST',
+            data: requestData,
+            success: function (response) {
+                if (!response || !response.success) {
+                    Swal.fire({ icon: 'error', title: 'Save Error!', text: (response && response.message) || 'Unable to save record', confirmButtonColor: 'red' });
+                    return;
+                }
+                refreshChalanRow(hdrSeq, function (freshItem) {
+                    if (keepOpen && freshItem && toNumber(freshItem.pendingQuantity) > 0) {
+                        openDockedPanel(hdrSeq);
+                    } else {
+                        closeDockedPanel();
+                    }
+                });
+            },
+            error: function () {
+                Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Unable to save record', confirmButtonColor: 'red' });
+            }
+        });
+    }
+
+    $docked.find('#dockedSaveEntry, #dockedSave').on('click', function () { saveDockedEntry(false); });
+    $docked.find('#dockedSaveAnother').on('click', function () { saveDockedEntry(true); });
+
+    loadDockedHistory(hdrSeq);
+}
+
+function refreshChalanRow(hdrSeq, callback) {
     $.ajax({
-        url: '/ChalanProcess/GetAllChalanProcessData', // The URL to your action
+        url: '/ChalanProcess/GetAllChalanProcessData',
         type: 'GET',
-        data: { chalanProcessHdrseq: chalanProcessHdrseq }, // Send chalanProcessHdrseq as a parameter
+        data: { chalanProcessHdrseq: hdrSeq },
         dataType: 'json',
         success: function (data) {
-            if (data && data.length > 0) {
-                // Assuming you want to use the first item to populate the text boxes
-                var item = data[0];
-
-                $('#txtExistChalan').val(item.chalanNo);
-                $('#txtComponentDesc').val(item.componentDescription);
-                $('#txtPenQuantity').val(item.pendingQuantity);
-                // ... similarly set values for other textboxes
-                originalPendingQuantity = parseInt($('#txtPenQuantity').val(), 10);
-                lastDoneQuantity = 0;
+            var fresh = Array.isArray(data) && data.length > 0 ? data[0] : null;
+            if (fresh) {
+                var idx = gridDataCache.findIndex(function (it) { return String(it.chalanProcessHdrSeq) === String(hdrSeq); });
+                if (idx !== -1) gridDataCache[idx] = fresh;
             }
-        },
-        error: function (xhr, status, error) {
-            console.error("Error: " + error);
+            updateHeaderMeta();
+            updateKpis();
+            renderGrid();
+            if (callback) callback(fresh);
         }
     });
 }
 
+function loadDockedHistory(hdrSeq) {
+    var $tbody = $('#tblDockedHistory tbody');
+    $tbody.html('<tr><td colspan="6" class="jr-table-empty">Loading…</td></tr>');
 
+    if (activeDetailsRequest && activeDetailsRequest.readyState !== 4) activeDetailsRequest.abort();
 
+    activeDetailsRequest = $.ajax({
+        url: '/ChalanProcess/GetAllChalanProcessDetails',
+        type: 'GET',
+        data: { chalanProcessHdrseq: hdrSeq },
+        dataType: 'json',
+        success: function (data) {
+            if (!Array.isArray(data)) {
+                $tbody.html('<tr><td colspan="6" class="jr-table-empty">Unable to load previous entries.</td></tr>');
+                return;
+            }
+            chalanDetailsCache[hdrSeq] = data;
+            renderDockedHistory(data);
+        },
+        error: function (xhr) {
+            if (xhr && xhr.statusText === 'abort') return;
+            $tbody.html('<tr><td colspan="6" class="jr-table-empty">Unable to load previous entries.</td></tr>');
+        }
+    });
+}
 
-$('#btnEdit').on('click', function () {
+function renderDockedHistory(data) {
+    var $tbody = $('#tblDockedHistory tbody');
+    $tbody.empty();
 
+    if (!data.length) {
+        $tbody.html('<tr><td colspan="6" class="jr-table-empty">No entries yet.</td></tr>');
+        return;
+    }
 
-    $('#idChalanProcess').show();
-})
+    data.forEach(function (entry) {
+        var out = toNumber(entry.outMaterialQuantity);
+        var rej = toNumber(entry.rejectMaterialQuantity);
+        var inQty = toNumber(entry.actualInMaterialQuantity);
+        var balance = Math.max(0, inQty - out - rej);
+        var $tr = $('<tr></tr>');
+        $tr.append('<td>' + formatDate(entry.detailDate) + '</td>');
+        $tr.append('<td>' + escapeHtml(entry.outChalanNo || '-') + '</td>');
+        $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(out) + '</td>');
+        $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(rej) + '</td>');
+        $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(balance) + '</td>');
+        $tr.append($('<td class="jr-text-right"></td>').append(
+            $('<button type="button" class="jr-link" style="color:var(--jr-status-stalled-dot);">Delete</button>').on('click', function () {
+                deleteDockedEntry(entry.chalanDetailSeq);
+            })
+        ));
+        $tbody.append($tr);
+    });
+}
 
+function deleteDockedEntry(chalanDetailSeq) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+    }).then(function (result) {
+        if (!result.isConfirmed) return;
+        var hdrSeq = openDockedHdrSeq;
+        $.ajax({
+            url: '/ChalanProcess/DeleteDetals',
+            type: 'POST',
+            data: { chalanProcessdtlseq: chalanDetailSeq },
+            dataType: 'json',
+            success: function (data) {
+                if (!data || !data.success) {
+                    Swal.fire({ title: 'Delete Failed', text: 'Delete failed: ' + (data && data.message), icon: 'error', confirmButtonColor: '#d33' });
+                    return;
+                }
+                refreshChalanRow(hdrSeq, function () {
+                    openDockedPanel(hdrSeq);
+                });
+            },
+            error: function () {
+                Swal.fire({ title: 'Error!', text: 'An error occurred while deleting the entry.', icon: 'error', confirmButtonColor: '#d33' });
+            }
+        });
+    });
+}
 
-
-
-
-
-
-
-$('#btnTotalView').on('click', function () {
-
-
-    //loadImageAndOpenInNewTab('D:\image_JR.PNG');
-    GetTotalComponentDetails();
-})
-// Example usage
-
-$("#btnCloseModal").click(function () {
-    $("#EmpModal").modal('hide');
-
-    $("#OutMaterialModal").modal('hide');
-})
-
-$("#SaveChalanStatus").click(function () {
-    if (fnValidations1())
-
-        InsertChalanDetails();
-    else
+// ---------------------------------------------------------------------
+// New incoming chalan
+// ---------------------------------------------------------------------
+function fnValidations1() {
+    if ($('#idDatenew').val() === '') {
+        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please Enter Chalan Date.', confirmButtonColor: 'red' });
         return false;
-})
+    }
+    if ($('#ddlComponentnew').val() === '0') {
+        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Component Name', confirmButtonColor: 'red' });
+        return false;
+    }
+    if ($('#idchalanNonew').val() === '') {
+        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Chalan Number', confirmButtonColor: 'red' });
+        return false;
+    }
+    if ($('#idQuantitynew').val() === '') {
+        Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please select Quantity', confirmButtonColor: 'red' });
+        return false;
+    }
+    if ($('#idchalanNonew').val().length < 7) {
+        Swal.fire({ icon: 'error', title: 'Validation Error!', text: 'Chalan Number must be at least 7 digits', confirmButtonColor: 'red' });
+        return false;
+    }
+    return true;
+}
 
 function InsertChalanDetails() {
-
-
     $.ajax({
-        url: '/ChalanProcess/InsertChalanProcess',  // URL to the controller method
+        url: '/ChalanProcess/InsertChalanProcess',
         type: 'POST',
         contentType: 'application/json',
         data: JSON.stringify({
-            date: $('#idDatenew').val(),// For input type='date', use .val()
-            componentDescription: $('#ddlComponentnew option:selected').text(), // For select, use .val() to get the selected option's value
-            chalanNo: $('#idchalanNonew').val(),// For input type='text', use .val()
-            quantity: Number($('#idQuantitynew').val()),// Server expects a number
-            companyName: "NA",
-            companyCode: "NA" // For select, use .val() to get the selected option's value
-            // vehicleNumber: $('#ddlVehiclenew option:selected').text(),// For select, use .val() to get the selected option's value
-            // vehicleChalanNumber: $('#idVehicleChalannew').val() // Use actual values from your form or application
+            date: $('#idDatenew').val(),
+            componentDescription: $('#ddlComponentnew option:selected').text(),
+            chalanNo: $('#idchalanNonew').val(),
+            quantity: Number($('#idQuantitynew').val()),
+            companyName: 'NA',
+            companyCode: 'NA'
         }),
         success: function (response) {
             if (response.success) {
-                // Handle success
-                //alert(response.message);
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Saved!',
-                    text: response.message,
-                    confirmButtonColor: '#28a745' // Green color
-                }).then(() => {
-                    window.location.reload(); // Reload page only after confirmation
+                Swal.fire({ icon: 'success', title: 'Saved!', text: response.message, confirmButtonColor: '#28a745' }).then(function () {
+                    window.location.reload();
                 });
             } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Save Error!',
-                    text: response.message,
-                    confirmButtonColor: 'red'
-                });
-                //alert(response.message);
+                Swal.fire({ icon: 'error', title: 'Save Error!', text: response.message, confirmButtonColor: 'red' });
             }
         },
-        error: function (xhr, status, error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Save Error!',
-                text: 'Unable to save chalan. Please try again.',
-                confirmButtonColor: 'red'
-            });
-        }
-    });
-
-}
-
-
-// jQuery AJAX request
-$("#SaveChalanOut").click(function () {
-    if (fnValidations2()) {
-        var requestData = {};
-        var doneQuantity = Number($('#txtDoneQuantity').val());
-        var penQuantity = Number($('#txtPenQuantity').val());
-
-        if (doneQuantity > 0 && !isNaN(penQuantity) && doneQuantity >= 0 && doneQuantity <= penQuantity) {
-            if ($('#ddlSelection option:selected').val() === "REJ") {
-                requestData.outMaterialQuantity = "0",
-                    requestData.rejectMaterialQuantity = $("#txtDoneQuantity").val()
-            } else {
-                requestData.outMaterialQuantity = $("#txtDoneQuantity").val(),
-                    requestData.rejectMaterialQuantity = "0"
-            }
-            requestData.chalanProcessHdrSeq = $('#HdnProcessHdeSeq').val(),
-                requestData.detailDate = $("#txtDate").val(),
-                requestData.outChalanNo = $("#txtOutChalan").val(),
-                requestData.pendingQuantity = $("#txtPenQuantity").val(),
-
-
-
-
-                $.ajax({
-                    url: '/ChalanProcess/InsertChalanProcessDtls',
-                    type: 'POST',
-                    data: requestData,
-                    success: function (response) {
-
-                        //alert(response.message);
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Saved!',
-                            text: response.message,
-                            confirmButtonColor: '#28a745' // Green color
-                        }).then(() => {
-                            window.location.reload(); // Reload page only after confirmation
-                        });
-
-                        // Handle success (e.g., show a message, redirect, etc.)
-                    },
-                    error: function (error) {
-                        //alert(response.message);
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Save Error!',
-                            text: 'Unable to save record',
-                            confirmButtonColor: 'red'
-                        });
-                        // Handle error
-                    }
-                });
-        } else {
-            //alert("");
-            Swal.fire({
-                icon: 'error',
-                title: 'Save Error!',
-                text: 'Done Quantity should be less than equal to Total Quantity,',
-                confirmButtonColor: 'red'
-            });
-        }
-    } else {
-        return false;
-    }
-});
-
-function GetTotalComponentDetails() {
-    $('#idTotalDtlsGrid').show();
-    $.ajax({
-        url: '/ChalanProcess/GetTotalComponentDetails',
-        type: 'GET',
-        dataType: 'json',
-        success: function (data) {
-            $('#OutMaterialModal').modal('show');
-            var tbody = $('#tblTotalDtls tbody');
-            tbody.empty(); // Clear existing rows
-            var html = "";
-            $.each(data, function (index, item) {
-                html += '<tr>';
-                html += '<td>' + (index + 1) + '</td>';
-                html += '<td>' + item.f_Component_Desc + '</td>';
-                // html += '<td>' + item.MaterialInQuantity + '</td>';
-                // html += '<td>' + item.MaterialOutQuantity + '</td>';
-                // html += '<td>' + item.MaterialRejQuantity + '</td>';
-                html += '<td>' + item.PendingQuantity + '</td>';
-                html += '</tr>';
-            });
-            tbody.html(html);
-        },
-        error: function (xhr, status, error) {
-            console.error('Error:', status, error);
+        error: function () {
+            Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Unable to save chalan. Please try again.', confirmButtonColor: 'red' });
         }
     });
 }
-
-
-
-function fnValidations1() {
-
-    if ($('#idDatenew').val() == "") {
-
-        //alert("Please Enter Chalan Date.");
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please Enter Chalan Date.',
-            confirmButtonColor: 'red'
-        });
-        return false;
-    } else if ($('#ddlComponentnew option:selected').val() == "0") {
-
-        //alert("Please select Component Name");
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please select Component Name',
-            confirmButtonColor: 'red'
-        });
-        return false;
-    } else if ($('#idchalanNonew').val() == "") {
-
-        //alert("Please select Chalan Number");
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please select Chalan Number',
-            confirmButtonColor: 'red'
-        });
-        return false;
-    }
-    else if ($('#idQuantitynew').val() == "") {
-        //alert("Please select Quantity");
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please select Quantity',
-            confirmButtonColor: 'red'
-        });
-        return false;    } else if ($('#idchalanNonew').val().length < 7) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Validation Error!',
-            text: 'Chalan Number must be at least 7 digits',
-            confirmButtonColor: 'red'
-        });
-        return false;
-    }
-    else {
-        return true;
-    }
-
-}
-
-function fnValidations2() {
-
-    if ($('#txtDate').val() == "") {
-
-        // alert("Please Enter Chalan Out Date.");
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please Enter Chalan Out Date',
-            confirmButtonColor: 'red'
-        });
-        return false;
-
-    } else if ($('#txtOutChalan').val() == "") {
-
-        //alert("Please select Delivery Chalan Number");
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please select Delivery Chalan Number',
-            confirmButtonColor: 'red'
-        });
-        return false;
-        // } else if ($('#idchalanNonew').val() == "") {
-        //     alert("Please select Chalan Number");
-        //     return false;
-        // } else if ($('#txtDoneQuantity').val() == 0) {
-        //     alert("Please select Done Quantity");
-        //     return false;
-    } else if ($('#ddlSelection option:selected').val() == 0) {
-
-        //alert("Please select option REJ/OUT Material.");
-
-        Swal.fire({
-            icon: 'error',
-            title: 'Save Error!',
-            text: 'Please select option REJ/OUT Material.',
-            confirmButtonColor: 'red'
-        });
-        return false;
-
-    } else {
-        return true;
-    }
-
-}
-
-function Delete(btn) {
-    var chalanProcessdtlseq = $(btn).attr('id');
-
-    Swal.fire({
-        title: "Are you sure?",
-        text: "You won't be able to revert this!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, delete it!"
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: '/ChalanProcess/DeleteDetals', // The URL to your action
-                type: 'POST', // Use POST if you’re changing data on the server
-                data: { chalanProcessdtlseq: chalanProcessdtlseq }, // Send chalanProcessdtlseq as a parameter
-                dataType: 'json',
-                success: function (data) {
-                    if (data.success) {
-                        Swal.fire({
-                            title: "Deleted!",
-                            text: "The entry has been deleted successfully.",
-                            icon: "success",
-                            confirmButtonColor: "#3085d6"
-                        }).then(() => {
-                            // Close the modal
-                            $('#EmpModal').modal('hide');
-                            // Reload the page
-                            location.reload();
-                        });
-                    } else {
-                        Swal.fire({
-                            title: "Delete Failed",
-                            text: "Delete failed: " + data.message,
-                            icon: "error",
-                            confirmButtonColor: "#d33"
-                        });
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error("Error: " + error);
-                    Swal.fire({
-                        title: "Error!",
-                        text: "An error occurred while deleting the entry.",
-                        icon: "error",
-                        confirmButtonColor: "#d33"
-                    });
-                }
-            });
-        }
-    });
-}
-
-
-
-
-

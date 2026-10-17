@@ -1,0 +1,135 @@
+/* JayRaj Industries — Graphite design tokens.
+   Canonical names match the design handoff's tokens.css verbatim so COMPONENTS.md
+   can be read directly against this file. The block below that keeps our original
+   --jr-* names as aliases so every existing CSS/JS/view built against them (the
+   whole app) keeps working without a wholesale rename. */
+:root {
+  /* Brand — Blue. The only action colour in the product. */
+  --jr-blue-50:  #eff6ff;
+  --jr-blue-100: #dbeafe;
+  --jr-blue-200: #bfdbfe;
+  --jr-blue-300: #93c5fd;
+  --jr-blue-400: #60a5fa;
+  --jr-blue-500: #3b82f6;
+  --jr-blue-600: #2563eb;
+  --jr-blue-700: #1d4ed8;
+  --jr-blue-800: #1e40af;
+  --jr-blue-900: #1e3a8a;
+  --jr-accent:       var(--jr-blue-600);
+  --jr-accent-hover: var(--jr-blue-700);
+  --jr-focus-ring:   0 0 0 3px rgba(37, 99, 235, .18);
+  --jr-link-underline: #c3d8fb;
+
+  /* Neutral — Graphite. Surfaces, hairlines, all text. */
+  --jr-surface:     #ffffff;
+  --jr-surface-2:   #fafbfc;
+  --jr-canvas:      #f7f8fa;
+  --jr-nav-bg:      #fbfbfc;
+  --jr-hover:       #f4f5f7;
+  --jr-line-soft:   #f1f2f5;
+  --jr-line:        #e8eaee;
+  --jr-line-strong: #e4e7eb;
+  --jr-faint:       #a8aeba;
+  --jr-muted:       #8a909c;
+  --jr-muted-2:     #9aa1ad;
+  --jr-icon:        #b3b9c4;
+  --jr-ink-2:       #5b626e;
+  --jr-ink:         #14161b;
+
+  /* Semantic — status only. Never a button, never a full-width fill. */
+  --jr-success:        #15803d;
+  --jr-success-bg:     #f0fdf4;
+  --jr-success-line:   #dcfce7;
+  --jr-warning:        #b45309;
+  --jr-warning-dot:    #d97706;
+  --jr-warning-bg:     #fffbeb;
+  --jr-warning-line:   #fde68a;
+  --jr-danger:         #be123c;
+  --jr-danger-bg:      #fff1f2;
+  --jr-danger-line:    #ffe4e6;
+  --jr-info:           #1d4ed8;
+  --jr-info-bg:        #eff6ff;
+  --jr-info-line:      #dbeafe;
+  --jr-sunday:         #c2905f;
+
+  /* Geometry */
+  --jr-r-chip:   6px;
+  --jr-r-ctrl:   7px;
+  --jr-r-card:  10px;
+  --jr-r-frame: 12px;
+  --jr-r-pill:  20px;
+
+  --jr-h-row:    28px;
+  --jr-h-ctrl:   32px;
+  --jr-h-field:  34px;
+  --jr-h-cta:    36px;
+  --jr-row-pad:  12px;
+
+  --jr-sidebar: 248px;
+  --jr-header:   58px;
+
+  --jr-shadow-raised:  0 1px 2px rgba(16, 24, 40, .04);
+  --jr-shadow-popover: 0 20px 48px rgba(16, 24, 40, .16);
+  --jr-shadow-frame:   0 24px 60px rgba(16, 24, 40, .10);
+
+  --jr-font: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --jr-font-serif: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --jr-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* ---- Compatibility aliases: existing app CSS/JS/views reference these ---- */
+  --jr-muted-3: var(--jr-faint);
+  --jr-line-pop: var(--jr-line-strong);
+  --jr-bg: var(--jr-canvas);
+  --jr-bg-2: var(--jr-canvas);
+
+  --jr-nav-text: var(--jr-ink-2);
+  --jr-nav-text-active: var(--jr-blue-700);
+  --jr-nav-section: #adb3bf;
+  --jr-nav-meta: var(--jr-muted);
+  --jr-nav-active-bg: var(--jr-blue-50);
+  --jr-nav-active-bar: var(--jr-blue-600);
+  --jr-nav-avatar-bg: var(--jr-ink);
+
+  --jr-status-pending-text: var(--jr-warning);
+  --jr-status-pending-bg: var(--jr-warning-bg);
+  --jr-status-pending-border: var(--jr-warning-line);
+  --jr-status-pending-dot: var(--jr-warning-dot);
+
+  --jr-status-closed-text: var(--jr-success);
+  --jr-status-closed-bg: var(--jr-success-bg);
+  --jr-status-closed-border: var(--jr-success-line);
+  --jr-status-closed-dot: var(--jr-success);
+
+  --jr-status-stalled-text: var(--jr-danger);
+  --jr-status-stalled-bg: var(--jr-danger-bg);
+  --jr-status-stalled-border: var(--jr-danger-line);
+  --jr-status-stalled-dot: var(--jr-danger);
+
+  --jr-status-rejected-dot: var(--jr-danger);
+  --jr-brand-red: var(--jr-danger);
+
+  --jr-radius-control: var(--jr-r-ctrl);
+  --jr-radius-card: var(--jr-r-card);
+  --jr-radius-frame: var(--jr-r-frame);
+  --jr-radius-pill: var(--jr-r-pill);
+  --jr-radius-avatar: 50%;
+
+  --jr-h-header-control: var(--jr-h-ctrl);
+  --jr-h-toolbar-control: var(--jr-h-ctrl);
+  --jr-h-row-button: var(--jr-h-row);
+  --jr-h-calendar-nav: 26px;
+
+  --jr-sidebar-width: var(--jr-sidebar);
+  --jr-header-height: var(--jr-header);
+}
+
+.jr-app *,
+.jr-app *::before,
+.jr-app *::after {
+  box-sizing: border-box;
+}
+
+.jr-tabular,
+.jr-num {
+  font-variant-numeric: tabular-nums;
+}

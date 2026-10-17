@@ -1,498 +1,191 @@
 @{
-	Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Chalan Process";
+    ViewData["Section"] = "Operations";
 }
 
-@{
-	ViewData["Title"] = "Chalan Process";
+@section HeaderActions {
+    <div class="jr-search">
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" /></svg>
+        <input type="text" id="chalanGlobalSearch" placeholder="Search chalan no, component…" />
+        <span class="jr-search__kbd">⌘K</span>
+    </div>
+    <button type="button" class="jr-btn jr-btn--accent" id="btnHeaderNewChalan">+ New incoming chalan</button>
 }
 
-
- 
-
-<div class="contComnDiv1">
-	<div class="plainSection" id="idChalanEntry">
-		<div class="secHeading">
-			<i class="fa fa-bar-chart" aria-hidden="true"></i>
-			Current Month Summary
-		</div>
-		<div class="row g-3 summaryCardsRow">
-			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="summaryCard summaryCard--action" style="position:relative;">
-					<button type="button" class="summaryCard__addBtn" id="btnInCard" title="Add Incoming Chalan">+</button>
-					<div class="summaryCard__label">Total Incoming Material</div>
-					<div class="summaryCard__value" id="cardTotalInMaterial">—</div>
-				</div>
-			</div>
-			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="summaryCard">
-					<div class="summaryCard__label">Total Out Material</div>
-					<div class="summaryCard__value" id="cardTotalOutMaterial">—</div>
-				</div>
-			</div>
-			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="summaryCard">
-					<div class="summaryCard__label">Total Pending Material</div>
-					<div class="summaryCard__value" id="cardTotalPendingMaterial">—</div>
-				</div>
-			</div>
-			<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-				<div class="summaryCard">
-					<div class="summaryCard__label">Total Rejected Material</div>
-					<div class="summaryCard__value" id="cardTotalRejectedMaterial">—</div>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="plainSection" id="idChalanProcessGrid">
-		<div class="secHeading">
-			<i class="fa fa-search-plus" aria-hidden="true"></i>
-			@ViewData["Title"]
-		</div>
-		<div class="tableHeaderFix tableHeaderFix--chalan-grid">
-			<table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcess">
-				<thead>
-					<tr>
-						<th>Action</th>
-						<th>
-							Date
-							<input type="text" class="srchTextInputCls" id="chalanSearchDate"
-								   placeholder="Search Date" />
-						</th>
-						<th>
-							Component Description
-							<select class="srchTextInputCls" id="componentSearch">
-								<option value="">All Components</option>
-								<option value="J LWD Rear Diff Case 10013476-030">J LWD Rear Diff Case 10013476-030</option>
-								<option value="J Hub Small 111.06.021.61.9">J Hub Small 111.06.021.61.9</option>
-								<option value="J Case Differential 40112573(Dost Diff Case AAM)">J Case Differential 40112573(Dost Diff Case AAM)</option>
-								<option value="J P Diff Case 112.04.001.61.9-PDNS3404145012">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
-								<option value="J Wheel Hub 708.06.0003.63.9">J Wheel Hub 708.06.0003.63.9</option>
-								<option value="J Diff Case Eld s/f M180 Flange Half 10019886">J Diff Case Eld s/f M180 Flange Half 10019886</option>
-								<option value="J Diff Case Flange Half Rgh Spilt - 2015985">J Diff Case Flange Half Rgh Spilt - 2015985</option>
-								<option value="J Mcie-3.3L Front Hub 0503Gaa 0047">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
-								<option value="J Diff Case S20Dc103">J Diff Case S20Dc103</option>
-								<option value="J Diff Case S20Dc104">J Diff Case S20Dc104</option>
-								<option value="J Diff Case 32931">J Diff Case 32931</option>
-								<option value="J P-375 Rear Diff Case 10043997">J P-375 Rear Diff Case 10043997</option>
-								<option value="J Diff Cover R252596-A130E1(Sona)">J Diff Cover R252596-A130E1(Sona)</option>
-								<option value="J Raw Case Diff P40233011(Phonix Intigral Diff Case)">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
-							</select>
-						</th>
-						<th>
-							Chalan No
-							<input type="text" class="srchTextInputCls" id="chalanSearchNo"
-								   placeholder="Search Chalan No" />
-						</th>
-						<th>
-							Quantity
-							<input type="text" class="srchTextInputCls" id="chalanSearchQty"
-								   placeholder="Search Qty" />
-						</th>
-						<th>
-							Pending Material
-							<input type="text" class="srchTextInputCls" id="chalanSearchPending"
-								   placeholder="Search Pending" />
-						</th>
-					</tr>
-				</thead>
-				<tbody>
-				</tbody>
-			</table>
-		</div>
-	</div>
-</div>
-<div class="contComnDiv1" id="idChalanOut" style="display:none">
-	<div class="row">
-		<div class="secHeading">
-			<i class="fa fa-search-plus" aria-hidden="true"></i>
-			Chalan Out Material Entry
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
-				<input type="date" class="form-control" placeholder="" id="txtDate">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Delivery Chalan No:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="txtOutChalan">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="txtComponentDesc" disabled>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Existing Chalan No:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="txtExistChalan" disabled>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="Searchtext" id="idQuantity" class="custmLbl1">
-					Pending Quantity:<span class="colorRed">*</span>
-				</label>
-				<input type="text" class="form-control" placeholder="" id="txtPenQuantity" disabled>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaType" class="custmLbl1">Selection<span class="colorRed">*</span></label>
-				<select id="ddlSelection" name="poaType" class="form-select">
-					<option value="REJ">Rejected Material</option>
-					<option value="APR">Out Material</option>
-				</select>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="Searchtext" id="idQuantity" class="custmLbl1">
-					Quantity:<span class="colorRed">*</span>
-				</label>
-				<input type="number" class="form-control" placeholder="" id="txtDoneQuantity">
-			</div>
-		</div>
-		<br />
-		<br />
-		<br />
-	</div>
-	<button type="button" class="btn btn-primary btnPrimary1" id="SaveChalanOut">Submit</button>
+<div class="jr-page-title">
+    <div>
+        <h1>Chalan Process</h1>
+        <div class="jr-page-title__meta" id="chalanPageMeta">Loading…</div>
+    </div>
+    <button type="button" class="jr-btn jr-btn--ghost" id="btnExportCsv">Export CSV</button>
 </div>
 
-<div class="contComnDiv1" id="idChalanNew" style="display:none">
-	<div class="row">
+<section class="jr-metric-strip" id="idChalanEntry">
+    <div class="jr-metric">
+        <div class="jr-metric__label">Incoming material</div>
+        <div class="jr-metric__value jr-tabular" id="kpiIncoming">—</div>
+        <div class="jr-metric__qualifier">Nos</div>
+    </div>
+    <div class="jr-metric">
+        <div class="jr-metric__label">Out material</div>
+        <div class="jr-metric__value jr-tabular" id="kpiOut">—</div>
+        <div class="jr-metric__qualifier" id="kpiOutPct"></div>
+    </div>
+    <div class="jr-metric">
+        <div class="jr-metric__label">Pending material</div>
+        <div class="jr-metric__value jr-tabular" id="kpiPending">—</div>
+        <div class="jr-metric__track"><div class="jr-metric__track-fill jr-metric__track-fill--warning" id="kpiPendingTrack" style="width:0%"></div></div>
+        <div class="jr-metric__qualifier" id="kpiPendingQualifier"></div>
+    </div>
+    <div class="jr-metric">
+        <div class="jr-metric__label">Rejected material</div>
+        <div class="jr-metric__value jr-tabular" id="kpiRejected">—</div>
+        <div class="jr-metric__qualifier" id="kpiRejectedPct"></div>
+    </div>
+</section>
 
-		<div class="secHeading">
-			<i class="fa fa-search-plus" aria-hidden="true"></i>
-			Chalan In Material Entry
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
-				<input type="date" class="form-control" placeholder="" id="idDatenew">
-			</div>
-			</br>
-			<button type="button" class="btn btn-primary btnPrimary1" id="SaveChalanStatus">Submit</button>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
-				<select id="ddlComponentnew" name="poaType" class="form-select">
-					<option value="0">Please Select</option>
-					<option value="JR_JLRDC">J LWD Rear Diff Case 10013476-030</option>
-					<option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
-					<option value="JR_JCD">J Case Differential 40112573(Dost Diff Case AAM)</option>
-					<option value="JR_JPDC">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
-					<option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
-					<option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
-					<option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
-					<option value="JR_JLRDC">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
-					<option value="JR_JDCSD103">J Diff Case S20Dc103</option>
-					<option value="JR_JDCSD104">J Diff Case S20Dc104</option>
-					<option value="JR_JDC32931">J Diff Case 32931</option>
-					<option value="JR_JDC10043998">J P-375 Rear Diff Case 10043997</option>
-					<option value="JR_JDCR252596A130E1">J Diff Cover R252596-A130E1(Sona)</option>
-					<option value="JR_JRCDP40233011">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
-				</select>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Chalan No:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="idchalanNonew">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="Searchtext" id="idQuantity" class="custmLbl1">
-					Quantity:<span class="colorRed">*</span>
-				</label>
-				<input type="text" class="form-control" placeholder="" id="idQuantitynew">
-			</div>
-		</div>
-	</div>
-</div>
+<section class="jr-card" id="idChalanNew" hidden>
+    <div class="jr-card__header">
+        <span class="jr-card__title">Chalan In Material Entry</span>
+        <button type="button" class="jr-row-btn jr-row-btn--borderless" id="btnCancelNewChalan">Cancel</button>
+    </div>
+    <div class="jr-card__body" style="display:flex;flex-wrap:wrap;gap:14px;align-items:end;">
+        <div class="jr-field">
+            <label class="jr-field__label">Date<span class="jr-field__required">*</span></label>
+            <div class="jr-daterange" data-jr-daterange>
+                <input type="hidden" data-jr-role="start" id="idDatenew" />
+                <button type="button" class="jr-daterange__trigger">
+                    <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" /><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" /></svg>
+                    <span class="jr-daterange__label jr-tabular"></span>
+                </button>
+                <div class="jr-daterange__panel" hidden></div>
+            </div>
+        </div>
+        <div class="jr-field" style="min-width:260px;">
+            <label class="jr-field__label" for="ddlComponentnew">Component description<span class="jr-field__required">*</span></label>
+            <div class="jr-dropdown" data-jr-dropdown>
+                <select id="ddlComponentnew" hidden>
+                    <option value="0">Please Select</option>
+                    <option value="JR_JLRDC">J LWD Rear Diff Case 10013476-030</option>
+                    <option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
+                    <option value="JR_JCD">J Case Differential 40112573(Dost Diff Case AAM)</option>
+                    <option value="JR_JPDC">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+                    <option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
+                    <option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+                    <option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+                    <option value="JR_JLRDC2">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                    <option value="JR_JDCSD103">J Diff Case S20Dc103</option>
+                    <option value="JR_JDCSD104">J Diff Case S20Dc104</option>
+                    <option value="JR_JDC32931">J Diff Case 32931</option>
+                    <option value="JR_JDC10043998">J P-375 Rear Diff Case 10043997</option>
+                    <option value="JR_JDCR252596A130E1">J Diff Cover R252596-A130E1(Sona)</option>
+                    <option value="JR_JRCDP40233011">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
+                </select>
+                <button type="button" class="jr-dropdown__trigger" style="width:100%;min-width:260px;"><span class="jr-dropdown__label"></span><svg class="jr-dropdown__caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg></button>
+                <div class="jr-dropdown__panel" hidden>
+                    <div class="jr-dropdown__filter">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" /></svg>
+                        <input class="jr-dropdown__filter-input" type="text" placeholder="Filter components…" />
+                    </div>
+                    <div class="jr-dropdown__list"></div>
+                    <div class="jr-dropdown__footer"><span>↑↓ to move · Enter to select</span><span>Esc to close</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="jr-field">
+            <label class="jr-field__label" for="idchalanNonew">Chalan no<span class="jr-field__required">*</span></label>
+            <input type="text" class="jr-input" id="idchalanNonew" />
+        </div>
+        <div class="jr-field">
+            <label class="jr-field__label" for="idQuantitynew">Quantity<span class="jr-field__required">*</span></label>
+            <input type="text" class="jr-input" id="idQuantitynew" />
+        </div>
+        <button type="button" class="jr-btn jr-btn--accent" id="SaveChalanStatus">Save entry</button>
+    </div>
+</section>
 
-<div class="contComnDiv1" id="idChalanView" style="display:none">
-	<div class="row">
-		<div class="secHeading">
-			<i class="fa fa-search-plus" aria-hidden="true"></i>
-			@ViewData["Title"]
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaType" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
-				<select id="ddlComponent" name="poaType" class="form-select">
-					<option value="0">Please Select</option>
-					<option value="1" selected>J LWD Rear Diff Case 10013476-030</option>
-					<option value="2">J Hub Small 111.06.021.61.9</option>
-					<option value="3">J Case Differential 40112573(Dost Diff Case AAM)</option>
-					<option value="4">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
-					<option value="5">J Wheel Hub 708.06.0003.63.9</option>
-					<option value="6">J Diff Case Eld s/f M180 Flange Half 10019886</option>
-					<option value="7">J Diff Case Flange Half Rgh Spilt - 2015985</option>
-					<option value="8">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
-					<option value="9">J Diff Case S20Dc103</option>
-					<option value="10">J Diff Case S20Dc104</option>
-					<option value="11">J Diff Case 32931</option>
-					<option value="12">J Diff Cover R252596-A130E1(Sona)</option>
-				</select>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Chalan No:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="2224435">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Quantity:<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="100">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Company Name<span class="colorRed">*</span></label>
-				<select id="ddlComponent" name="poaType" class="form-select">
-					<option value="0">Please Select</option>
-					<option value="1">Kores India</option>
-					<option value="2">CIA</option>
-					<option value="3">CIE</option>
-					<option value="4" selected>Shri Siddheshwar</option>
-					<option value="4">AAM India</option>
-					<option value="4">Jagdeesh</option>
-				</select>
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Vehicle Number<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="MH14EM9101">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Vehicle chalan Number<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="2305598">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Date<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="8-11-2023">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Pending Material<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="50">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Total In Material<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="100">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Total Out Material<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="50">
-			</div>
-		</div>
-		<div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-			<div class="form-group formGroup2">
-				<label for="poaSubType" class="custmLbl1">Remarks<span class="colorRed">*</span></label>
-				<input type="text" class="form-control" placeholder="" id="Searchtext" value="Pending">
-			</div>
-		</div>
-	</div>
-</div>
+<section class="jr-card" id="idChalanProcessGrid">
+    <div class="jr-toolbar">
+        <div class="jr-segmented" role="tablist">
+            <button type="button" class="jr-segmented__btn is-active" data-tab="open">Open <span class="jr-segmented__count" id="tabOpenCount">—</span></button>
+            <button type="button" class="jr-segmented__btn" data-tab="closed">Closed <span class="jr-segmented__count" id="tabClosedCount">—</span></button>
+            <button type="button" class="jr-segmented__btn" data-tab="all">All</button>
+        </div>
 
+        <div class="jr-dropdown" data-jr-dropdown>
+            <select id="componentSearch" hidden>
+                <option value="">All components</option>
+                <option value="J LWD Rear Diff Case 10013476-030">J LWD Rear Diff Case 10013476-030</option>
+                <option value="J Hub Small 111.06.021.61.9">J Hub Small 111.06.021.61.9</option>
+                <option value="J Case Differential 40112573(Dost Diff Case AAM)">J Case Differential 40112573(Dost Diff Case AAM)</option>
+                <option value="J P Diff Case 112.04.001.61.9-PDNS3404145012">J P Diff Case 112.04.001.61.9-PDNS3404145012</option>
+                <option value="J Wheel Hub 708.06.0003.63.9">J Wheel Hub 708.06.0003.63.9</option>
+                <option value="J Diff Case Eld s/f M180 Flange Half 10019886">J Diff Case Eld s/f M180 Flange Half 10019886</option>
+                <option value="J Diff Case Flange Half Rgh Spilt - 2015985">J Diff Case Flange Half Rgh Spilt - 2015985</option>
+                <option value="J Mcie-3.3L Front Hub 0503Gaa 0047">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                <option value="J Diff Case S20Dc103">J Diff Case S20Dc103</option>
+                <option value="J Diff Case S20Dc104">J Diff Case S20Dc104</option>
+                <option value="J Diff Case 32931">J Diff Case 32931</option>
+                <option value="J P-375 Rear Diff Case 10043997">J P-375 Rear Diff Case 10043997</option>
+                <option value="J Diff Cover R252596-A130E1(Sona)">J Diff Cover R252596-A130E1(Sona)</option>
+                <option value="J Raw Case Diff P40233011(Phonix Intigral Diff Case)">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
+            </select>
+            <button type="button" class="jr-dropdown__trigger"><span class="jr-dropdown__label"></span><svg class="jr-dropdown__caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg></button>
+            <div class="jr-dropdown__panel" hidden>
+                <div class="jr-dropdown__filter">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" /></svg>
+                    <input class="jr-dropdown__filter-input" type="text" placeholder="Filter components…" />
+                </div>
+                <div class="jr-dropdown__list"></div>
+                <div class="jr-dropdown__footer"><span>↑↓ to move · Enter to select</span><span>Esc to close</span></div>
+            </div>
+        </div>
 
-<div>
-	<div class="contComnDiv1" id="idChalanProcess" style="display:none">
-		<div class="card-body">
-			<div class="secHeading">
-				<i class="fa fa-search-plus" aria-hidden="true"></i>
-				@ViewData["Title"]
-			</div>
-			<div class="col-12 mb-2">
-				<div class="col-12">
-					<div class="tableHeaderFix">
-						<table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcessHistory">
-							<thead>
-								<tr>
-									<th>
-										Date
-										<br />
-										<input type="text" class="srchTextInputCls" id="" placeholder="Search Date" />
-									</th>
-									<th>
-										Component Description
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Component Discription" />
-									</th>
-									<th>
-										Chalan No
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Chalan No" />
-									</th>
-									<th>
-										Quantity
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search  Quantity" />
-									</th>
-									<th>
-										Company Name
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Company Name" />
-									</th>
-									<th>
-										Vehicle Number
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Vehicle Number" />
-									</th>
-									<th>
-										Vehicle Chalan No
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Vehicle Chalan Number" />
-									</th>
-									<th>
-										Total In Material
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search In Material" />
-									</th>
-									<th>
-										Total Out Material
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Out Material" />
-									</th>
-									<th>
-										Pending Material
-										<input type="text" class="srchTextInputCls" id=""
-											   placeholder="Search Pending Material" />
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="modal custmModal" id="EmpModal">
-	<div class="modal-dialog modal-lg chalan-details-dialog">
-		<div class="modal-content">
+        <div class="jr-daterange" data-jr-daterange>
+            <input type="hidden" id="chalanDateFrom" data-jr-role="start" />
+            <input type="hidden" id="chalanDateTo" data-jr-role="end" />
+            <button type="button" class="jr-daterange__trigger">
+                <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" /><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" /></svg>
+                <span class="jr-daterange__label jr-tabular"></span>
+            </button>
+            <div class="jr-daterange__panel" hidden></div>
+        </div>
 
-			<!-- Modal Header -->
-			<div class="modal-header">
-				<h4 class="modal-title"><span id="idComponentName"></span></h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
-			</div>
+        <div class="jr-toolbar__spacer">
+            <span class="jr-toolbar__count" id="chalanRowCount"></span>
+        </div>
+    </div>
 
-			<!-- Modal body -->
-			<div class="modal-body">
-				<div class="row">
-					<div class="col clsFieldSet" id="idEntityDetailsSec" style="">
-						<table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblOutdetails">
-							<thead>
-								<tr>
-									<th style="min-width: auto;">
-										Action
-									</th>
-									<th style="min-width: auto;">
-										Out Chalan Date
-									</th>
-									<th>
-										Delivery Chalan No
-									</th>
-									<th>
-										Existing chalan number
-									</th>
-									<th>
-										Quantity
-									</th>
-									<th>
-										Out Material Quantity
-									</th>
-									<th>
-										Rejected Quantity
-									</th>
-									 <th>
-									Balance Quantity
-									</th>
+    <div class="jr-table-wrap">
+        <table class="jr-table" id="tblchalanProcess">
+            <thead>
+                <tr>
+                    <th style="width:9%">Date</th>
+                    <th style="width:24%">Component</th>
+                    <th style="width:10%">Chalan no</th>
+                    <th style="width:8%" class="jr-text-right">Qty in</th>
+                    <th style="width:8%" class="jr-text-right">Out</th>
+                    <th style="width:13%" class="jr-text-right">Pending</th>
+                    <th style="width:16%">Status</th>
+                    <th style="width:12%" class="jr-text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-<div class="modal custmModal" id="OutMaterialModal">
-	<div class="modal-dialog modal-lg">
-		<div class="modal-content">
+    <div class="jr-pagination">
+        <span class="jr-pagination__summary" id="chalanPageSummary"></span>
+        <div class="jr-pagination__controls">
+            <button type="button" class="jr-btn jr-btn--ghost jr-btn--sm" id="chalanPagePrev">‹ Prev</button>
+            <span class="jr-pagination__page" id="chalanPageIndicator"></span>
+            <button type="button" class="jr-btn jr-btn--ghost jr-btn--sm" id="chalanPageNext">Next ›</button>
+        </div>
+    </div>
+</section>
 
-			<!-- Modal Header -->
-			<div class="modal-header">
-				<h4 class="modal-title"><span id="idComponentName"></span></h4>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
-			</div>
-
-			<!-- Modal body -->
-			<div class="modal-body">
-				<div class="row">
-					<div class="col clsFieldSet" id="idEntityDetailsSec" style="">
-						<table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
-							<thead>
-								<tr>
-									<th>Sr.No</th>
-									<th>
-										Material code & Description
-									</th>
-									<th>
-										Pending Material
-									</th>
-								</tr>
-							</thead>
-							<tbody>
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
 <input type="hidden" id="HdnProcessHdeSeq" name="hiddenFieldName">
-
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		var doneQuantityInput = document.getElementById('txtDoneQuantity');
-		if (!doneQuantityInput) return;
-
-		doneQuantityInput.addEventListener('input', function () {
-			if (this.value.trim() === '') {
-				this.value = 0;
-			}
-		});
-	});
-</script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 @section Scripts {
     <script src="~/appjs/ChalanProcess.js" asp-append-version="true"></script>

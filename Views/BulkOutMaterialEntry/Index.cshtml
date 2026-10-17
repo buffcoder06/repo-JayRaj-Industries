@@ -1,19 +1,16 @@
-﻿@{
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Datewise Chalan";
+    ViewData["Title"] = "Out Material Entry";
+    ViewData["PageMeta"] = "Bulk out material entry by component";
 }
 
-<div class="contComnDiv1" id="idChalanOutDatewise">
-    <div class="row g-3 align-items-end">
-        <div class="secHeading">
-            <i class="fa fa-search-plus" aria-hidden="true"></i>
-            Out Material Entry
-        </div>
-
-        <div class="col-xl-4 col-lg-6 col-md-6 col-sm-12">
-            <div class="form-group formGroup2">
-                <label for="ddlComponentnew" class="custmLbl1">Components Description:<span class="colorRed">*</span></label>
-                <select id="ddlComponentnew" name="poaType" class="form-select">
+<section class="jr-card">
+    <div class="jr-card__header"><span class="jr-card__title">Out Material Entry</span></div>
+    <div class="jr-card__body" style="display:flex; flex-wrap:wrap; gap:14px; align-items:end;">
+        <div class="jr-field" style="min-width:280px;">
+            <label class="jr-field__label" for="ddlComponentnew">Component description<span class="jr-field__required">*</span></label>
+            <div class="jr-dropdown" data-jr-dropdown style="width:100%;">
+                <select id="ddlComponentnew" hidden>
                     <option value="0">Please Select</option>
                     <option value="JR_JLRDC">J LWD Rear Diff Case 10013476-030</option>
                     <option value="JR_JHS">J Hub Small 111.06.021.61.9</option>
@@ -22,7 +19,7 @@
                     <option value="JR_JWH">J Wheel Hub 708.06.0003.63.9</option>
                     <option value="JR_JDCEFH">J Diff Case Eld s/f M180 Flange Half 10019886</option>
                     <option value="JR_JDCFHRS">J Diff Case Flange Half Rgh Spilt - 2015985</option>
-                    <option value="JR_JLRDC">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
+                    <option value="JR_JLRDC2">J Mcie-3.3L Front Hub 0503Gaa 0047</option>
                     <option value="JR_JDCSD103">J Diff Case S20Dc103</option>
                     <option value="JR_JDCSD104">J Diff Case S20Dc104</option>
                     <option value="JR_JDC32931">J Diff Case 32931</option>
@@ -30,60 +27,71 @@
                     <option value="JR_JDCR252596A130E1">J Diff Cover R252596-A130E1(Sona)</option>
                     <option value="JR_JRCDP40233011">J Raw Case Diff P40233011(Phonix Intigral Diff Case)</option>
                 </select>
+                <button type="button" class="jr-dropdown__trigger" style="width:100%;"><span class="jr-dropdown__label"></span><svg class="jr-dropdown__caret" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z" /></svg></button>
+                <div class="jr-dropdown__panel" hidden style="width:100%;">
+                    <div class="jr-dropdown__filter">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 5L20.49 19zm-6 0a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9z" /></svg>
+                        <input class="jr-dropdown__filter-input" type="text" placeholder="Filter components…" />
+                    </div>
+                    <div class="jr-dropdown__list"></div>
+                    <div class="jr-dropdown__footer"><span>↑↓ to move · Enter to select</span><span>Esc to close</span></div>
+                </div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" id="divDate" style="display:none">
-            <div class="form-group formGroup2">
-                <label for="txtDate" class="custmLbl1">Date<span class="colorRed">*</span></label>
-                <input type="date" class="form-control" id="txtDate">
+        <div class="jr-field" id="divDate" style="display:none;">
+            <label class="jr-field__label">Date<span class="jr-field__required">*</span></label>
+            <div class="jr-daterange" data-jr-daterange>
+                <input type="hidden" data-jr-role="start" id="txtDate" />
+                <button type="button" class="jr-daterange__trigger">
+                    <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" /><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" /></svg>
+                    <span class="jr-daterange__label jr-tabular"></span>
+                </button>
+                <div class="jr-daterange__panel" hidden></div>
             </div>
         </div>
 
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12" id="divChalan" style="display:none">
-            <div class="form-group formGroup2">
-                <label for="txtOutChalan" class="custmLbl1">Delivery Chalan No:<span class="colorRed">*</span></label>
-                <input type="text" class="form-control" id="txtOutChalan">
-            </div>
+        <div class="jr-field" id="divChalan" style="display:none;">
+            <label class="jr-field__label" for="txtOutChalan">Delivery chalan no<span class="jr-field__required">*</span></label>
+            <input type="text" class="jr-input" id="txtOutChalan" />
         </div>
     </div>
-</div>
+</section>
 
-<div class="contComnDiv1" id="idChalanProcessGrid" style="display:none">
-    <div class="card-body">
-        <div class="secHeading">
-            <i class="fa fa-search-plus" aria-hidden="true"></i>
-            @ViewData["Title"]
+<section class="jr-card" id="idChalanProcessGrid" style="display:none;">
+    <div class="jr-card__header"><span class="jr-card__title">@ViewData["Title"]</span></div>
+    <div class="jr-toolbar">
+        <div class="jr-field" style="gap:4px;">
+            <label class="jr-field__label" for="idTotAmount">Total amount to allocate</label>
+            <input type="text" id="idTotAmount" class="jr-input" style="width:220px;" placeholder="e.g. 150" />
         </div>
-
-        <div class="tableHeaderFix tableHeaderFix--chalan-grid" style="max-height:300px;overflow:auto;">
-            <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblchalanProcess">
-                <thead>
-                    <tr>
-                        <th>Date</th>
-                        <th>Component Description</th>
-                        <th>Chalan No</th>
-                        <th>Quantity</th>
-                        <th>Pending Material</th>
-                        <th>
-                            Amount
-                            <br />
-                            <input type="text" id="idTotAmount" placeholder="Please Amount" />
-                        </th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <div class="jr-toolbar__spacer">
+            <span class="jr-toolbar__count">Allocates across pending rows below, oldest first</span>
         </div>
     </div>
-</div>
-
-<div class="d-flex gap-2 mb-3">
-    <button type="button" class="btn btn-primary btnPrimary1" id="idSubmit">Submit</button>
-    <button type="button" class="btn btn-primary btnPrimary1" id="idClear">Clear</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div class="jr-table-wrap" style="max-height:420px;">
+        <table class="jr-table" id="tblchalanProcess">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Component description</th>
+                    <th>Chalan no</th>
+                    <th class="jr-text-right">Quantity</th>
+                    <th class="jr-text-right">Pending material</th>
+                    <th class="jr-text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="jr-pagination">
+        <span class="jr-pagination__summary"></span>
+        <div class="jr-pagination__controls">
+            <button type="button" class="jr-btn jr-btn--ghost jr-btn--sm" id="idClear">Clear</button>
+            <button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="idSubmit">Submit</button>
+        </div>
+    </div>
+</section>
 
 @section Scripts {
     <script src="~/appjs/bulkoutmaterialentry.js" asp-append-version="true"></script>

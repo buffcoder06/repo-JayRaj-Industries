@@ -1,0 +1,489 @@
+/* JayRaj Industries — redesign app shell: sidebar rail, header, page frame. */
+
+html, body.app-body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--jr-font);
+  -webkit-font-smoothing: antialiased;
+  color: var(--jr-ink);
+  background: var(--jr-bg-2);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+[class*="jr-tabular"],
+.jr-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--jr-bg-2);
+}
+
+/* ---------- Sidebar ---------- */
+.app-sidebar {
+  width: var(--jr-sidebar-width);
+  min-width: var(--jr-sidebar-width);
+  background: var(--jr-nav-bg);
+  color: var(--jr-nav-text);
+  border-right: 1px solid var(--jr-line);
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px 14px;
+}
+
+.app-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 6px 13px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--jr-line);
+}
+
+.app-sidebar__logo {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 7px;
+  background: var(--jr-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.app-sidebar__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.app-sidebar__title {
+  font-family: var(--jr-font);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--jr-ink);
+  line-height: 1.3;
+}
+
+.app-sidebar__subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--jr-muted);
+  line-height: 1.3;
+}
+
+.app-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-sidebar__group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--jr-nav-section);
+  padding: 14px 12px 6px;
+}
+
+.app-sidebar__group:first-child .app-sidebar__group-label {
+  padding-top: 4px;
+}
+
+.app-sidebar__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 9px;
+  border-radius: var(--jr-r-ctrl);
+  color: var(--jr-ink-2);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.app-sidebar__link:hover {
+  background: var(--jr-hover);
+  color: var(--jr-ink);
+}
+
+.app-sidebar__link[aria-current="page"] {
+  background: var(--jr-nav-active-bg);
+  color: var(--jr-nav-text-active);
+}
+
+.app-sidebar__icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  opacity: .55;
+}
+
+.app-sidebar__link[aria-current="page"] .app-sidebar__icon {
+  opacity: .85;
+}
+
+.app-sidebar__icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.app-sidebar__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar__count {
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  background: var(--jr-surface);
+  color: var(--jr-ink-2);
+  border: 1px solid #cfe0fd;
+  border-radius: 5px;
+  padding: 0 6px;
+}
+
+.app-sidebar__link[aria-current="page"] .app-sidebar__count {
+  color: var(--jr-blue-700);
+}
+
+.app-sidebar__footer {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--jr-line);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-left: 6px;
+  padding-right: 4px;
+}
+
+.app-sidebar__avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--jr-nav-avatar-bg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex: none;
+}
+
+.app-sidebar__identity {
+  flex: 1;
+  min-width: 0;
+}
+
+.app-sidebar__name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--jr-nav-text-active);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar__signed-in {
+  font-size: 11px;
+  color: var(--jr-nav-meta);
+}
+
+.app-sidebar__signout {
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 0;
+  background: transparent;
+  color: var(--jr-nav-meta);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+.app-sidebar__signout:hover {
+  color: var(--jr-ink);
+  background: var(--jr-hover);
+}
+
+.app-sidebar__signout svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.app-sidebar__toggle {
+  display: none;
+}
+
+/* ---------- Main column / header ---------- */
+.app-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--jr-bg);
+}
+
+.app-topbar {
+  height: var(--jr-header-height);
+  padding: 0 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--jr-surface);
+  border-bottom: 1px solid var(--jr-line);
+}
+
+.app-topbar__left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.app-topbar__sidebar-trigger {
+  display: none;
+}
+
+.app-topbar__section {
+  color: var(--jr-muted);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.app-topbar__crumb-sep {
+  color: var(--jr-faint);
+}
+
+.app-topbar__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--jr-ink);
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* Kept for the two screens that still surface a live-updating header line
+   (Dashboard's month label) rather than a static breadcrumb. */
+.app-topbar__meta {
+  font-size: 12.5px;
+  color: var(--jr-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-topbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+
+.jr-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--jr-line-strong);
+  border-radius: var(--jr-r-ctrl);
+  background: var(--jr-surface);
+  color: var(--jr-icon);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: none;
+}
+
+.jr-icon-btn:hover {
+  background: var(--jr-hover);
+  color: var(--jr-ink-2);
+}
+
+.jr-icon-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: currentColor;
+}
+
+.app-content {
+  padding: 22px 24px 28px;
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Page title block — <h1> + meta line + optional right-side action,
+   rendered by each view at the top of its own content (the header bar
+   above it is a plain breadcrumb, not a per-page title anymore). */
+.jr-page-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.jr-page-title h1 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--jr-ink);
+  margin: 0 0 4px;
+}
+
+.jr-page-title__meta {
+  font-size: 12.5px;
+  color: var(--jr-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shared control primitives used across the redesigned screens */
+.jr-search {
+  height: 32px;
+  min-width: 262px;
+  border: 1px solid var(--jr-line-strong);
+  border-radius: var(--jr-radius-control);
+  background: var(--jr-surface-2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 10px;
+}
+
+.jr-search svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--jr-muted-3);
+  flex: none;
+}
+
+.jr-search input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  font: 400 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  flex: 1;
+  min-width: 0;
+}
+
+.jr-search__kbd {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--jr-muted-3);
+  border: 1px solid var(--jr-line);
+  border-radius: 4px;
+  padding: 1px 5px;
+  flex: none;
+}
+
+.jr-btn {
+  height: 32px;
+  border-radius: var(--jr-radius-control);
+  border: 1px solid transparent;
+  font: 700 12.5px var(--jr-font);
+  padding: 0 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jr-btn--accent {
+  background: var(--jr-accent);
+  color: #fff;
+}
+
+.jr-btn--accent:hover {
+  background: var(--jr-accent-hover);
+}
+
+.jr-btn--ghost {
+  background: var(--jr-surface);
+  border-color: var(--jr-line-strong);
+  color: var(--jr-ink);
+  box-shadow: var(--jr-shadow-raised);
+}
+
+.jr-btn--ghost:hover {
+  background: var(--jr-hover);
+}
+
+.jr-btn--text {
+  background: transparent;
+  border-color: transparent;
+  color: var(--jr-ink-2);
+}
+
+.jr-btn--text:hover {
+  background: var(--jr-hover);
+  color: var(--jr-ink);
+}
+
+.jr-btn:disabled {
+  opacity: .5;
+  cursor: default;
+  pointer-events: none;
+}
+
+.jr-btn--sm {
+  height: var(--jr-h-row-button);
+  padding: 0 11px;
+  font-size: 12px;
+}
+
+/* Mobile: slide sidebar off canvas */
+@media (max-width: 768px) {
+  .app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform .2s ease-out;
+  }
+
+  .app-shell--sidebar-open .app-sidebar {
+    transform: translateX(0);
+  }
+
+  .app-topbar__sidebar-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--jr-line);
+    border-radius: var(--jr-radius-control);
+    background: var(--jr-surface);
+  }
+
+  .app-topbar__sidebar-trigger svg {
+    width: 16px;
+    height: 16px;
+    fill: var(--jr-ink);
+  }
+
+  .app-content {
+    padding: 16px 14px 20px;
+  }
+}

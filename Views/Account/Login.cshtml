@@ -16,9 +16,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Spectral:wght@500;600;700;800&display=swap" rel="stylesheet" />
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/style.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/page.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/jr-tokens.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/jr-components.css" asp-append-version="true" />
     <style>
         body.login-body {
             margin: 0;
@@ -26,20 +25,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--font);
+            font-family: var(--jr-font);
             background:
                 radial-gradient(120% 120% at 0% 0%, rgba(37, 99, 235, 0.07) 0, transparent 46%),
                 radial-gradient(120% 120% at 100% 0%, rgba(14, 165, 233, 0.06) 0, transparent 40%),
-                var(--bg);
+                var(--jr-bg-2);
         }
 
         .login-card {
             width: 100%;
             max-width: 380px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-2);
+            background: var(--jr-surface);
+            border: 1px solid var(--jr-line);
+            border-radius: var(--jr-radius-frame);
+            box-shadow: 0 14px 32px rgba(16, 40, 75, .10);
             padding: 32px 28px;
         }
 
@@ -58,10 +57,10 @@
         }
 
         .login-brand h1 {
-            font-family: "Spectral", Georgia, serif;
+            font-family: var(--jr-font-serif);
             font-size: 1.2rem;
             font-weight: 700;
-            color: #c1121f;
+            color: var(--jr-brand-red);
             margin: 0;
         }
 
@@ -69,7 +68,7 @@
             background: rgba(220, 38, 38, 0.08);
             border: 1px solid rgba(220, 38, 38, 0.25);
             color: #7f1d1d;
-            border-radius: var(--radius-sm);
+            border-radius: 8px;
             padding: 10px 12px;
             font-size: 0.85rem;
             margin-bottom: 16px;
@@ -86,16 +85,16 @@
 
         <div asp-validation-summary="All" class="login-error" style="@(ViewData.ModelState.IsValid ? "display:none;" : "")"></div>
 
-        <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post">
-            <div class="form-group formGroup2">
-                <label for="Username" class="custmLbl1">Username</label>
-                <input type="text" class="form-control" id="Username" name="Username" autofocus autocomplete="username" />
+        <form asp-controller="Account" asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" method="post" style="display:flex; flex-direction:column; gap:14px;">
+            <div class="jr-field">
+                <label class="jr-field__label" for="Username">Username</label>
+                <input type="text" class="jr-input" id="Username" name="Username" autofocus autocomplete="username" />
             </div>
-            <div class="form-group formGroup2">
-                <label for="Password" class="custmLbl1">Password</label>
-                <input type="password" class="form-control" id="Password" name="Password" autocomplete="current-password" />
+            <div class="jr-field">
+                <label class="jr-field__label" for="Password">Password</label>
+                <input type="password" class="jr-input" id="Password" name="Password" autocomplete="current-password" />
             </div>
-            <button type="submit" class="btn btn-primary btnPrimary1" style="width:100%;">Sign In</button>
+            <button type="submit" class="jr-btn jr-btn--accent" style="width:100%; justify-content:center; height:36px;">Sign In</button>
         </form>
     </div>
 </body>

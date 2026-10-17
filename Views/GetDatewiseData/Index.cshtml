@@ -1,181 +1,84 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Datewise Status";
+    ViewData["Section"] = "Reporting";
 }
 
-@{
-    ViewData["Title"] = "Datewise Chalan";
-}
+<div class="jr-page-title">
+    <div>
+        <h1>Datewise Status</h1>
+        <div class="jr-page-title__meta" id="datewisePageMeta">Loading…</div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+        <div class="jr-segmented" role="tablist">
+            <button type="button" class="jr-segmented__btn is-active" data-tab="inward">Incoming</button>
+            <button type="button" class="jr-segmented__btn" data-tab="outward">Out material</button>
+            <button type="button" class="jr-segmented__btn" data-tab="pending">Rejected</button>
+        </div>
 
-<div class="contComnDiv1" id="idChalanOutDatewise">
-    <div class="row">
-        <div class="secHeading">
-            <i class="fa fa-search-plus" aria-hidden="true"></i>
-            Chalan Datewise Calculation
+        <div class="jr-daterange" data-jr-daterange>
+            <input type="hidden" id="txtFromDate" data-jr-role="start" />
+            <input type="hidden" id="txtToDate" data-jr-role="end" />
+            <button type="button" class="jr-daterange__trigger">
+                <svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" /><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" /></svg>
+                <span class="jr-daterange__label jr-tabular"></span>
+            </button>
+            <div class="jr-daterange__panel" hidden></div>
         </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="form-group formGroup2">
-                <label for="poaSubType" class="custmLbl1">From Date<span class="colorRed">*</span></label>
-                <input type="date" class="form-control" placeholder="" id="txtFromDate">
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="form-group formGroup2">
-                <label for="poaSubType" class="custmLbl1">To Date<span class="colorRed">*</span></label>
-                <input type="date" class="form-control" placeholder="" id="txtToDate">
-            </div>
-        </div>
-        <div>
-            </br>
-            <button type="button" class="btn btn-primary btnPrimary1" id="idShowInData">InMaterial</button>
-            <button type="button" class="btn btn-primary btnPrimary1" id="idShowOutData">OutMaterial</button>
-            <button type="button" class="btn btn-primary btnPrimary1" id="btnShowPenData">View Pending</button>
-        </div>
+
+        <button type="button" class="jr-btn jr-btn--accent" id="btnRunReport">Run report</button>
     </div>
 </div>
 
-<div class="modal custmModal" id="OutMaterialModal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+<section class="jr-metric-strip">
+    <div class="jr-metric">
+        <div class="jr-metric__label">In, this period</div>
+        <div class="jr-metric__value jr-tabular" id="statInPeriod">—</div>
+    </div>
+    <div class="jr-metric">
+        <div class="jr-metric__label">Out, this period</div>
+        <div class="jr-metric__value jr-tabular" id="statOutPeriod">—</div>
+    </div>
+    <div class="jr-metric">
+        <div class="jr-metric__label">Net pending, this period</div>
+        <div class="jr-metric__value jr-tabular" id="statNetPending">—</div>
+    </div>
+</section>
 
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Outward Material</span></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
-                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalDtls">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:center">Sr.No</th>
-                                    <th>
-                                        Material code & Description
-                                    </th>
-                                    @* <th>
-                                        Total In Material
-                                    </th> *@
-                                    <th>
-                                        Total Out Material
-                                    </th>
-                                    <th>
-                                        Total Rejected Material
-                                    </th>
-                                @* <th>
-                                        Pending Material
-                                    </th> *@
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+<section class="jr-card">
+    <div class="jr-toolbar">
+        <div class="jr-toolbar__spacer">
+            <button type="button" class="jr-btn jr-btn--ghost" id="btnDownloadPendingPdf">Download PDF</button>
+            <button type="button" class="jr-btn jr-btn--ghost" id="btnExportDatewiseCsv">Export CSV</button>
         </div>
     </div>
-</div>
 
-<div class="modal custmModal" id="PenMaterialModal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Pending Material</span></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                <div class="d-flex justify-content-end mb-2">
-                    <button type="button" class="btn btn-primary btnPrimary1" id="btnDownloadPendingPdf">Download PDF</button>
-                </div>
-                <div class="row">
-                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
-                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalPenDtls">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:center">Sr.No</th>
-                                    <th>
-                                        Material code & Description
-                                    </th>
-                                    @* <th>
-                                        Total In Material
-                                    </th>
-                                    <th>
-                                        Total Out Material
-                                    </th>
-                                    <th>
-                                        Total Rejected Material
-                                    </th> *@
-                                    <th>
-                                        Pending Material
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="jr-table-wrap">
+        <table class="jr-table" id="tblDatewiseResults">
+            <thead>
+                <tr>
+                    <th style="width:6%">Sr</th>
+                    <th style="width:39%">Material code &amp; description</th>
+                    <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader1">Qty</th>
+                    <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader2"></th>
+                    <th style="width:31%">Share of period</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot id="datewiseTotalsRow" hidden>
+                <tr>
+                    <td colspan="2" class="jr-text-right"><strong id="datewiseTotalsLabel">Total</strong></td>
+                    <td class="jr-text-right jr-tabular"><strong id="datewiseTotal1"></strong></td>
+                    <td class="jr-text-right jr-tabular"><strong id="datewiseTotal2"></strong></td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
-</div>
-
-<div class="modal custmModal" id="InMaterialModal">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h4 class="modal-title modal-title-stack"><span class="modal-title-top">JAYRAJ INDUSTRIES</span><span class="modal-title-sub">Inward Material</span></h4>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" id="btnCloseModal"></button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col clsFieldSet" id="idEntityDetailsSec" style="">
-                        <table class="table class_tableCustmSM1 table-bordered table-hover mb-0" id="tblTotalInDtls">
-                            <thead>
-                                <tr>
-                                    <th style="text-align:center">Sr.No</th>
-                                    <th>
-                                        Material code & Description
-                                    </th>
-                                    @* <th>
-                                        Total In Material
-                                    </th> *@
-                                    <th>
-                                        Total In Material
-                                    </th>
-                                    @* <th>
-                                        Total Pending Material
-                                    </th> *@
-                                @* <th>
-                                        Pending Material
-                                    </th> *@
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+</section>
 
 @section Scripts {
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="~/appjs/DatewiseData.js" asp-append-version="true"></script>
 }
-
-
-

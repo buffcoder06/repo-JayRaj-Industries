@@ -160,6 +160,29 @@
   }
 }
 
+/* Minimal grid utility classes for the invoice sheet (kept as its own
+   print-fidelity document, not part of the token-driven redesign) — these
+   replace the handful of Bootstrap grid/utility classes it used, now that
+   Bootstrap itself is no longer loaded. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.row.g-0 {
+  margin: 0;
+}
+
+.col-md-6 { flex: 0 0 50%; max-width: 50%; }
+.col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; }
+.col-md-2 { flex: 0 0 16.6667%; max-width: 16.6667%; }
+
+.text-center { text-align: center; }
+.fw-bold { font-weight: 700; }
+.mb-0 { margin-bottom: 0; }
+.mt-0 { margin-top: 0; }
+.mt-3 { margin-top: 1rem; }
+
 /* Invoice module */
 .invoice-canvas {
   background: #ffffff;
@@ -543,18 +566,22 @@
   }
 
   .app-sidebar,
-  .app-header,
-  .main-content .secHeading,
-  #btnLoadInvoiceData,
-  #btnDownloadInvoicePdf,
-  #scrapManualSection,
-  .contComnDiv1 > .row.g-3,
-  .contComnDiv1 > .row.g-3.mt-1,
-  .contComnDiv1 > .d-flex.gap-2.mt-3 {
+  .app-topbar,
+  #jrInvoiceRail {
     display: none !important;
   }
 
-  .contComnDiv1 {
+  .app-content {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .app-content section {
+    display: block !important;
+    grid-template-columns: none !important;
+  }
+
+  .app-content .jr-card {
     border: 0 !important;
     box-shadow: none !important;
     background: #ffffff !important;

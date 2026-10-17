@@ -1,77 +1,53 @@
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Dashboard";
+    ViewData["PageMeta"] = "Loading…";
 }
 
-<div class="contComnDiv1">
-    <div class="secHeading">
-        <i class="fa fa-tachometer" aria-hidden="true"></i>
-        Dashboard &ndash; <span id="dashMonthLabel" style="font-weight:500; color:var(--primary, #2563eb);">Loading...</span>
+<section class="jr-kpi-row">
+    <div class="jr-kpi">
+        <div class="jr-kpi__label">Incoming chalans</div>
+        <div class="jr-kpi__main"><span class="jr-kpi__value jr-tabular" id="dashIncomingChalan">—</span></div>
     </div>
-    <div class="row g-3 summaryCardsRow">
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="summaryCard">
-                <div class="summaryCard__label">Incoming Chalans</div>
-                <div class="summaryCard__value" id="dashIncomingChalan">—</div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="summaryCard">
-                <div class="summaryCard__label">Total Out Material</div>
-                <div class="summaryCard__value" id="dashTotalOutMaterial">—</div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="summaryCard">
-                <div class="summaryCard__label">Total Pending Material</div>
-                <div class="summaryCard__value" id="dashTotalPendingMaterial">—</div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <div class="summaryCard">
-                <div class="summaryCard__label">Total Rejected Material</div>
-                <div class="summaryCard__value" id="dashTotalRejectedMaterial">—</div>
-            </div>
-        </div>
+    <div class="jr-kpi">
+        <div class="jr-kpi__label">Total out material</div>
+        <div class="jr-kpi__main"><span class="jr-kpi__value jr-tabular" id="dashTotalOutMaterial">—</span></div>
     </div>
-</div>
+    <div class="jr-kpi jr-kpi--rail-pending">
+        <div class="jr-kpi__label">Total pending material</div>
+        <div class="jr-kpi__main"><span class="jr-kpi__value jr-tabular" id="dashTotalPendingMaterial">—</span></div>
+    </div>
+    <div class="jr-kpi jr-kpi--rail-rejected">
+        <div class="jr-kpi__label">Total rejected material</div>
+        <div class="jr-kpi__main"><span class="jr-kpi__value jr-tabular" id="dashTotalRejectedMaterial">—</span></div>
+    </div>
+</section>
 
-<div class="contComnDiv1">
-    <div class="secHeading">
-        <i class="fa fa-th-large" aria-hidden="true"></i>
-        Modules
+<section class="jr-card">
+    <div class="jr-card__header"><span class="jr-card__title">Modules</span></div>
+    <div class="jr-card__body" style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px;">
+        <a asp-controller="ChalanProcess" asp-action="Index" class="jr-card" style="padding:16px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:8px;">
+            <span class="app-sidebar__icon" style="opacity:1; color:var(--jr-accent);"><svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z" /></svg></span>
+            <div class="jr-cell-strong">Chalan Process</div>
+            <div class="jr-cell-muted" style="font-size:12px;">Manage incoming &amp; outgoing chalans</div>
+        </a>
+        <a asp-controller="GetDatewiseData" asp-action="Index" class="jr-card" style="padding:16px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:8px;">
+            <span class="app-sidebar__icon" style="opacity:1; color:var(--jr-accent);"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z" /><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z" /></svg></span>
+            <div class="jr-cell-strong">Datewise Status</div>
+            <div class="jr-cell-muted" style="font-size:12px;">View in / out / pending by date range</div>
+        </a>
+        <a asp-controller="BulkOutMaterialEntry" asp-action="Index" class="jr-card" style="padding:16px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:8px;">
+            <span class="app-sidebar__icon" style="opacity:1; color:var(--jr-accent);"><svg viewBox="0 0 24 24"><path d="M5 4h9v2H5v3L1 5.5 5 2zM19 20h-9v-2h9v-3l4 3.5L19 22z" /></svg></span>
+            <div class="jr-cell-strong">Out Material Entry</div>
+            <div class="jr-cell-muted" style="font-size:12px;">Bulk out material entry by component</div>
+        </a>
+        <a asp-controller="Invoice" asp-action="Index" class="jr-card" style="padding:16px; text-decoration:none; color:inherit; display:flex; flex-direction:column; gap:8px;">
+            <span class="app-sidebar__icon" style="opacity:1; color:var(--jr-accent);"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM14 3.5V8h4.5"></path><path d="M8 12h8M8 16h8M8 20h5"></path></svg></span>
+            <div class="jr-cell-strong">Invoice Generation</div>
+            <div class="jr-cell-muted" style="font-size:12px;">Generate &amp; download tax invoices</div>
+        </a>
     </div>
-    <div class="row g-3">
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <a asp-controller="ChalanProcess" asp-action="Index" class="dash-nav-card">
-                <div class="dash-nav-card__icon"><i class="fa fa-bar-chart" aria-hidden="true"></i></div>
-                <div class="dash-nav-card__title">Chalan Process</div>
-                <div class="dash-nav-card__sub">Manage incoming &amp; outgoing chalans</div>
-            </a>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <a asp-controller="GetDatewiseData" asp-action="Index" class="dash-nav-card">
-                <div class="dash-nav-card__icon"><i class="fa fa-calendar" aria-hidden="true"></i></div>
-                <div class="dash-nav-card__title">Datewise Status</div>
-                <div class="dash-nav-card__sub">View in / out / pending by date range</div>
-            </a>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <a asp-controller="BulkOutMaterialEntry" asp-action="Index" class="dash-nav-card">
-                <div class="dash-nav-card__icon"><i class="fa fa-upload" aria-hidden="true"></i></div>
-                <div class="dash-nav-card__title">Out Material Entry</div>
-                <div class="dash-nav-card__sub">Bulk out material entry by component</div>
-            </a>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-sm-6 col-12">
-            <a asp-controller="Invoice" asp-action="Index" class="dash-nav-card">
-                <div class="dash-nav-card__icon"><i class="fa fa-file-text" aria-hidden="true"></i></div>
-                <div class="dash-nav-card__title">Invoice Generation</div>
-                <div class="dash-nav-card__sub">Generate &amp; download tax invoices</div>
-            </a>
-        </div>
-    </div>
-</div>
+</section>
 
 @section Scripts {
 <script>
@@ -85,7 +61,7 @@
                     setDashError();
                     return;
                 }
-                $('#dashMonthLabel').text(data.monthLabel || '');
+                $('#appTopbarMeta').text(data.monthLabel || '');
                 $('#dashIncomingChalan').text(formatDashValue(data.incomingChalanCount));
                 $('#dashTotalOutMaterial').text(formatDashValue(data.totalOutMaterial));
                 $('#dashTotalPendingMaterial').text(formatDashValue(data.totalPendingMaterial));
@@ -97,7 +73,7 @@
         });
 
         function setDashError() {
-            $('#dashMonthLabel').text('Current Month');
+            $('#appTopbarMeta').text('Current month');
             $('#dashIncomingChalan, #dashTotalOutMaterial, #dashTotalPendingMaterial, #dashTotalRejectedMaterial').text('—');
         }
 

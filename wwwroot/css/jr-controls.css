@@ -1,0 +1,298 @@
+/* JayRaj Industries — dropdown popover + date-range picker (jr-controls.js) */
+
+.jr-dropdown,
+.jr-daterange {
+  position: relative;
+  display: inline-flex;
+}
+
+/* ---------- Dropdown ---------- */
+.jr-dropdown__trigger {
+  height: var(--jr-h-toolbar-control);
+  min-width: 210px;
+  border: 1px solid var(--jr-line-strong);
+  border-radius: var(--jr-radius-control);
+  background: var(--jr-surface);
+  padding: 0 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  cursor: pointer;
+}
+
+.jr-dropdown__trigger:hover {
+  border-color: var(--jr-accent);
+}
+
+.jr-dropdown__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.jr-dropdown__caret {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  fill: var(--jr-muted-2);
+}
+
+.jr-dropdown__panel {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  z-index: 30;
+  width: 340px;
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line-pop);
+  border-radius: var(--jr-radius-card);
+  box-shadow: var(--jr-shadow-popover);
+  overflow: hidden;
+}
+
+.jr-dropdown__filter {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--jr-line-soft);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.jr-dropdown__filter svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--jr-muted-3);
+  flex: none;
+}
+
+.jr-dropdown__filter-input {
+  border: 0;
+  outline: none;
+  font: 400 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+}
+
+.jr-dropdown__list {
+  max-height: 246px;
+  overflow: auto;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.jr-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  border-radius: 6px;
+  padding: 7px 9px;
+  font: 400 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  cursor: pointer;
+}
+
+.jr-dropdown__item:hover,
+.jr-dropdown__item.is-active {
+  background: var(--jr-hover);
+}
+
+.jr-dropdown__check {
+  width: 13px;
+  height: 13px;
+  flex: none;
+  color: var(--jr-accent);
+  display: inline-flex;
+}
+
+.jr-dropdown__item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.jr-dropdown__footer {
+  padding: 7px 11px;
+  border-top: 1px solid var(--jr-line-soft);
+  display: flex;
+  justify-content: space-between;
+  font: 400 11px var(--jr-font);
+  color: var(--jr-muted-3);
+}
+
+/* ---------- Date range picker ---------- */
+.jr-daterange__trigger {
+  height: var(--jr-h-toolbar-control);
+  border: 1px solid var(--jr-line-strong);
+  border-radius: var(--jr-radius-control);
+  background: var(--jr-surface);
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font: 500 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  cursor: pointer;
+}
+
+.jr-daterange__trigger:hover {
+  border-color: var(--jr-accent);
+}
+
+.jr-daterange__trigger svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--jr-muted-2);
+  flex: none;
+}
+
+.jr-daterange__panel {
+  position: absolute;
+  top: 36px;
+  left: 0;
+  z-index: 30;
+  width: 296px;
+  padding: 12px;
+  background: var(--jr-surface);
+  border: 1px solid var(--jr-line-pop);
+  border-radius: var(--jr-radius-card);
+  box-shadow: var(--jr-shadow-popover);
+}
+
+.jr-daterange__month-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.jr-daterange__month-label {
+  font: 700 13px var(--jr-font);
+  color: var(--jr-ink);
+}
+
+.jr-daterange__nav {
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--jr-line);
+  border-radius: var(--jr-radius-control);
+  background: var(--jr-surface);
+  cursor: pointer;
+  color: var(--jr-ink-2);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.jr-daterange__nav:hover {
+  background: var(--jr-hover);
+}
+
+.jr-daterange__weekdays,
+.jr-daterange__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.jr-daterange__weekdays {
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.jr-daterange__weekday {
+  text-align: center;
+  font: 700 10.5px var(--jr-font);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--jr-muted-3);
+}
+
+.jr-daterange__weekday.is-sunday {
+  color: var(--jr-sunday);
+}
+
+.jr-daterange__days {
+  gap: 2px 0;
+}
+
+.jr-daterange__day {
+  border: 0;
+  background: transparent;
+  height: 30px;
+  font: 400 12.5px var(--jr-font);
+  color: var(--jr-ink);
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.jr-daterange__day:hover {
+  background: var(--jr-hover);
+}
+
+.jr-daterange__day.is-out {
+  color: var(--jr-muted-3);
+  cursor: default;
+  pointer-events: none;
+}
+
+.jr-daterange__day.is-today {
+  box-shadow: inset 0 0 0 1px var(--jr-line-strong);
+}
+
+.jr-daterange__day.is-in-range {
+  background: #eaf1fd;
+}
+
+.jr-daterange__day.is-endpoint {
+  background: var(--jr-accent);
+  color: #fff;
+  border-radius: 20px;
+}
+
+.jr-daterange__shortcuts {
+  margin-top: 11px;
+  padding-top: 10px;
+  border-top: 1px solid var(--jr-line-soft);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.jr-daterange__chip {
+  height: 26px;
+  border: 1px solid var(--jr-line-strong);
+  border-radius: var(--jr-radius-pill);
+  background: var(--jr-surface);
+  padding: 0 11px;
+  font: 600 11.5px var(--jr-font);
+  color: var(--jr-ink-2);
+  cursor: pointer;
+}
+
+.jr-daterange__chip:hover {
+  background: var(--jr-hover);
+}
+
+.jr-daterange__clear {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--jr-muted);
+  font: 600 11.5px var(--jr-font);
+  cursor: pointer;
+}
+
+.jr-daterange__clear:hover {
+  color: var(--jr-ink-2);
+}
