@@ -17,6 +17,13 @@ $(document).ready(function () {
     txtDateEl.value = today;
     txtDateEl.dispatchEvent(new Event('change'));
 
+    // Quantities are whole Nos: strip anything that isn't a digit (typed or
+    // pasted). Bound before the allocation handler so that sees clean input.
+    $('#idTotAmount').on('input.digits', function () {
+        var clean = this.value.replace(/\D/g, '');
+        if (clean !== this.value) this.value = clean;
+    });
+
 });
 
 
@@ -53,7 +60,7 @@ $('#ddlComponentnew').on('change', function () {
                     row += '<td><a href="javascript:void(0);" class="chalan-number-link" chalanProcessHdrSeq="' + item.chalanProcessHdrSeq + '">' + item.chalanNo + '</a></td>';
                     row += '<td>' + item.actualInMaterialQuantity + '</td>';
                     row += '<td class="pending-qty">' + item.pendingQuantity + '</td>';
-                    row += '<td><input type="text" class="amount-input" name="amount" value="0" readonly/></td>'; // Readonly input for amount
+                    row += '<td><input type="text" class="jr-input jr-input--cell amount-input" name="amount" value="0" readonly tabindex="-1"/></td>'; // Readonly input for amount
                     row += '</tr>';
                 });
 
@@ -61,7 +68,7 @@ $('#ddlComponentnew').on('change', function () {
                 $('#idSubmit').show();
 
                 // Attach event listener to idTotAmount for allocation logic
-                $('#idTotAmount').off('input').on('input', function () {
+                $('#idTotAmount').off('input.alloc').on('input.alloc', function () {
                     var totalAmount = safeParseFloat($(this).val()); // Get entered total amount
                     var remainingAmount = totalAmount;
 

@@ -789,6 +789,21 @@
   color: var(--jr-muted);
 }
 
+/* Read-only numeric value shown inside a table cell (e.g. allocated amount) */
+.jr-input--cell {
+  height: 28px;
+  width: 110px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  background: var(--jr-surface-2);
+  cursor: default;
+}
+
+.jr-input--cell:focus {
+  border-color: var(--jr-line-strong);
+  box-shadow: none;
+}
+
 /* Inline validation: set .is-invalid on the .jr-field and fill .jr-field__error */
 .jr-field.is-invalid .jr-input,
 .jr-field.is-invalid .jr-daterange__trigger {
