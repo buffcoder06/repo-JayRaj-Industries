@@ -576,9 +576,37 @@
   border-bottom: 1px solid var(--jr-line-soft);
 }
 
+.jr-modal .jr-docked__body {
+  align-items: flex-start;
+}
+
 .jr-modal .jr-docked__body .jr-field {
   flex: 1 1 160px;
   min-width: 140px;
+}
+
+.jr-modal .jr-docked__body .jr-toggle {
+  align-self: flex-start;
+}
+
+/* Out-entries view (opened from the chalan number) */
+.jr-modal--narrow {
+  max-width: 760px;
+}
+
+.jr-modal .jr-docked__history--full {
+  border-top: 0;
+  max-height: min(60vh, 520px);
+  padding-top: 16px;
+}
+
+.jr-row-btn--danger {
+  color: var(--jr-danger);
+}
+
+.jr-row-btn--danger:hover {
+  background: var(--jr-danger-bg);
+  color: var(--jr-danger);
 }
 
 .jr-modal .jr-docked__balance {
@@ -760,6 +788,107 @@
   background: var(--jr-surface-2);
   color: var(--jr-muted);
 }
+
+/* Inline validation: set .is-invalid on the .jr-field and fill .jr-field__error */
+.jr-field.is-invalid .jr-input,
+.jr-field.is-invalid .jr-daterange__trigger {
+  border-color: var(--jr-danger);
+}
+
+.jr-field.is-invalid .jr-input:focus {
+  box-shadow: 0 0 0 3px rgba(190, 18, 60, .12);
+}
+
+.jr-field__error {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--jr-danger);
+  line-height: 1.3;
+}
+
+.jr-field__error:empty {
+  display: none;
+}
+
+/* ---------- SweetAlert2 dialogs (classes applied globally by site.js) ---------- */
+.swal2-container {
+  backdrop-filter: blur(2px);
+}
+
+.swal2-popup.jr-alert-popup {
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  padding: 24px 24px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--jr-line);
+  box-shadow: var(--jr-shadow-popover);
+  font-family: var(--jr-font);
+}
+
+.swal2-popup.jr-alert-popup .swal2-icon {
+  font-size: 11px;
+  margin: 4px auto 14px;
+  border-width: 3px;
+}
+
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-error { border-color: var(--jr-danger-line); }
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-error [class^="swal2-x-mark-line"] { background-color: var(--jr-danger); }
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-warning { border-color: var(--jr-warning-line); color: var(--jr-warning-dot); }
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-success { border-color: var(--jr-success-line); }
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-success [class^="swal2-success-line"] { background-color: var(--jr-success); }
+.swal2-popup.jr-alert-popup .swal2-icon.swal2-success .swal2-success-ring { border-color: var(--jr-success-line); }
+
+.swal2-title.jr-alert-title {
+  padding: 0;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--jr-ink);
+}
+
+.swal2-html-container.jr-alert-text {
+  margin: 6px 0 0;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--jr-ink-2);
+}
+
+.jr-alert-popup .swal2-actions {
+  width: 100%;
+  margin: 20px 0 0;
+  gap: 8px;
+  justify-content: center;
+}
+
+.jr-alert-btn {
+  min-width: 96px;
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: var(--jr-r-ctrl);
+  font: 600 13px var(--jr-font);
+  cursor: pointer;
+}
+
+.jr-alert-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, .18);
+}
+
+.jr-alert-btn--primary { background: var(--jr-blue-600); color: #fff; }
+.jr-alert-btn--primary:hover { background: var(--jr-blue-700); }
+
+.jr-alert-btn--danger { background: var(--jr-danger); color: #fff; }
+.jr-alert-btn--danger:hover { background: #9f1239; }
+
+.jr-alert-btn--muted {
+  background: var(--jr-surface);
+  border-color: var(--jr-line-strong);
+  color: var(--jr-ink);
+  box-shadow: var(--jr-shadow-raised);
+}
+.jr-alert-btn--muted:hover { background: var(--jr-hover); }
 
 /* Two-way segmented toggle used inside forms (e.g. Out material / Rejected) */
 .jr-toggle {

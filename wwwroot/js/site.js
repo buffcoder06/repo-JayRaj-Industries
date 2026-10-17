@@ -135,11 +135,16 @@
 
       if (typeof args[0] === "object" && args[0] !== null) {
         const options = args[0];
+        // Callers still pass legacy confirmButtonColor values (ignored with
+        // buttonsStyling off); a red one on a confirm dialog means "destructive".
+        const destructive = options.showCancelButton &&
+          /^(red|#d33|#dc3545)$/i.test(options.confirmButtonColor || "");
         return originalFire({
           ...swalDefaults,
           ...options,
           customClass: {
             ...swalDefaults.customClass,
+            ...(destructive ? { confirmButton: "jr-alert-btn jr-alert-btn--danger" } : {}),
             ...(options.customClass || {})
           }
         });

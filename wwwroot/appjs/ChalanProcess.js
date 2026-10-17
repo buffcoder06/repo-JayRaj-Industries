@@ -46,10 +46,13 @@ $(document).ready(function () {
         if (fnValidations1()) InsertChalanDetails();
     });
 
+    // Record out → entry form only; chalan number (or View on closed rows)
+    // → previous out entries with Delete.
     $('#tblchalanProcess tbody').on('click', '.chalan-number-link, .jr-row-action', function (e) {
         e.preventDefault();
         var hdrSeq = $(this).closest('tr').data('hdrseq');
-        toggleDockedPanel(String(hdrSeq));
+        var mode = $(this).data('mode') === 'record' ? 'record' : 'history';
+        toggleDockedPanel(String(hdrSeq), mode);
     });
 });
 
@@ -235,7 +238,7 @@ function renderGrid() {
 function buildRow(item) {
     var status = rowStatus(item);
     var actionHtml = status.tab === 'open'
-        ? '<button type="button" class="jr-row-btn jr-row-btn--bordered jr-row-action">Record out</button>'
+        ? '<button type="button" class="jr-row-btn jr-row-btn--bordered jr-row-action" data-mode="record">Record out</button>'
         : '<button type="button" class="jr-row-btn jr-row-btn--borderless jr-row-action">View</button>';
 
     var inQty = toNumber(item.actualInMaterialQuantity);
@@ -284,77 +287,85 @@ function exportVisibleRowsToCsv() {
 }
 
 // ---------------------------------------------------------------------
-// "Record out material" popup
+// Chalan popups: "record" = Record out material form,
+// "history" = previous out entries on the chalan (with Delete).
 // ---------------------------------------------------------------------
-function toggleDockedPanel(hdrSeq) {
-    if (openDockedHdrSeq === hdrSeq) {
+var openDockedMode = null;
+
+function toggleDockedPanel(hdrSeq, mode) {
+    if (openDockedHdrSeq === hdrSeq && openDockedMode === mode) {
         closeDockedPanel();
         return;
     }
-    openDockedPanel(hdrSeq);
+    openDockedPanel(hdrSeq, mode);
 }
 
 function closeDockedPanel() {
     var $backdrop = $('.jr-modal-backdrop');
     $(document).off('keydown.jrDockedModal');
     openDockedHdrSeq = null;
+    openDockedMode = null;
     if (!$backdrop.length) return;
     $backdrop.removeClass('is-open');
     setTimeout(function () { $backdrop.remove(); }, 200);
 }
 
-function openDockedPanel(hdrSeq) {
+function openDockedPanel(hdrSeq, mode) {
     $('#idChalanNew').prop('hidden', true);
     $('.jr-modal-backdrop').remove();
-    openDockedHdrSeq = hdrSeq;
+    $(document).off('keydown.jrDockedModal');
 
     var item = gridDataCache.find(function (it) { return String(it.chalanProcessHdrSeq) === hdrSeq; });
     if (!item) return;
 
     var status = rowStatus(item);
+    // Nothing left to record on a closed chalan — show its entries instead.
+    if (mode === 'record' && status.tab !== 'open') mode = 'history';
+    var isRecord = mode === 'record';
+    openDockedHdrSeq = hdrSeq;
+    openDockedMode = mode;
+
     var today = new Date().toISOString().split('T')[0];
 
     var headerHtml = '<div class="jr-docked__header">' +
-        '<div><span class="jr-docked__title">Record out material</span>' +
+        '<div><span class="jr-docked__title">' + (isRecord ? 'Record out material' : 'Out entries') + '</span>' +
         '<span class="jr-docked__subtitle">Chalan ' + escapeHtml(item.chalanNo) + ' · ' + escapeHtml(item.componentDescription) + '</span></div>' +
         '<div class="jr-docked__actions">' +
-        '<button type="button" class="jr-row-btn jr-row-btn--borderless" id="dockedCancel">Cancel</button>' +
-        (status.tab === 'open' ? '<button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="dockedSave">Save</button>' : '') +
         '<button type="button" class="jr-modal__close" id="dockedClose" aria-label="Close" title="Close">' +
         '<svg viewBox="0 0 24 24"><path d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.7 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29l6.29 6.3 6.29-6.3z"/></svg>' +
         '</button>' +
         '</div></div>';
 
-    var bodyHtml = '';
-    if (status.tab === 'open') {
+    var bodyHtml;
+    if (isRecord) {
         bodyHtml = '<div class="jr-docked__body">' +
-            '<div class="jr-field"><label class="jr-field__label">Date<span class="jr-field__required">*</span></label>' +
+            '<div class="jr-field" data-field="date"><label class="jr-field__label">Date<span class="jr-field__required">*</span></label>' +
             '<div class="jr-daterange" data-jr-daterange><input type="hidden" data-jr-role="start" id="dockedDate" value="' + today + '" />' +
             '<button type="button" class="jr-daterange__trigger"><svg viewBox="0 0 24 24"><path d="M7 2v2H5a2 2 0 0 0-2 2v2h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2z"/><path d="M21 10H3v8a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/></svg><span class="jr-daterange__label jr-tabular"></span></button>' +
-            '<div class="jr-daterange__panel" hidden></div></div></div>' +
-            '<div class="jr-field"><label class="jr-field__label" for="dockedOutChalan">Out chalan no<span class="jr-field__required">*</span></label>' +
-            '<input type="text" class="jr-input" id="dockedOutChalan" placeholder="e.g. 3391" /></div>' +
+            '<div class="jr-daterange__panel" hidden></div></div><div class="jr-field__error"></div></div>' +
+            '<div class="jr-field" data-field="outChalan"><label class="jr-field__label" for="dockedOutChalan">Out chalan no<span class="jr-field__required">*</span></label>' +
+            '<input type="text" class="jr-input" id="dockedOutChalan" placeholder="e.g. 3391" autocomplete="off" /><div class="jr-field__error"></div></div>' +
             '<div class="jr-field"><label class="jr-field__label">Movement<span class="jr-field__required">*</span></label>' +
             '<div class="jr-toggle"><button type="button" class="jr-toggle__btn is-active" data-move="APR">Out material</button>' +
             '<button type="button" class="jr-toggle__btn" data-move="REJ">Rejected</button></div></div>' +
-            '<div class="jr-field"><label class="jr-field__label" for="dockedQty">Quantity<span class="jr-field__required">*</span></label>' +
-            '<input type="number" class="jr-input" id="dockedQty" min="0" value="0" /></div>' +
+            '<div class="jr-field" data-field="qty"><label class="jr-field__label" for="dockedQty">Quantity<span class="jr-field__required">*</span></label>' +
+            '<input type="number" class="jr-input" id="dockedQty" min="0" value="0" /><div class="jr-field__error"></div></div>' +
             '<div class="jr-docked__hint jr-tabular" id="dockedBalanceLabel">' + formatNumber(item.pendingQuantity) + ' Nos will remain pending</div>' +
             '</div>' +
             '<div class="jr-docked__save-row">' +
             '<button type="button" class="jr-btn jr-btn--accent jr-btn--sm" id="dockedSaveEntry">Save entry</button>' +
             '<button type="button" class="jr-btn jr-btn--ghost jr-btn--sm" id="dockedSaveAnother">Save &amp; add another</button>' +
+            '<button type="button" class="jr-btn jr-btn--text jr-btn--sm" id="dockedCancel">Cancel</button>' +
             '</div>';
+    } else {
+        bodyHtml = '<div class="jr-docked__history jr-docked__history--full">' +
+            '<div class="jr-table-wrap"><table class="jr-table" id="tblDockedHistory"><thead><tr>' +
+            '<th>Date</th><th>Out chalan</th><th class="jr-text-right">Out</th><th class="jr-text-right">Rejected</th><th class="jr-text-right">Balance</th><th></th>' +
+            '</tr></thead><tbody></tbody></table></div></div>';
     }
 
-    bodyHtml += '<div class="jr-docked__history">' +
-        '<div class="jr-docked__history-title">Previous entries on this chalan</div>' +
-        '<div class="jr-table-wrap"><table class="jr-table" id="tblDockedHistory"><thead><tr>' +
-        '<th>Date</th><th>Delivery chalan</th><th class="jr-text-right">Out</th><th class="jr-text-right">Rejected</th><th class="jr-text-right">Balance</th><th></th>' +
-        '</tr></thead><tbody></tbody></table></div></div>';
-
     var $backdrop = $('<div class="jr-modal-backdrop"></div>');
-    var $modal = $('<div class="jr-modal" role="dialog" aria-modal="true"></div>');
+    var $modal = $('<div class="jr-modal' + (isRecord ? '' : ' jr-modal--narrow') + '" role="dialog" aria-modal="true"></div>');
     $modal.html(headerHtml + bodyHtml);
     $backdrop.append($modal);
     $('body').append($backdrop);
@@ -374,9 +385,23 @@ function openDockedPanel(hdrSeq) {
         if (e.key === 'Escape') closeDockedPanel();
     });
 
-    JRControls.initAll($docked[0]);
-
     $docked.find('#dockedCancel, #dockedClose').on('click', closeDockedPanel);
+
+    if (!isRecord) {
+        loadDockedHistory(hdrSeq);
+        return;
+    }
+
+    JRControls.initAll($docked[0]);
+    setTimeout(function () { $docked.find('#dockedOutChalan').trigger('focus'); }, 220);
+
+    function setFieldError(name, message) {
+        var $field = $docked.find('[data-field="' + name + '"]');
+        $field.toggleClass('is-invalid', !!message);
+        $field.find('.jr-field__error').text(message || '');
+    }
+    $docked.find('#dockedOutChalan').on('input', function () { setFieldError('outChalan', ''); });
+    $docked.find('#dockedQty').on('input', function () { setFieldError('qty', ''); });
 
     $docked.find('.jr-toggle__btn').on('click', function () {
         $(this).addClass('is-active').siblings().removeClass('is-active');
@@ -398,12 +423,18 @@ function openDockedPanel(hdrSeq) {
         var qty = toNumber($docked.find('#dockedQty').val());
         var pending = toNumber(item.pendingQuantity);
         var dateVal = $docked.find('#dockedDate').val();
-        var outChalanVal = $docked.find('#dockedOutChalan').val();
+        var outChalanVal = $.trim($docked.find('#dockedOutChalan').val());
         var movement = $docked.find('.jr-toggle__btn.is-active').data('move');
 
-        if (!dateVal) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please enter chalan out date.', confirmButtonColor: 'red' }); return; }
-        if (!outChalanVal) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Please enter out chalan number.', confirmButtonColor: 'red' }); return; }
-        if (!(qty > 0 && qty <= pending)) { Swal.fire({ icon: 'error', title: 'Save Error!', text: 'Quantity should be greater than 0 and no more than the pending quantity.', confirmButtonColor: 'red' }); return; }
+        setFieldError('date', dateVal ? '' : 'Pick the out date.');
+        setFieldError('outChalan', outChalanVal ? '' : 'Enter the out chalan number.');
+        setFieldError('qty', (qty > 0 && qty <= pending) ? '' :
+            (qty > pending ? 'Only ' + formatNumber(pending) + ' Nos are pending.' : 'Enter a quantity above 0.'));
+        var $firstInvalid = $docked.find('.jr-field.is-invalid').first();
+        if ($firstInvalid.length) {
+            $firstInvalid.find('input:not([type=hidden]), button').first().trigger('focus');
+            return;
+        }
 
         var requestData = {
             chalanProcessHdrSeq: hdrSeq,
@@ -425,7 +456,7 @@ function openDockedPanel(hdrSeq) {
                 }
                 refreshChalanRow(hdrSeq, function (freshItem) {
                     if (keepOpen && freshItem && toNumber(freshItem.pendingQuantity) > 0) {
-                        openDockedPanel(hdrSeq);
+                        openDockedPanel(hdrSeq, 'record');
                     } else {
                         closeDockedPanel();
                     }
@@ -437,10 +468,11 @@ function openDockedPanel(hdrSeq) {
         });
     }
 
-    $docked.find('#dockedSaveEntry, #dockedSave').on('click', function () { saveDockedEntry(false); });
+    $docked.find('#dockedSaveEntry').on('click', function () { saveDockedEntry(false); });
     $docked.find('#dockedSaveAnother').on('click', function () { saveDockedEntry(true); });
-
-    loadDockedHistory(hdrSeq);
+    $docked.find('#dockedOutChalan, #dockedQty').on('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); saveDockedEntry(false); }
+    });
 }
 
 function refreshChalanRow(hdrSeq, callback) {
@@ -510,7 +542,7 @@ function renderDockedHistory(data) {
         $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(rej) + '</td>');
         $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(balance) + '</td>');
         $tr.append($('<td class="jr-text-right"></td>').append(
-            $('<button type="button" class="jr-link" style="color:var(--jr-status-stalled-dot);">Delete</button>').on('click', function () {
+            $('<button type="button" class="jr-row-btn jr-row-btn--borderless jr-row-btn--danger">Delete</button>').on('click', function () {
                 deleteDockedEntry(entry.chalanDetailSeq);
             })
         ));
@@ -520,13 +552,13 @@ function renderDockedHistory(data) {
 
 function deleteDockedEntry(chalanDetailSeq) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        title: 'Delete this entry?',
+        text: 'Its quantity goes back to pending on the chalan. This can\'t be undone.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, delete it!'
+        confirmButtonText: 'Delete',
+        cancelButtonText: 'Keep'
     }).then(function (result) {
         if (!result.isConfirmed) return;
         var hdrSeq = openDockedHdrSeq;
@@ -541,7 +573,7 @@ function deleteDockedEntry(chalanDetailSeq) {
                     return;
                 }
                 refreshChalanRow(hdrSeq, function () {
-                    openDockedPanel(hdrSeq);
+                    openDockedPanel(hdrSeq, 'history');
                 });
             },
             error: function () {
