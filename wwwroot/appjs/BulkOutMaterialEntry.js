@@ -42,7 +42,7 @@ $('#ddlComponentnew').on('change', function () {
             $('#divChalan').show();
 
             if (data.length === 0) {
-                tbody.html('<tr><td colspan="6" style="text-align:center; font-weight:bold;">No data found</td></tr>');
+                tbody.html('<tr><td colspan="6" class="jr-table-empty">No pending chalans for this component.</td></tr>');
                 $('#idSubmit').hide();
                 $('#divDate').hide();
                 $('#divChalan').hide();
@@ -55,12 +55,13 @@ $('#ddlComponentnew').on('change', function () {
 
                     row += '<tr>';
                     var formattedDate = formatDate(item.date);
-                    row += '<td>' + formattedDate + '</td>';
-                    row += '<td>' + item.componentDescription + '</td>';
-                    row += '<td><a href="javascript:void(0);" class="chalan-number-link" chalanProcessHdrSeq="' + item.chalanProcessHdrSeq + '">' + item.chalanNo + '</a></td>';
-                    row += '<td>' + item.actualInMaterialQuantity + '</td>';
-                    row += '<td class="pending-qty">' + item.pendingQuantity + '</td>';
-                    row += '<td><input type="text" class="jr-input jr-input--cell amount-input" name="amount" value="0" readonly tabindex="-1"/></td>'; // Readonly input for amount
+                    row += '<td class="jr-tabular">' + formattedDate + '</td>';
+                    row += '<td>' + escapeHtml(item.componentDescription) + '</td>';
+                    // Not clickable here: the span only carries the hdrseq that Submit reads.
+                    row += '<td><span class="chalan-number-link jr-tabular" chalanProcessHdrSeq="' + escapeHtml(item.chalanProcessHdrSeq) + '">' + escapeHtml(item.chalanNo) + '</span></td>';
+                    row += '<td class="jr-text-right jr-tabular">' + escapeHtml(item.actualInMaterialQuantity) + '</td>';
+                    row += '<td class="pending-qty jr-text-right jr-tabular jr-cell-strong">' + escapeHtml(item.pendingQuantity) + '</td>';
+                    row += '<td class="jr-text-right"><input type="text" class="jr-input jr-input--cell amount-input" name="amount" value="0" readonly tabindex="-1"/></td>'; // Readonly input for amount
                     row += '</tr>';
                 });
 
@@ -215,6 +216,10 @@ $('#idSubmit').on('click', function () {
 });
 
 
+
+function escapeHtml(value) {
+    return $('<div>').text(value == null ? '' : String(value)).html().replace(/"/g, '&quot;');
+}
 
 function formatDate(dateString) {
     var date = new Date(dateString);
