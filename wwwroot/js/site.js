@@ -92,10 +92,6 @@
   // Header search shortcut: Ctrl+K (Cmd+K on Mac) or "/" focuses the search.
   const searchInput = document.querySelector(".jr-search input");
   if (searchInput) {
-    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
-    const kbd = document.querySelector(".jr-search .jr-search__kbd");
-    if (kbd && isMac) kbd.textContent = "⌘K";
-
     document.addEventListener("keydown", (e) => {
       const target = e.target;
       const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable;

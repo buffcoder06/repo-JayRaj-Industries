@@ -387,16 +387,6 @@ html, body.app-body {
   min-width: 0;
 }
 
-.jr-search__kbd {
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--jr-muted-3);
-  border: 1px solid var(--jr-line);
-  border-radius: 4px;
-  padding: 1px 5px;
-  flex: none;
-}
-
 .jr-btn {
   height: 32px;
   border-radius: var(--jr-radius-control);
