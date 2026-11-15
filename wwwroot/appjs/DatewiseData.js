@@ -16,8 +16,7 @@ $(document).ready(function () {
     // when switching tabs (cheap — same date range, different endpoint).
     $('#btnRunReport').on('click', runDatewiseReport);
 
-    $('#btnDownloadReportPdf').on('click', function () { downloadReportPdf(); });
-    $('#btnExportDatewiseCsv').on('click', exportDatewiseCsv);
+    $('#btnDownloadPendingPdf').on('click', function () { downloadPendingPdf(); });
 });
 
 function runDatewiseReport() {
@@ -31,7 +30,7 @@ function loadActiveDatewiseTab() {
     // so the date range only applies to the Incoming / Out material tabs.
     $('#datewiseScopeNote').text(isPending ? 'Pending across all dates (date range not applied)' : '');
     $('#datewiseShareHeader').text(isPending ? 'Share of pending' : 'Share of period');
-    $('#btnDownloadReportPdf').text(isPending ? 'Download pending PDF' : activeDatewiseTab === 'outward' ? 'Download out PDF' : 'Download incoming PDF');
+    $('#btnDownloadPendingPdf').prop('hidden', !isPending);
 
     if (activeDatewiseTab === 'inward') loadInward();
     else if (activeDatewiseTab === 'outward') loadOutward();
@@ -227,31 +226,6 @@ function renderDatewiseError() {
     }
 }
 
-function exportDatewiseCsv() {
-    var headers = ['Sr', 'Component', $('#datewiseQtyHeader1').text()];
-    if ($('#datewiseQtyHeader2').text()) headers.push($('#datewiseQtyHeader2').text());
-
-    var rows = [headers];
-    lastDatewiseRows.forEach(function (row, index) {
-        var line = [index + 1, row.component, row.qty1];
-        if (row.qty2 !== null) line.push(row.qty2);
-        rows.push(line);
-    });
-
-    var csv = rows.map(function (r) {
-        return r.map(function (v) { return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(',');
-    }).join('\r\n');
-    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'datewise-' + activeDatewiseTab + '.csv';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
 function normalizeKeyName(key) {
     return String(key || '')
         .toLowerCase()
@@ -259,55 +233,27 @@ function normalizeKeyName(key) {
         .replace(/^f/, '');
 }
 
-// One letterhead template (logo, title, underlined subtitle, date/period,
-// grid table, signature block) for all three reports. The Pending report
-// keeps the original app's title, subtitle, columns and file name.
-var DATEWISE_REPORTS = {
-    inward: {
-        title: 'Inward Material Report',
-        subtitle: 'Following materials received at Jayraj Industries',
-        head: ['Sr.No', 'Material code & Description', 'In Material'],
-        file: 'Inward_Material'
-    },
-    outward: {
-        title: 'Outward Material Report',
-        subtitle: 'Following materials dispatched from Jayraj Industries',
-        head: ['Sr.No', 'Material code & Description', 'Out Material', 'Rejected Material'],
-        file: 'Outward_Material'
-    },
-    pending: {
-        title: 'Pending Material Report',
-        subtitle: 'Following materials pending in Jayraj Industries',
-        head: ['Sr.No', 'Material code & Description', 'Pending Material'],
-        file: 'Pending_Material_All_Dates'
-    }
-};
-
-async function downloadReportPdf() {
+// Pending Material Report — the original app's PDF (logo, title, underlined
+// subtitle, date, grid, signature), plus a total row. Only the Pending tab
+// offers a download.
+async function downloadPendingPdf() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         console.error('jsPDF library is not available.');
         return;
     }
 
-    var report = DATEWISE_REPORTS[activeDatewiseTab];
-    var hasSecondQty = report.head.length === 4;
-    var total1 = 0, total2 = 0;
+    var total = 0;
     var tableRows = lastDatewiseRows.map(function (row, index) {
-        total1 += row.qty1;
-        var line = [String(index + 1), row.component, formatNumber(row.qty1)];
-        if (hasSecondQty) { total2 += row.qty2 || 0; line.push(formatNumber(row.qty2 || 0)); }
-        return line;
+        total += row.qty1;
+        return [String(index + 1), row.component, formatNumber(row.qty1)];
     });
 
-    if (tableRows.length === 0) {
+    if (activeDatewiseTab !== 'pending' || tableRows.length === 0) {
         if (window.Swal) {
-            Swal.fire({ icon: 'warning', title: 'No Data', text: 'There is nothing to download for this report. Try a different date range.' });
+            Swal.fire({ icon: 'warning', title: 'No Data', text: 'No pending material data to download.' });
         }
         return;
     }
-
-    var footRow = ['', 'Total', formatNumber(total1)];
-    if (hasSecondQty) footRow.push(formatNumber(total2));
 
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF('p', 'mm', 'a4');
@@ -318,7 +264,7 @@ async function downloadReportPdf() {
     try {
         logoImageData = await loadImageAsDataUrl('/images/jr_logo.png');
     } catch (e) {
-        console.warn('Unable to load logo image for report PDF.', e);
+        console.warn('Unable to load logo image for pending PDF.', e);
     }
 
     if (logoImageData) {
@@ -331,49 +277,40 @@ async function downloadReportPdf() {
     doc.text('JAYRAJ INDUSTRIES', 105, 14, { align: 'center' });
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.text(report.title, 105, 21, { align: 'center' });
+    doc.text('Pending Material Report', 105, 21, { align: 'center' });
     doc.setFont('times', 'normal');
     doc.setFontSize(10);
+    var subtitle = 'Following materials pending in Jayraj Industries';
     var subtitleY = 28;
     var subtitleX = pageWidth / 2;
-    var subtitleWidth = doc.getTextWidth(report.subtitle);
-    doc.text(report.subtitle, subtitleX, subtitleY, { align: 'center' });
+    var subtitleWidth = doc.getTextWidth(subtitle);
+    doc.text(subtitle, subtitleX, subtitleY, { align: 'center' });
     doc.setLineWidth(0.25);
     doc.line(subtitleX - (subtitleWidth / 2), subtitleY + 1.2, subtitleX + (subtitleWidth / 2), subtitleY + 1.2);
 
-    // Pending is "as of today"; Incoming / Out material cover the selected period.
-    var fromDateRaw = $('#txtFromDate').val() || '';
-    var toDateRaw = $('#txtToDate').val() || '';
+    // Pending is a position "as of today" (the original printed the To date,
+    // which defaults to the last day of the month — a future date).
     doc.setFont('times', 'bold');
+    doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    var fileSuffix;
-    if (activeDatewiseTab === 'pending') {
-        doc.setFontSize(11);
-        doc.text('Date: ' + formatPdfDate(jrToday()), pageWidth - 14, 14, { align: 'right' });
-        fileSuffix = '';
-    } else {
-        doc.setFontSize(10);
-        doc.text('From: ' + (fromDateRaw ? formatPdfDate(fromDateRaw) : '-'), pageWidth - 14, 12, { align: 'right' });
-        doc.text('To: ' + (toDateRaw ? formatPdfDate(toDateRaw) : '-'), pageWidth - 14, 17, { align: 'right' });
-        fileSuffix = '_' + (fromDateRaw || 'start') + '_to_' + (toDateRaw || 'end');
-    }
-
-    var columnStyles = hasSecondQty
-        ? { 0: { halign: 'center', cellWidth: 18 }, 1: { halign: 'left', cellWidth: 100 }, 2: { halign: 'center', cellWidth: 30 }, 3: { halign: 'center', cellWidth: 30 } }
-        : { 0: { halign: 'center', cellWidth: 18 }, 1: { halign: 'left', cellWidth: 120 }, 2: { halign: 'center', cellWidth: 40 } };
+    doc.text('Date: ' + formatPdfDate(jrToday()), pageWidth - 14, 14, { align: 'right' });
 
     doc.autoTable({
         startY: 38,
-        head: [report.head],
+        head: [['Sr.No', 'Material code & Description', 'Pending Material']],
         body: tableRows,
-        foot: [footRow],
+        foot: [['', 'Total', formatNumber(total)]],
         showFoot: 'lastPage',
         theme: 'grid',
         styles: { font: 'times', fontSize: 10, cellPadding: 2.5, halign: 'center', valign: 'middle' },
         headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
         bodyStyles: { textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
         footStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold', lineColor: [0, 0, 0], lineWidth: 0.2 },
-        columnStyles: columnStyles,
+        columnStyles: {
+            0: { halign: 'center', cellWidth: 18 },
+            1: { halign: 'left', cellWidth: 120 },
+            2: { halign: 'center', cellWidth: 40 }
+        },
         didParseCell: function (data) {
             if (data.section === 'foot' && data.column.index === 1) data.cell.styles.halign = 'right';
         }
@@ -399,7 +336,7 @@ async function downloadReportPdf() {
     try {
         signImageData = await loadImageAsDataUrl('/images/abhi_dada-sign-original.png');
     } catch (e) {
-        console.warn('Unable to load signature image for report PDF.', e);
+        console.warn('Unable to load signature image for pending PDF.', e);
         if (window.Swal) {
             await Swal.fire({
                 icon: 'warning',
@@ -425,7 +362,7 @@ async function downloadReportPdf() {
     doc.setFont('times', 'normal');
     doc.text('Authorised Signatory', signTextX, signRoleY, { align: 'left' });
 
-    doc.save(report.file + fileSuffix + '.pdf');
+    doc.save('Pending_Material_All_Dates.pdf');
 }
 
 function formatPdfDate(dateText) {

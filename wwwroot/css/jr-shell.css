@@ -374,6 +374,11 @@ html, body.app-body {
   gap: 6px;
 }
 
+/* .jr-btn sets display, which would otherwise override the hidden attribute */
+.jr-btn[hidden] {
+  display: none;
+}
+
 .jr-btn--accent {
   background: var(--jr-accent);
   color: #fff;
