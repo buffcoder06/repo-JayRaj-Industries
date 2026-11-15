@@ -23,7 +23,7 @@ public class ChalanProcessDAL
         {
             cmd.CommandType = CommandType.StoredProcedure;
             if (parameters != null) cmd.Parameters.AddRange(parameters);
-            await con.OpenAsync();
+            await con.OpenWithRetryAsync();
             return await cmd.ExecuteNonQueryAsync();
         }
     }
@@ -72,6 +72,9 @@ public class ChalanProcessDAL
             cmd.CommandType = CommandType.StoredProcedure;
             if (parameters != null) cmd.Parameters.AddRange(parameters);
             DataTable dt = new DataTable();
+            // Open explicitly (with retry) so Fill doesn't open its own connection
+            // without it; Fill leaves an already-open connection open for using{} to close.
+            con.OpenWithRetry();
             adapter.Fill(dt);
             return dt;
         }
@@ -86,7 +89,7 @@ public class ChalanProcessDAL
         {
             cmd.CommandType = CommandType.StoredProcedure;
             if (parameters != null) cmd.Parameters.AddRange(parameters);
-            await con.OpenAsync();
+            await con.OpenWithRetryAsync();
 
             using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
             {
@@ -151,7 +154,7 @@ public class ChalanProcessDAL
             cmd.Parameters.AddWithValue("@StartDate", FormatDate(startDate));
             cmd.Parameters.AddWithValue("@EndDate", FormatDate(endDate));
 
-            await con.OpenAsync();
+            await con.OpenWithRetryAsync();
             using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
             {
                 if (await reader.ReadAsync())

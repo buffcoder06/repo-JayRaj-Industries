@@ -41,6 +41,8 @@ public class ApplicationAuditDAL
             cmd.Parameters.AddWithValue("@RequestMethod", (object?)requestMethod ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@Payload", (object?)payload ?? DBNull.Value);
             cmd.Parameters.AddWithValue("@UserName", (object?)userName ?? DBNull.Value);
+            // Single attempt on purpose: if the database is unavailable, the user's
+            // request already waited out the retries — don't make them wait again.
             await con.OpenAsync();
             await cmd.ExecuteNonQueryAsync();
         }
@@ -76,7 +78,7 @@ public class ApplicationAuditDAL
         try
         {
             using SqlConnection con = new SqlConnection(_connectionString);
-            await con.OpenAsync();
+            await con.OpenWithRetryAsync();
 
             long headerId = await InsertInvoiceAuditHeaderAsync(
                 con,

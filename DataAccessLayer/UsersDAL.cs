@@ -23,7 +23,7 @@ public class UsersDAL
             con);
         cmd.Parameters.AddWithValue("@Username", username);
 
-        await con.OpenAsync();
+        await con.OpenWithRetryAsync();
         using var reader = await cmd.ExecuteReaderAsync();
 
         if (!await reader.ReadAsync())
