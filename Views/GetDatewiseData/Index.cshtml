@@ -13,7 +13,7 @@
         <div class="jr-segmented" role="tablist">
             <button type="button" class="jr-segmented__btn is-active" data-tab="inward">Incoming</button>
             <button type="button" class="jr-segmented__btn" data-tab="outward">Out material</button>
-            <button type="button" class="jr-segmented__btn" data-tab="pending">Rejected</button>
+            <button type="button" class="jr-segmented__btn" data-tab="pending">Pending</button>
         </div>
 
         <div class="jr-daterange" data-jr-daterange>
@@ -47,8 +47,9 @@
 
 <section class="jr-card">
     <div class="jr-toolbar">
+        <span class="jr-toolbar__count" id="datewiseScopeNote"></span>
         <div class="jr-toolbar__spacer">
-            <button type="button" class="jr-btn jr-btn--ghost" id="btnDownloadPendingPdf">Download PDF</button>
+            <button type="button" class="jr-btn jr-btn--ghost" id="btnDownloadReportPdf">Download PDF</button>
             <button type="button" class="jr-btn jr-btn--ghost" id="btnExportDatewiseCsv">Export CSV</button>
         </div>
     </div>
@@ -61,7 +62,7 @@
                     <th style="width:39%">Material code &amp; description</th>
                     <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader1">Qty</th>
                     <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader2"></th>
-                    <th style="width:31%">Share of period</th>
+                    <th style="width:31%" id="datewiseShareHeader">Share of period</th>
                 </tr>
             </thead>
             <tbody></tbody>

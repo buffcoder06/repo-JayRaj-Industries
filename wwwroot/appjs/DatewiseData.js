@@ -16,7 +16,7 @@ $(document).ready(function () {
     // when switching tabs (cheap — same date range, different endpoint).
     $('#btnRunReport').on('click', runDatewiseReport);
 
-    $('#btnDownloadPendingPdf').on('click', function () { downloadPendingModalPdf(); });
+    $('#btnDownloadReportPdf').on('click', function () { downloadReportPdf(); });
     $('#btnExportDatewiseCsv').on('click', exportDatewiseCsv);
 });
 
@@ -26,9 +26,16 @@ function runDatewiseReport() {
 }
 
 function loadActiveDatewiseTab() {
+    var isPending = activeDatewiseTab === 'pending';
+    // Pending is a stock position across all dates (as in the original app),
+    // so the date range only applies to the Incoming / Out material tabs.
+    $('#datewiseScopeNote').text(isPending ? 'Pending across all dates (date range not applied)' : '');
+    $('#datewiseShareHeader').text(isPending ? 'Share of pending' : 'Share of period');
+    $('#btnDownloadReportPdf').text(isPending ? 'Download pending PDF' : activeDatewiseTab === 'outward' ? 'Download out PDF' : 'Download incoming PDF');
+
     if (activeDatewiseTab === 'inward') loadInward();
     else if (activeDatewiseTab === 'outward') loadOutward();
-    else loadRejected();
+    else loadPending();
 }
 
 function loadInward() {
@@ -83,28 +90,29 @@ function loadOutward() {
     });
 }
 
-function loadRejected() {
-    $('#datewiseQtyHeader1').text('Rejected qty');
+// Restored from the original app: pending material per component across all
+// dates (no date range sent), sorted A-Z by component.
+function loadPending() {
+    $('#datewiseQtyHeader1').text('Pending qty');
     $('#datewiseQtyHeader2').text('');
     $('#datewiseTotalsLabel').text('Total');
-    var startDate = $('#txtFromDate').val();
-    var endDate = $('#txtToDate').val();
 
     $.ajax({
         url: '/GetDatewiseData/GetTotalComponentDetails',
         type: 'GET',
         dataType: 'json',
-        data: { startDate: startDate, endDate: endDate },
         success: function (data) {
-            var rows = (data || [])
-                .map(function (item) {
-                    return {
-                        component: item.f_Component_Desc || '',
-                        qty1: parseToNumber(getFirstValue(item, ['MaterialRejQuantity', 'materialRejQuantity', 'f_RejectMaterial_Quantity'], 0)),
-                        qty2: null
-                    };
-                })
-                .filter(function (row) { return row.qty1 > 0; });
+            var rows = [];
+            (data || []).forEach(function (item) {
+                var component = (item.f_Component_Desc || '').toString().trim();
+                if (!component) return;
+                rows.push({
+                    component: component,
+                    qty1: parseToNumber(getFirstValue(item, ['PendingMaterialQuantity', 'PendingQuantity', 'pendingQuantity', 'f_Pending_Quantity'], 0)),
+                    qty2: null
+                });
+            });
+            rows.sort(function (a, b) { return a.component.localeCompare(b.component); });
             renderDatewiseRows(rows);
         },
         error: function () { renderDatewiseError(); }
@@ -221,7 +229,7 @@ function renderDatewiseError() {
 
 function exportDatewiseCsv() {
     var headers = ['Sr', 'Component', $('#datewiseQtyHeader1').text()];
-    if (!$('#datewiseQtyHeader2').text()) headers.push($('#datewiseQtyHeader2').text());
+    if ($('#datewiseQtyHeader2').text()) headers.push($('#datewiseQtyHeader2').text());
 
     var rows = [headers];
     lastDatewiseRows.forEach(function (row, index) {
@@ -251,22 +259,55 @@ function normalizeKeyName(key) {
         .replace(/^f/, '');
 }
 
-async function downloadPendingModalPdf() {
+// One letterhead template (logo, title, underlined subtitle, date/period,
+// grid table, signature block) for all three reports. The Pending report
+// keeps the original app's title, subtitle, columns and file name.
+var DATEWISE_REPORTS = {
+    inward: {
+        title: 'Inward Material Report',
+        subtitle: 'Following materials received at Jayraj Industries',
+        head: ['Sr.No', 'Material code & Description', 'In Material'],
+        file: 'Inward_Material'
+    },
+    outward: {
+        title: 'Outward Material Report',
+        subtitle: 'Following materials dispatched from Jayraj Industries',
+        head: ['Sr.No', 'Material code & Description', 'Out Material', 'Rejected Material'],
+        file: 'Outward_Material'
+    },
+    pending: {
+        title: 'Pending Material Report',
+        subtitle: 'Following materials pending in Jayraj Industries',
+        head: ['Sr.No', 'Material code & Description', 'Pending Material'],
+        file: 'Pending_Material_All_Dates'
+    }
+};
+
+async function downloadReportPdf() {
     if (!window.jspdf || !window.jspdf.jsPDF) {
         console.error('jsPDF library is not available.');
         return;
     }
 
+    var report = DATEWISE_REPORTS[activeDatewiseTab];
+    var hasSecondQty = report.head.length === 4;
+    var total1 = 0, total2 = 0;
     var tableRows = lastDatewiseRows.map(function (row, index) {
-        return [String(index + 1), row.component, String(row.qty1)];
+        total1 += row.qty1;
+        var line = [String(index + 1), row.component, formatNumber(row.qty1)];
+        if (hasSecondQty) { total2 += row.qty2 || 0; line.push(formatNumber(row.qty2 || 0)); }
+        return line;
     });
 
-    if (activeDatewiseTab !== 'pending' || tableRows.length === 0) {
+    if (tableRows.length === 0) {
         if (window.Swal) {
-            Swal.fire({ icon: 'warning', title: 'No Data', text: 'Switch to the Rejected tab to download the rejected material report.' });
+            Swal.fire({ icon: 'warning', title: 'No Data', text: 'There is nothing to download for this report. Try a different date range.' });
         }
         return;
     }
+
+    var footRow = ['', 'Total', formatNumber(total1)];
+    if (hasSecondQty) footRow.push(formatNumber(total2));
 
     var jsPDF = window.jspdf.jsPDF;
     var doc = new jsPDF('p', 'mm', 'a4');
@@ -277,7 +318,7 @@ async function downloadPendingModalPdf() {
     try {
         logoImageData = await loadImageAsDataUrl('/images/jr_logo.png');
     } catch (e) {
-        console.warn('Unable to load logo image for rejected PDF.', e);
+        console.warn('Unable to load logo image for report PDF.', e);
     }
 
     if (logoImageData) {
@@ -290,45 +331,64 @@ async function downloadPendingModalPdf() {
     doc.text('JAYRAJ INDUSTRIES', 105, 14, { align: 'center' });
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(12);
-    doc.text('Rejected Material Report', 105, 21, { align: 'center' });
+    doc.text(report.title, 105, 21, { align: 'center' });
     doc.setFont('times', 'normal');
     doc.setFontSize(10);
-    var subtitle = 'Following materials rejected at Jayraj Industries';
     var subtitleY = 28;
     var subtitleX = pageWidth / 2;
-    var subtitleWidth = doc.getTextWidth(subtitle);
-    doc.text(subtitle, subtitleX, subtitleY, { align: 'center' });
+    var subtitleWidth = doc.getTextWidth(report.subtitle);
+    doc.text(report.subtitle, subtitleX, subtitleY, { align: 'center' });
     doc.setLineWidth(0.25);
     doc.line(subtitleX - (subtitleWidth / 2), subtitleY + 1.2, subtitleX + (subtitleWidth / 2), subtitleY + 1.2);
 
+    // Pending is "as of today"; Incoming / Out material cover the selected period.
     var fromDateRaw = $('#txtFromDate').val() || '';
     var toDateRaw = $('#txtToDate').val() || '';
-    var rangeDisplay = (fromDateRaw ? formatPdfDate(fromDateRaw) : '-') + ' to ' + (toDateRaw ? formatPdfDate(toDateRaw) : '-');
     doc.setFont('times', 'bold');
-    doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    doc.text('Period: ' + rangeDisplay, pageWidth - 14, 14, { align: 'right' });
+    var fileSuffix;
+    if (activeDatewiseTab === 'pending') {
+        doc.setFontSize(11);
+        doc.text('Date: ' + formatPdfDate(jrToday()), pageWidth - 14, 14, { align: 'right' });
+        fileSuffix = '';
+    } else {
+        doc.setFontSize(10);
+        doc.text('From: ' + (fromDateRaw ? formatPdfDate(fromDateRaw) : '-'), pageWidth - 14, 12, { align: 'right' });
+        doc.text('To: ' + (toDateRaw ? formatPdfDate(toDateRaw) : '-'), pageWidth - 14, 17, { align: 'right' });
+        fileSuffix = '_' + (fromDateRaw || 'start') + '_to_' + (toDateRaw || 'end');
+    }
+
+    var columnStyles = hasSecondQty
+        ? { 0: { halign: 'center', cellWidth: 18 }, 1: { halign: 'left', cellWidth: 100 }, 2: { halign: 'center', cellWidth: 30 }, 3: { halign: 'center', cellWidth: 30 } }
+        : { 0: { halign: 'center', cellWidth: 18 }, 1: { halign: 'left', cellWidth: 120 }, 2: { halign: 'center', cellWidth: 40 } };
 
     doc.autoTable({
         startY: 38,
-        head: [['Sr.No', 'Material code & Description', 'Rejected Material']],
+        head: [report.head],
         body: tableRows,
+        foot: [footRow],
+        showFoot: 'lastPage',
         theme: 'grid',
         styles: { font: 'times', fontSize: 10, cellPadding: 2.5, halign: 'center', valign: 'middle' },
         headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
         bodyStyles: { textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
-        columnStyles: {
-            0: { halign: 'center', cellWidth: 18 },
-            1: { halign: 'left', cellWidth: 120 },
-            2: { halign: 'center', cellWidth: 40 }
+        footStyles: { fillColor: [245, 245, 245], textColor: [0, 0, 0], fontStyle: 'bold', lineColor: [0, 0, 0], lineWidth: 0.2 },
+        columnStyles: columnStyles,
+        didParseCell: function (data) {
+            if (data.section === 'foot' && data.column.index === 1) data.cell.styles.halign = 'right';
         }
     });
 
     var finalY = doc.lastAutoTable && doc.lastAutoTable.finalY ? doc.lastAutoTable.finalY : 32;
-    var signHeaderY = Math.min(finalY + 12, pageHeight - 34);
-    var signImageY = Math.min(signHeaderY + 4, pageHeight - 30);
-    var signNameY = Math.min(signImageY + 22, pageHeight - 10);
-    var signRoleY = Math.min(signNameY + 5, pageHeight - 4);
+    // The signature block needs ~40mm: start a new page rather than overlap the table.
+    if (finalY + 40 > pageHeight) {
+        doc.addPage();
+        finalY = 20;
+    }
+    var signHeaderY = finalY + 12;
+    var signImageY = signHeaderY + 4;
+    var signNameY = signImageY + 22;
+    var signRoleY = signNameY + 5;
     var rightMarginX = pageWidth - 14;
     var signImageWidth = 42;
     var signImageHeight = 16;
@@ -339,7 +399,7 @@ async function downloadPendingModalPdf() {
     try {
         signImageData = await loadImageAsDataUrl('/images/abhi_dada-sign-original.png');
     } catch (e) {
-        console.warn('Unable to load signature image for rejected PDF.', e);
+        console.warn('Unable to load signature image for report PDF.', e);
         if (window.Swal) {
             await Swal.fire({
                 icon: 'warning',
@@ -365,7 +425,7 @@ async function downloadPendingModalPdf() {
     doc.setFont('times', 'normal');
     doc.text('Authorised Signatory', signTextX, signRoleY, { align: 'left' });
 
-    doc.save('Rejected_Material_Report.pdf');
+    doc.save(report.file + fileSuffix + '.pdf');
 }
 
 function formatPdfDate(dateText) {
