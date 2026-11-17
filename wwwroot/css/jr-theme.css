@@ -264,3 +264,89 @@
   color: #1d4ed8;
   font-weight: 700;
 }
+
+/* =====================================================================
+   Readability: stronger contrast for text boxes, labels and helper text.
+   Many users are over 50 and work on bright screens / in daylight, so
+   greys are darkened to meet WCAG AA (4.5:1) against white and inputs get
+   clearly visible borders. Raising the shared tokens lifts every screen.
+   ===================================================================== */
+:root {
+  --jr-line-strong: #b9c3d1;   /* text box / control borders (was #e4e7eb) */
+  --jr-muted:       #5a6475;   /* secondary text (was #8a909c) */
+  --jr-muted-2:     #5a6475;
+  --jr-faint:       #6b7486;   /* tertiary text (was #a8aeba) */
+  --jr-ink-2:       #374151;
+  --jr-icon:        #7b8494;
+}
+
+/* Field labels above text boxes */
+.jr-field__label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* Text boxes, drop-downs and date pickers */
+.jr-input,
+.jr-dropdown__trigger,
+.jr-daterange__trigger,
+.jr-search {
+  border-color: var(--jr-line-strong);
+  background: #fff;
+}
+
+.jr-input {
+  font-size: 14px;
+  color: var(--jr-ink);
+}
+
+.jr-dropdown__trigger,
+.jr-daterange__trigger {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.jr-input:hover:not(:disabled):not([readonly]),
+.jr-search:hover {
+  border-color: #94a3b8;
+}
+
+.jr-input::placeholder,
+.jr-search input::placeholder,
+.jr-dropdown__filter-input::placeholder {
+  color: #6b7486;
+  opacity: 1;
+}
+
+.jr-search input { font-size: 13px; }
+.jr-search svg { fill: #6b7486; }
+.jr-dropdown__caret,
+.jr-daterange__trigger svg { fill: #475569; color: #475569; }
+
+/* Read-only amount boxes in the Out Material table */
+.jr-input--cell {
+  background: #f1f5f9;
+  border-color: #c5cede;
+  color: var(--jr-ink);
+  font-weight: 700;
+  font-size: 13.5px;
+}
+
+.jr-input:disabled {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* Helper text next to toolbars ("21 of 1129 rows", "Allocates across…") */
+.jr-toolbar__count {
+  font-size: 12.5px;
+  color: #475569;
+}
+
+/* Page sub-lines under headings */
+.jr-page-title__meta,
+.app-topbar__meta,
+.app-topbar__section {
+  color: #5a6475;
+}
