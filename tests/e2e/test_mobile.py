@@ -9,7 +9,13 @@ PAGES = ["/ChalanProcess/Index", "/BulkOutMaterialEntry", "/GetDatewiseData/Inde
 
 
 def no_sideways_scroll(page):
-    return page.evaluate("document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1")
+    # Check the page and the main content column: .app-content scrolls on its
+    # own, so content wider than the screen can hide inside it. (Wide tables and
+    # the invoice sit in their own scroll boxes and don't count.)
+    return page.evaluate("""() => {
+        const fits = el => !el || el.scrollWidth <= el.clientWidth + 1;
+        return fits(document.documentElement) && fits(document.querySelector('.app-content'));
+    }""")
 
 
 def inside_viewport(page, selector):

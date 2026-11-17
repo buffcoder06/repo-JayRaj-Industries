@@ -127,10 +127,12 @@
   }
 
   // Mark active sidebar link from current route
-  const currentPath = window.location.pathname.toLowerCase();
+  // "/" is the default route (ChalanProcess), so compare both sides in that form.
+  const normalise = (p) => (p === "/" ? "/chalanprocess" : p.replace(/\/+$/, ""));
+  const currentPath = normalise(window.location.pathname.toLowerCase());
   document.querySelectorAll(".app-sidebar__link").forEach((link) => {
-    const href = (link.getAttribute("href") || "").toLowerCase();
-    if (href && (currentPath === href || (href !== "/" && currentPath.startsWith(href)))) {
+    const href = normalise((link.getAttribute("href") || "").toLowerCase());
+    if (href && (currentPath === href || currentPath.startsWith(href + "/"))) {
       link.setAttribute("aria-current", "page");
     }
   });

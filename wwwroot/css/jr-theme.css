@@ -1,0 +1,234 @@
+/* JayRaj Industries — colour layer.
+   Loaded after the component styles (and before jr-mobile.css). Adds a
+   restrained, professional palette on top of the Graphite layout:
+   a deep navy sidebar, one colour per quantity type (used the same way on
+   every screen), a blue active state, and lightly tinted headers.
+   Colours carry meaning: blue = incoming / primary action, green = out,
+   amber = pending, red = rejected. Nothing here changes layout. */
+
+:root {
+  --jr-c-in:        #2563eb;
+  --jr-c-in-tint:   #eff5ff;
+  --jr-c-out:       #059669;
+  --jr-c-out-tint:  #ecfdf5;
+  --jr-c-pend:      #d97706;
+  --jr-c-pend-tint: #fff8eb;
+  --jr-c-rej:       #e11d48;
+  --jr-c-rej-tint:  #fff1f3;
+  --jr-c-violet:      #7c3aed;
+  --jr-c-violet-tint: #f5f0ff;
+
+  --jr-navy-900: #0b1630;
+  --jr-navy-800: #12213f;
+  --jr-navy-text: #c4cddc;
+  --jr-navy-muted: #7f8ca5;
+  --jr-navy-line: rgba(255, 255, 255, .08);
+
+  --jr-canvas: #f3f5f9;
+  --jr-surface-2: #f7f9fc;
+}
+
+/* ---------- Sidebar: deep navy ---------- */
+.app-sidebar {
+  background: linear-gradient(180deg, var(--jr-navy-800) 0%, var(--jr-navy-900) 100%);
+  border-right-color: var(--jr-navy-900);
+  color: var(--jr-navy-text);
+}
+
+.app-sidebar__brand,
+.app-sidebar__footer {
+  border-color: var(--jr-navy-line);
+}
+
+.app-sidebar__logo {
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .15);
+}
+
+.app-sidebar__title { color: #fff; }
+.app-sidebar__subtitle { color: var(--jr-navy-muted); }
+.app-sidebar__group-label { color: #6c7a94; }
+
+.app-sidebar__link {
+  color: var(--jr-navy-text);
+}
+
+.app-sidebar__link:hover {
+  background: rgba(255, 255, 255, .06);
+  color: #fff;
+}
+
+.app-sidebar__link[aria-current="page"] {
+  background: linear-gradient(90deg, rgba(59, 130, 246, .28) 0%, rgba(59, 130, 246, .12) 100%);
+  color: #fff;
+  box-shadow: inset 3px 0 0 #60a5fa;
+}
+
+.app-sidebar__icon { opacity: .7; }
+.app-sidebar__link:hover .app-sidebar__icon { opacity: .95; }
+.app-sidebar__link[aria-current="page"] .app-sidebar__icon { opacity: 1; color: #93c5fd; }
+
+.app-sidebar__count {
+  background: rgba(255, 255, 255, .1);
+  border-color: transparent;
+  color: #e2e8f3;
+}
+
+.app-sidebar__link[aria-current="page"] .app-sidebar__count {
+  background: #3b82f6;
+  color: #fff;
+}
+
+.app-sidebar__avatar {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+
+.app-sidebar__name { color: #fff; }
+.app-sidebar__signed-in { color: var(--jr-navy-muted); }
+.app-sidebar__signout { color: var(--jr-navy-muted); }
+.app-sidebar__signout:hover { color: #fff; background: rgba(255, 255, 255, .08); }
+
+/* ---------- Header: thin brand line along the top ---------- */
+.app-topbar {
+  background-image: linear-gradient(90deg, #2563eb 0%, #0ea5e9 100%);
+  background-size: 100% 3px;
+  background-repeat: no-repeat;
+  background-position: top left;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .03);
+}
+
+.app-topbar__title { color: var(--jr-ink); }
+
+/* ---------- Primary button: a touch of depth ---------- */
+.jr-btn--accent {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 1px 2px rgba(37, 99, 235, .25), inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+
+.jr-btn--accent:hover {
+  background: linear-gradient(180deg, #2f74ec 0%, #1d4ed8 100%);
+}
+
+/* ---------- Tabs: blue instead of black ---------- */
+.jr-segmented__btn.is-active {
+  background: var(--jr-c-in);
+  color: #fff;
+}
+
+/* ---------- Cards and tables ---------- */
+.jr-card {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.jr-card__header {
+  background: var(--jr-surface-2);
+}
+
+.jr-table thead th {
+  background: #f1f5fb;
+  color: #5f6f88;
+  border-bottom-color: #e3e9f2;
+}
+
+.jr-table tbody tr:hover:not(.jr-docked-row) {
+  background: #f6f9ff;
+}
+
+/* ---------- Quantity colours (metric strip + dashboard tiles) ---------- */
+.jr-metric-strip { overflow: hidden; }
+
+.jr-metric--in       { --jr-q: var(--jr-c-in);   --jr-q-tint: var(--jr-c-in-tint); }
+.jr-metric--out      { --jr-q: var(--jr-c-out);  --jr-q-tint: var(--jr-c-out-tint); }
+.jr-metric--pending  { --jr-q: var(--jr-c-pend); --jr-q-tint: var(--jr-c-pend-tint); }
+.jr-metric--rejected { --jr-q: var(--jr-c-rej);  --jr-q-tint: var(--jr-c-rej-tint); }
+.jr-kpi--in          { --jr-q: var(--jr-c-in);   --jr-q-tint: var(--jr-c-in-tint); }
+.jr-kpi--out         { --jr-q: var(--jr-c-out);  --jr-q-tint: var(--jr-c-out-tint); }
+.jr-kpi--pending     { --jr-q: var(--jr-c-pend); --jr-q-tint: var(--jr-c-pend-tint); }
+.jr-kpi--rejected    { --jr-q: var(--jr-c-rej);  --jr-q-tint: var(--jr-c-rej-tint); }
+
+.jr-metric[class*="jr-metric--"],
+.jr-kpi[class*="jr-kpi--"] {
+  background: linear-gradient(180deg, var(--jr-q-tint) 0%, var(--jr-surface) 75%);
+  box-shadow: inset 0 3px 0 var(--jr-q);
+}
+
+.jr-kpi[class*="jr-kpi--"] {
+  box-shadow: inset 0 3px 0 var(--jr-q), 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.jr-metric[class*="jr-metric--"] .jr-metric__label,
+.jr-kpi[class*="jr-kpi--"] .jr-kpi__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--jr-q);
+}
+
+.jr-metric[class*="jr-metric--"] .jr-metric__label::before,
+.jr-kpi[class*="jr-kpi--"] .jr-kpi__label::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--jr-q);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--jr-q) 18%, transparent);
+  flex: none;
+}
+
+/* ---------- Dashboard module tiles ---------- */
+.jr-module--blue   { --jr-q: var(--jr-c-in);     --jr-q-tint: var(--jr-c-in-tint); }
+.jr-module--violet { --jr-q: var(--jr-c-violet); --jr-q-tint: var(--jr-c-violet-tint); }
+.jr-module--teal   { --jr-q: var(--jr-c-out);    --jr-q-tint: var(--jr-c-out-tint); }
+.jr-module--amber  { --jr-q: var(--jr-c-pend);   --jr-q-tint: var(--jr-c-pend-tint); }
+
+.jr-module {
+  transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease;
+}
+
+.jr-module:hover {
+  border-color: color-mix(in srgb, var(--jr-q) 35%, var(--jr-line));
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .08);
+  transform: translateY(-1px);
+}
+
+.jr-module__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--jr-q-tint);
+  color: var(--jr-q);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.jr-module__icon svg {
+  width: 17px;
+  height: 17px;
+  fill: currentColor;
+}
+
+/* ---------- Popups: brand line on top ---------- */
+.jr-modal {
+  border-top: 3px solid var(--jr-c-in);
+}
+
+/* A three-figure strip (Datewise) fills the width instead of leaving an
+   empty fourth column. Phones keep their 2-up layout from jr-mobile.css. */
+.jr-metric-strip:has(> .jr-metric:nth-child(3):last-child) {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.jr-module-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 960px) {
+  .jr-module-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 420px) {
+  .jr-module-grid { grid-template-columns: 1fr; }
+}
