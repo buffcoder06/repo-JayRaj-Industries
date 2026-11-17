@@ -25,16 +25,19 @@ public static class SqlConnectionRetry
         -2     // timeout
     };
 
-    // Waits between attempts, and an overall budget: a resume takes ~30-60s, and
-    // nobody should wait much longer than that for a page — some failures (a
-    // network black hole) take ~20s per attempt on their own.
-    private static readonly TimeSpan[] Delays =
+    // Waits between attempts (2, 4, 6, 8, then every 10s) within an overall
+    // budget. A resume of the free database was measured at ~2m15s, so allow
+    // 150s — still well inside App Service's ~230s request limit. Some failures
+    // (a network black hole) take ~20s per attempt on their own.
+    private static readonly TimeSpan[] FirstDelays =
     {
-        TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6),
-        TimeSpan.FromSeconds(8), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10),
-        TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10)
+        TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(4), TimeSpan.FromSeconds(6), TimeSpan.FromSeconds(8)
     };
-    private static readonly TimeSpan MaxTotalWait = TimeSpan.FromSeconds(75);
+    private static readonly TimeSpan SteadyDelay = TimeSpan.FromSeconds(10);
+    private static readonly TimeSpan MaxTotalWait = TimeSpan.FromSeconds(150);
+
+    private static TimeSpan DelayFor(int attempt) =>
+        attempt < FirstDelays.Length ? FirstDelays[attempt] : SteadyDelay;
 
     public static bool IsTransient(SqlException ex)
     {
@@ -46,9 +49,7 @@ public static class SqlConnectionRetry
     }
 
     private static bool ShouldRetry(SqlException ex, int attempt, Stopwatch elapsed) =>
-        attempt < Delays.Length
-        && IsTransient(ex)
-        && elapsed.Elapsed + Delays[attempt] < MaxTotalWait;
+        IsTransient(ex) && elapsed.Elapsed + DelayFor(attempt) < MaxTotalWait;
 
     public static async Task OpenWithRetryAsync(this SqlConnection connection, CancellationToken cancellationToken = default)
     {
@@ -64,7 +65,7 @@ public static class SqlConnectionRetry
             {
                 // Don't let a broken pooled connection be handed out again.
                 SqlConnection.ClearPool(connection);
-                await Task.Delay(Delays[attempt], cancellationToken);
+                await Task.Delay(DelayFor(attempt), cancellationToken);
             }
         }
     }
@@ -82,7 +83,7 @@ public static class SqlConnectionRetry
             catch (SqlException ex) when (ShouldRetry(ex, attempt, elapsed))
             {
                 SqlConnection.ClearPool(connection);
-                Thread.Sleep(Delays[attempt]);
+                Thread.Sleep(DelayFor(attempt));
             }
         }
     }
