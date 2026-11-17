@@ -39,3 +39,9 @@ Thumbs.db
 
 ## dotnet user-secrets are stored outside the repo (%APPDATA%/Microsoft/UserSecrets) —
 ## nothing to ignore here, but never commit a secrets.json if one appears locally.
+
+# Playwright end-to-end test environment
+tests/e2e/.venv/
+tests/e2e/__pycache__/
+tests/e2e/.pytest_cache/
+tests/e2e/test-results/
