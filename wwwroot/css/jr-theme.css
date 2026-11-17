@@ -124,10 +124,18 @@
   background: var(--jr-surface-2);
 }
 
-.jr-table thead th {
-  background: #f1f5fb;
-  color: #5f6f88;
-  border-bottom-color: #e3e9f2;
+/* Column headings: dark, larger text on a firmer tint, for easy reading
+   (many users are over 50). The id selector beats an older page.css rule
+   that otherwise sets its own background on the Chalan / Out Material grids. */
+.jr-table thead th,
+#idChalanProcessGrid #tblchalanProcess thead th {
+  background: #e3eaf5;
+  color: #1e293b;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  border-bottom: 1px solid #cdd7e6;
+  box-shadow: none;
 }
 
 .jr-table tbody tr:hover:not(.jr-docked-row) {
@@ -231,4 +239,28 @@
 
 @media (max-width: 420px) {
   .jr-module-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------- Row actions: "Record out" stands out as the row's action ---------- */
+.jr-row-btn--bordered.jr-row-action {
+  background: var(--jr-c-in-tint);
+  border-color: #bcd3fb;
+  color: #1d4ed8;
+  font-weight: 700;
+  transition: background .15s ease, color .15s ease, border-color .15s ease, box-shadow .15s ease;
+}
+
+.jr-row-btn--bordered.jr-row-action:hover,
+.jr-row-btn--bordered.jr-row-action:focus-visible {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  border-color: #2563eb;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, .25);
+  outline: none;
+}
+
+/* "View" on closed chalans reads as a link in the brand blue. */
+.jr-row-btn--borderless.jr-row-action {
+  color: #1d4ed8;
+  font-weight: 700;
 }
