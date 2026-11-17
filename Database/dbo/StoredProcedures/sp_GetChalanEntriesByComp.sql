@@ -25,6 +25,7 @@ SELECT [f_PK_Chalan_ProcessID],
             [f_Remark_StatusID]  
 			FROM t_JR_Chalan_Process 
 			WHERE f_Component_Desc = @ComponentDesc and f_Pending_Quantity <> '0'
+			  and f_active = 1   -- never allocate bulk out material to a deleted chalan
 			ORDER BY f_ChalanDate;
 
 END

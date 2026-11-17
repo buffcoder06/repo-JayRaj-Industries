@@ -9,7 +9,7 @@
         <h1>Datewise Status</h1>
         <div class="jr-page-title__meta" id="datewisePageMeta">Loading…</div>
     </div>
-    <div style="display:flex; gap:10px; align-items:center;">
+    <div class="jr-page-title__actions" style="display:flex; gap:10px; align-items:center;">
         <div class="jr-segmented" role="tablist">
             <button type="button" class="jr-segmented__btn is-active" data-tab="inward">Incoming</button>
             <button type="button" class="jr-segmented__btn" data-tab="outward">Out material</button>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="jr-table-wrap">
-        <table class="jr-table" id="tblDatewiseResults">
+        <table class="jr-table jr-table--scroll-sm" id="tblDatewiseResults">
             <thead>
                 <tr>
                     <th style="width:6%">Sr</th>

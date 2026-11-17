@@ -11,7 +11,11 @@ $(document).ready(function () {
     loadCurrentMonthLabel();
     loadGridData();
 
-    $('#componentSearch, #chalanGlobalSearch').on('input change', debounce(resetPageAndRender, 120));
+    // The text box re-filters as you type ('input'). Not on 'change': that fires
+    // when the box loses focus — i.e. when the user taps a result — and the
+    // re-render would close the popup that tap just opened.
+    $('#chalanGlobalSearch').on('input', debounce(resetPageAndRender, 120));
+    $('#componentSearch').on('change', resetPageAndRender);
     $('#chalanDateFrom, #chalanDateTo').on('change', resetPageAndRender);
 
     $('.jr-segmented[role="tablist"] .jr-segmented__btn').on('click', function () {
@@ -241,16 +245,17 @@ function buildRow(item) {
     var pendingBarCls = status.tab === 'closed' ? '' : (status.cls === 'jr-pill--stalled' ? 'jr-mini-bar__fill--danger' : 'jr-mini-bar__fill--warning');
 
     var $tr = $('<tr></tr>').data('hdrseq', item.chalanProcessHdrSeq).data('item', item);
-    $tr.append('<td>' + formatDate(item.date) + '</td>');
-    $tr.append($('<td class="jr-truncate"></td>').text(item.componentDescription || ''));
-    $tr.append('<td><a href="javascript:void(0)" class="jr-link chalan-number-link">' + escapeHtml(item.chalanNo) + '</a></td>');
-    $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(inQty) + '</td>');
-    $tr.append('<td class="jr-text-right jr-tabular ' + (toNumber(item.outMaterialQuantity) > 0 ? '' : 'jr-cell-muted') + '">' + formatNumber(item.outMaterialQuantity) + '</td>');
-    $tr.append('<td class="jr-text-right jr-tabular"><span class="jr-mini-bar-cell">' +
+    // Classes + data-label drive the phone card layout (jr-mobile.css).
+    $tr.append('<td class="c-date" data-label="Date">' + formatDate(item.date) + '</td>');
+    $tr.append($('<td class="jr-truncate c-comp"></td>').text(item.componentDescription || ''));
+    $tr.append('<td class="c-chalan"><a href="javascript:void(0)" class="jr-link chalan-number-link">' + escapeHtml(item.chalanNo) + '</a></td>');
+    $tr.append('<td class="jr-text-right jr-tabular c-in" data-label="Qty in">' + formatNumber(inQty) + '</td>');
+    $tr.append('<td class="jr-text-right jr-tabular c-out ' + (toNumber(item.outMaterialQuantity) > 0 ? '' : 'jr-cell-muted') + '" data-label="Out">' + formatNumber(item.outMaterialQuantity) + '</td>');
+    $tr.append('<td class="jr-text-right jr-tabular c-pending" data-label="Pending"><span class="jr-mini-bar-cell">' +
         (pendingQty > 0 ? '<span class="jr-mini-bar"><span class="jr-mini-bar__fill ' + pendingBarCls + '" style="width:' + pendingPct + '%"></span></span>' : '') +
         '<span class="' + (pendingQty > 0 ? 'jr-cell-strong' : 'jr-cell-muted') + '">' + formatNumber(pendingQty) + '</span></span></td>');
-    $tr.append('<td><span class="jr-pill ' + status.cls + '"><span class="jr-pill__dot"></span>' + status.label + '</span></td>');
-    $tr.append('<td class="jr-text-right">' + actionHtml + '</td>');
+    $tr.append('<td class="c-status"><span class="jr-pill ' + status.cls + '"><span class="jr-pill__dot"></span>' + status.label + '</span></td>');
+    $tr.append('<td class="jr-text-right c-action">' + actionHtml + '</td>');
     return $tr;
 }
 
@@ -329,7 +334,7 @@ function openDockedPanel(hdrSeq, mode) {
             '</div>';
     } else {
         bodyHtml = '<div class="jr-docked__history jr-docked__history--full">' +
-            '<div class="jr-table-wrap"><table class="jr-table" id="tblDockedHistory"><thead><tr>' +
+            '<div class="jr-table-wrap"><table class="jr-table jr-table--scroll-sm" id="tblDockedHistory"><thead><tr>' +
             '<th>Date</th><th>Out chalan</th><th class="jr-text-right">Out</th><th class="jr-text-right">Rejected</th><th class="jr-text-right">Balance</th><th></th>' +
             '</tr></thead><tbody></tbody></table></div></div>';
     }

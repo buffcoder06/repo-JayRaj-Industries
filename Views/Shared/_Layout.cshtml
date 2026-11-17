@@ -24,6 +24,8 @@
          its invoice-canvas/print/table-utility classes. -->
     <link rel="stylesheet" href="~/css/page.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
+    <!-- Phone layout: loaded last so it can adjust any page's styles. -->
+    <link rel="stylesheet" href="~/css/jr-mobile.css" asp-append-version="true" />
 </head>
 
 <body class="app-body jr-app"
@@ -31,6 +33,7 @@
       data-session-user="@(User?.Identity?.IsAuthenticated == true ? User.Identity.Name : "")">
     @Html.AntiForgeryToken()
     <div class="app-shell" data-theme="system">
+        <div class="app-sidebar-backdrop" data-sidebar-close aria-hidden="true"></div>
         <aside class="app-sidebar" aria-label="Primary navigation">
             <div class="app-sidebar__brand">
                 <span class="app-sidebar__logo">

@@ -1,0 +1,325 @@
+/* JayRaj Industries — phone & small-tablet layout.
+   Loaded after every other stylesheet. Desktop (> 768px) is untouched apart
+   from the font inheritance fix directly below. */
+
+/* Form controls don't inherit the page font by default (iOS Safari falls back
+   to a serif face for <button>), so make every control use the app font. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Tap-outside backdrop for the off-canvas sidebar (element added by the layout). */
+.app-sidebar-backdrop {
+  display: none;
+}
+
+/* Hint above the fixed-width A4 invoice preview; only needed on phones. */
+.jr-invoice-desk__hint {
+  display: none;
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: var(--jr-muted);
+}
+
+@media (max-width: 768px) {
+  /* ---------- Shell ---------- */
+  .app-shell--sidebar-open .app-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 39;                     /* just under the sidebar (40) */
+    background: rgba(11, 22, 42, .38);
+  }
+
+  .app-topbar {
+    height: auto;
+    min-height: var(--jr-header-height);
+    padding: 10px 12px;
+    flex-wrap: wrap;
+    row-gap: 10px;
+  }
+
+  .app-topbar__left {
+    flex: 1 1 auto;
+  }
+
+  .app-topbar__title,
+  .app-topbar__meta {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Page actions (search, primary button) get their own full-width row. */
+  .app-topbar__right {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .app-topbar__right:empty {
+    display: none;
+  }
+
+  .jr-search {
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 38px;
+  }
+
+  .jr-hide-sm {
+    display: none;
+  }
+
+  .app-topbar__right .jr-btn {
+    height: 38px;
+    flex: none;
+  }
+
+  /* iOS Safari zooms the page when focusing a field under 16px. */
+  .jr-input,
+  .jr-search input,
+  .jr-dropdown__filter-input,
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
+  /* Comfortable touch targets. */
+  .jr-row-btn,
+  .jr-btn--sm {
+    min-height: 36px;
+  }
+
+  /* ---------- Page title rows ---------- */
+  .jr-page-title {
+    flex-wrap: wrap;
+  }
+
+  .jr-page-title > :first-child {
+    flex: 1 1 100%;
+  }
+
+  .jr-page-title__actions {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+
+  .jr-page-title__actions .jr-segmented {
+    flex: 1 1 100%;
+    display: flex;
+  }
+
+  .jr-page-title__actions .jr-segmented__btn {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .jr-page-title__actions .jr-daterange {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .jr-page-title__actions .jr-daterange__trigger {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* ---------- Metric strip: 2 x 2 instead of 4 across ---------- */
+  .jr-metric-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .jr-metric:nth-child(odd) {
+    border-left: 0;
+  }
+
+  .jr-metric:nth-child(n + 3) {
+    border-top: 1px solid #eceef1;
+  }
+
+  /* A 3-cell strip: the last cell spans the full second row. */
+  .jr-metric-strip > .jr-metric:last-child:nth-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .jr-metric {
+    padding: 12px 14px;
+  }
+
+  .jr-metric__value {
+    font-size: 22px;
+  }
+
+  /* ---------- Toolbars ---------- */
+  .jr-toolbar .jr-dropdown,
+  .jr-toolbar .jr-daterange {
+    flex: 1 1 140px;
+    min-width: 0;
+  }
+
+  .jr-toolbar .jr-dropdown__trigger,
+  .jr-toolbar .jr-daterange__trigger {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .jr-toolbar .jr-toolbar__count {
+    flex: 1 1 100%;
+  }
+
+  /* ---------- Wide tables scroll sideways inside their card ---------- */
+  .jr-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .jr-table--scroll-sm {
+    min-width: 620px;
+  }
+
+  .jr-table td.jr-truncate {
+    white-space: normal;
+  }
+
+  /* ---------- Out Material Entry: the component is already chosen above
+     the table, so drop that column and keep Pending + Amount on screen. ---------- */
+  .jr-table--bulk th:nth-child(2),
+  .jr-table--bulk td:nth-child(2) {
+    display: none;
+  }
+
+  .jr-table--bulk th,
+  .jr-table--bulk td {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .jr-table--bulk .jr-input--cell {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* ---------- Chalan Process grid (.jr-table--cards): one card per chalan ---------- */
+  .jr-table--cards thead {
+    display: none;
+  }
+
+  .jr-table--cards,
+  .jr-table--cards tbody {
+    display: block;
+    width: 100%;
+  }
+
+  .jr-table--cards tbody tr {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas:
+      "chalan chalan status status"
+      "comp   comp   comp   comp"
+      "date   in     out    pending"
+      "action action action action";
+    gap: 6px 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--jr-line);
+  }
+
+  .jr-table--cards tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+    text-align: left;
+    overflow: visible;
+    min-width: 0;
+  }
+
+  .jr-table--cards td.c-chalan  { grid-area: chalan; font-size: 15px; font-weight: 600; }
+  .jr-table--cards td.c-status  { grid-area: status; justify-self: end; }
+  .jr-table--cards td.c-comp    { grid-area: comp; color: var(--jr-ink-2); white-space: normal; }
+  .jr-table--cards td.c-date    { grid-area: date; }
+  .jr-table--cards td.c-in      { grid-area: in; }
+  .jr-table--cards td.c-out     { grid-area: out; }
+  .jr-table--cards td.c-pending { grid-area: pending; }
+  .jr-table--cards td.c-action  { grid-area: action; }
+
+  /* Small caption above each figure. */
+  .jr-table--cards td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--jr-faint);
+    margin-bottom: 2px;
+  }
+
+  .jr-table--cards td.c-pending .jr-mini-bar {
+    display: none;
+  }
+
+  .jr-table--cards td.c-action .jr-row-btn {
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .jr-table--cards td.jr-table-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+  }
+
+  .jr-pagination {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  /* ---------- Popups ---------- */
+  .jr-modal-backdrop {
+    padding: 12px 8px;
+  }
+
+  .jr-modal {
+    max-width: 100% !important;
+    min-width: 0;
+  }
+
+  .jr-modal .jr-docked__header {
+    padding: 14px 16px;
+  }
+
+  .jr-modal .jr-docked__subtitle {
+    overflow-wrap: anywhere;
+  }
+
+  .jr-modal .jr-docked__body {
+    padding: 16px;
+  }
+
+  .jr-modal .jr-docked__body .jr-field {
+    flex: 1 1 100%;
+  }
+
+  .jr-modal .jr-docked__save-row {
+    padding: 14px 16px;
+    flex-wrap: wrap;
+  }
+
+  .jr-modal .jr-docked__history-title,
+  .jr-modal .jr-docked__history .jr-table-wrap {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* ---------- Invoice ---------- */
+  .jr-invoice-desk {
+    padding: 8px;
+  }
+
+  .jr-invoice-desk__hint {
+    display: block;
+  }
+}

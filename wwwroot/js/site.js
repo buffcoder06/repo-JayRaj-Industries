@@ -112,6 +112,15 @@
     });
   });
 
+  // Phone menu: the open sidebar covers the toggle button, so close it by
+  // tapping the backdrop, pressing Escape, or choosing a link.
+  const closeMobileSidebar = () => shell && shell.classList.remove("app-shell--sidebar-open");
+  document.querySelectorAll("[data-sidebar-close], .app-sidebar__link").forEach((el) =>
+    el.addEventListener("click", closeMobileSidebar));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && shell && shell.classList.contains("app-shell--sidebar-open")) closeMobileSidebar();
+  });
+
   // init sidebar collapsed state for desktop
   if (shell && localStorage.getItem("sidebarCollapsed") === "1") {
     shell.classList.add("app-shell--sidebar-collapsed");

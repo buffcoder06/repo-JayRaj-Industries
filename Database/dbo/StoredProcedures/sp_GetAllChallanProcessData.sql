@@ -25,8 +25,9 @@ BEGIN
             [f_RejectMaterial_Quantity],    
             [f_Remarks],    
             [f_Remark_StatusID]    
-        FROM [dbo].[t_JR_Chalan_Process]  
-  ORDER BY [f_ChalanDate] desc;  
+        FROM [dbo].[t_JR_Chalan_Process]
+        WHERE [f_active] = 1   -- deleted chalans must not appear in the list or its totals
+  ORDER BY [f_ChalanDate] desc;
     END    
     ELSE    
     BEGIN    
