@@ -11,10 +11,14 @@ $(document).ready(function () {
         runDatewiseReport();
     });
 
-    // Changing the date range only updates the trigger label — the report
-    // (table + metric strip) only re-runs when "Run report" is clicked, or
-    // when switching tabs (cheap — same date range, different endpoint).
-    $('#btnRunReport').on('click', runDatewiseReport);
+    // No "Run report" button: the report reloads as soon as a tab is picked
+    // or a new date range is chosen. The picker fires 'change' for the start
+    // and the end date, so wait a moment and run once.
+    var dateChangeTimer = null;
+    $('#txtFromDate, #txtToDate').on('change', function () {
+        clearTimeout(dateChangeTimer);
+        dateChangeTimer = setTimeout(runDatewiseReport, 60);
+    });
 
     $('#btnDownloadPendingPdf').on('click', function () { downloadPendingPdf(); });
 });
@@ -29,8 +33,11 @@ function loadActiveDatewiseTab() {
     // Pending is a stock position across all dates (as in the original app),
     // so the date range only applies to the Incoming / Out material tabs.
     $('#datewiseScopeNote').text(isPending ? 'Pending across all dates (date range not applied)' : '');
-    $('#datewiseShareHeader').text(isPending ? 'Share of pending' : 'Share of period');
+    // The Rejected column is only used on the Out material tab.
+    $('#tblDatewiseResults').toggleClass('jr-datewise--two-qty', activeDatewiseTab === 'outward');
     $('#btnDownloadPendingPdf').prop('hidden', !isPending);
+    // That bar only has content on the Pending tab (note + PDF button).
+    $('#datewiseScopeNote').closest('.jr-toolbar').prop('hidden', !isPending);
 
     if (activeDatewiseTab === 'inward') loadInward();
     else if (activeDatewiseTab === 'outward') loadOutward();
@@ -188,28 +195,23 @@ function renderDatewiseRows(rows) {
     tbody.empty();
 
     if (!rows.length) {
-        tbody.html('<tr><td colspan="5" class="jr-table-empty">No data for this range.</td></tr>');
+        tbody.html('<tr><td colspan="4" class="jr-table-empty">No data for this range.</td></tr>');
         $('#datewiseTotalsRow').prop('hidden', true);
         return;
     }
 
-    var maxQty = rows.reduce(function (m, r) { return Math.max(m, r.qty1); }, 0);
     var total1 = 0, total2 = 0;
 
     rows.forEach(function (row, index) {
-        var pct = maxQty > 0 ? Math.round(row.qty1 / maxQty * 100) : 0;
         total1 += row.qty1;
         if (row.qty2 !== null) total2 += row.qty2;
         var $tr = $('<tr></tr>');
         $tr.append('<td class="jr-tabular">' + (index + 1) + '</td>');
         $tr.append($('<td class="jr-truncate"></td>').text(row.component));
-        $tr.append('<td class="jr-text-right jr-tabular">' + formatNumber(row.qty1) + '</td>');
-        // This column always renders (empty when not applicable) rather than
-        // being hidden/shown per tab: a hidden <th>/<td> pair still tripped up
-        // table-layout:fixed's column-width math between <thead> and <tbody>
-        // in testing, throwing off every column to its right.
-        $tr.append('<td class="jr-text-right jr-tabular">' + (row.qty2 !== null ? formatNumber(row.qty2) : '') + '</td>');
-        $tr.append('<td><div class="jr-bar"><div class="jr-bar__fill" style="width:' + pct + '%"></div></div></td>');
+        $tr.append('<td class="c-qty jr-text-right jr-tabular">' + formatNumber(row.qty1) + '</td>');
+        // Rejected: always rendered, hidden by CSS except on the Out material
+        // tab. It is the last column, so hiding it can't shift other columns.
+        $tr.append('<td class="c-qty c-qty2 jr-text-right jr-tabular">' + (row.qty2 !== null ? formatNumber(row.qty2) : '') + '</td>');
         tbody.append($tr);
     });
 
@@ -219,7 +221,7 @@ function renderDatewiseRows(rows) {
 }
 
 function renderDatewiseError() {
-    $('#tblDatewiseResults tbody').html('<tr><td colspan="5" class="jr-table-empty">Unable to load data.</td></tr>');
+    $('#tblDatewiseResults tbody').html('<tr><td colspan="4" class="jr-table-empty">Unable to load data.</td></tr>');
     $('#datewiseTotalsRow').prop('hidden', true);
     if (window.Swal) {
         Swal.fire({ icon: 'error', title: 'Error', text: 'Failed to fetch datewise data.', confirmButtonColor: 'red' });
@@ -423,7 +425,7 @@ function getFirstValue(item, keys, defaultValue) {
 
 function formatNumber(value) {
     var n = parseToNumber(value);
-    return n.toLocaleString();
+    return n.toLocaleString('en-IN');   // 1,04,330 — same as the other screens
 }
 
 function parseToNumber(value) {

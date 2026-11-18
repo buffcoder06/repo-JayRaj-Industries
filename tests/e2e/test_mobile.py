@@ -117,7 +117,7 @@ def test_datewise_tabs_and_dates_visible(open_page, device):
     for tab in ["inward", "outward", "pending"]:
         assert inside_viewport(page, f".jr-segmented__btn[data-tab={tab}]"), f"{tab} tab off-screen"
     assert inside_viewport(page, ".jr-page-title .jr-daterange__trigger")
-    assert inside_viewport(page, "#btnRunReport")
+    assert page.locator("#btnRunReport").count() == 0             # removed: reports load on their own
 
 
 @pytest.mark.parametrize("device", PHONES)

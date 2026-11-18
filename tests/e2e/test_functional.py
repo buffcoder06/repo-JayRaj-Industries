@@ -29,7 +29,8 @@ def swal(page, timeout=15000):
 
 
 def close_swal(page):
-    page.click(".swal2-confirm")
+    """Close a toast message with its ✕ (messages have no OK button)."""
+    page.click(".swal2-close")
     page.wait_for_selector(".swal2-popup", state="detached")
 
 
@@ -133,7 +134,16 @@ def test_record_out_rejected_and_delete(open_page, data):
     assert "70 Nos will remain pending" in page.inner_text("#dockedBalanceLabel")
     page.click("#dockedSaveEntry")
     page.wait_for_selector(".jr-modal-backdrop--docked", state="detached")
-    page.wait_for_timeout(500)
+    title, text = swal(page)                                      # success confirmation
+    assert title == "Saved!"
+    toast = page.locator(".swal2-popup.swal2-toast.jr-toast--success")    # a toast, not a dialog
+    assert toast.is_visible() and page.locator(".swal2-confirm").is_hidden()
+    page.wait_for_timeout(400)                                    # let the slide-in finish
+    box, vw = toast.bounding_box(), page.viewport_size["width"]
+    assert abs((box["x"] + box["width"] / 2) - vw / 2) < 40      # centred left-right
+    assert box["y"] < 60                                          # at the top of the screen
+    assert f"30 Nos recorded out on chalan {chalan['chalanNo']}." in text and "70 Nos still pending." in text
+    close_swal(page)
     db_row = data.chalan(chalan["chalanNo"])
     assert (db_row["pending"], db_row["outQty"]) == (70, 30)
     row = find_chalan(page, chalan["chalanNo"])
@@ -146,7 +156,9 @@ def test_record_out_rejected_and_delete(open_page, data):
     page.fill("#dockedQty", "10")
     page.click("#dockedSaveEntry")
     page.wait_for_selector(".jr-modal-backdrop--docked", state="detached")
-    page.wait_for_timeout(500)
+    title, text = swal(page)
+    assert title == "Saved!" and "10 Nos recorded as rejected" in text and "60 Nos still pending." in text
+    close_swal(page)
     db_row = data.chalan(chalan["chalanNo"])
     assert (db_row["pending"], db_row["outQty"], db_row["rejQty"]) == (60, 30, 10)
 
@@ -161,6 +173,7 @@ def test_record_out_rejected_and_delete(open_page, data):
     rej_row.locator(".jr-row-btn--danger").click()
     title, _ = swal(page)
     assert title == "Delete this entry?"
+    assert page.locator(".swal2-toast").count() == 0              # questions stay a dialog
     page.click(".swal2-confirm")
     page.wait_for_timeout(1500)
     db_row = data.chalan(chalan["chalanNo"])
@@ -231,7 +244,7 @@ def test_invoice_loads_and_pdf_downloads(open_page):
     page = open_page("desktop", "/Invoice/Index")
     page.click("#btnLoadInvoiceData")
     page.wait_for_selector(".swal2-popup")          # "Loaded" (or a no-data message)
-    page.click(".swal2-confirm")
+    page.click(".swal2-close")
     if page.locator("#invoiceItemsTable tbody tr.invoice-item-row").count() == 0:
         pytest.skip("no invoice lines for the current month")
     with page.expect_download(timeout=90000) as dl:
@@ -269,6 +282,8 @@ def test_double_click_record_out_saves_once(open_page, data):
     page.fill("#dockedQty", "40")
     page.dblclick("#dockedSaveEntry")
     page.wait_for_selector(".jr-modal-backdrop--docked", state="detached")
+    title, _ = swal(page)
+    assert title == "Saved!"
     page.wait_for_timeout(1000)
     assert _entry_count(chalan["chalanNo"]) == 1
     db_row = data.chalan(chalan["chalanNo"])
@@ -290,3 +305,29 @@ def test_double_click_bulk_submit_saves_once(open_page, data):
     assert _entry_count(chalan["chalanNo"]) == 1
     db_row = data.chalan(chalan["chalanNo"])
     assert (db_row["pending"], db_row["outQty"]) == (30, 20)
+
+
+def test_record_out_last_quantity_says_chalan_closed(open_page, data):
+    chalan = data.create_chalan(25)
+    page = open_page("desktop", "/ChalanProcess/Index")
+    find_chalan(page, chalan["chalanNo"]).locator(".jr-row-action").click()
+    page.fill("#dockedOutChalan", data.next_out_no())
+    page.fill("#dockedQty", "25")
+    page.click("#dockedSaveEntry")
+    title, text = swal(page)
+    assert title == "Saved!" and "Nothing pending" in text
+    assert data.chalan(chalan["chalanNo"])["pending"] == 0
+
+
+def test_save_and_add_another_confirms_and_reopens(open_page, data):
+    chalan = data.create_chalan(50)
+    page = open_page("pixel7", "/ChalanProcess/Index")
+    find_chalan(page, chalan["chalanNo"]).locator(".jr-row-action").click()
+    page.fill("#dockedOutChalan", data.next_out_no())
+    page.fill("#dockedQty", "20")
+    page.click("#dockedSaveAnother")
+    title, text = swal(page)
+    assert title == "Saved!" and "30 Nos still pending." in text
+    page.wait_for_selector(".swal2-popup", state="detached", timeout=5000)   # closes by itself
+    assert page.is_visible("#dockedSaveEntry")                               # form is open again
+    assert "30 Nos will remain pending" in page.inner_text("#dockedBalanceLabel")

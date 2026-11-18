@@ -435,11 +435,20 @@ function openDockedPanel(hdrSeq, mode) {
                     Swal.fire({ icon: 'error', title: 'Save Error!', text: (response && response.message) || 'Unable to save record', confirmButtonColor: 'red' });
                     return;
                 }
+                var movedText = formatNumber(qty) + ' Nos ' + (movement === 'REJ' ? 'recorded as rejected' : 'recorded out') +
+                    ' on chalan ' + item.chalanNo + '.';
                 refreshChalanRow(hdrSeq, function (freshItem) {
-                    if (keepOpen && freshItem && toNumber(freshItem.pendingQuantity) > 0) {
+                    var stillPending = freshItem ? toNumber(freshItem.pendingQuantity) : Math.max(0, pending - qty);
+                    var summary = movedText + ' ' + (stillPending > 0
+                        ? formatNumber(stillPending) + ' Nos still pending.'
+                        : 'Nothing pending — chalan closed.');
+                    if (keepOpen && stillPending > 0) {
+                        // "Save & add another": short confirmation, then the form reopens.
                         openDockedPanel(hdrSeq, 'record');
+                        Swal.fire({ icon: 'success', title: 'Saved!', text: summary, timer: 1600, showConfirmButton: false });
                     } else {
                         closeDockedPanel();
+                        Swal.fire({ icon: 'success', title: 'Saved!', text: summary, confirmButtonColor: '#28a745' });
                     }
                 });
             },
@@ -472,6 +481,13 @@ function refreshChalanRow(hdrSeq, callback) {
             updateKpis();
             renderGrid();
             if (callback) callback(fresh);
+        },
+        // The save already succeeded; if only the refresh fails (weak mobile
+        // signal), still confirm it and reload the list instead of leaving
+        // the popup sitting open with no message.
+        error: function () {
+            loadGridData();
+            if (callback) callback(null);
         }
     });
 }

@@ -296,10 +296,64 @@
       reverseButtons: true
     };
 
+    // Plain success / error / warning / info messages show as a toast at the
+    // top centre of the screen: no backdrop, no OK button, it closes by itself
+    // (errors stay longer and pause while the pointer is over them). Anything
+    // that asks the user something (Cancel button, input) stays a dialog.
+    // Swal still returns a promise, so callers' .then() runs when it closes.
+    const TOAST_ICONS = ["success", "error", "warning", "info"];
+    const TOAST_TIMES = { success: 2600, info: 3200, warning: 4500, error: 6000 };
+    function isNotification(o) {
+      return TOAST_ICONS.includes(o.icon) && !o.showCancelButton && !o.showDenyButton && !o.input && o.toast !== false;
+    }
+    // Crisp icons for the toast. SweetAlert's own animated icons are built
+    // from rotated line pieces that fall apart when shrunk to toast size
+    // (the error ✕ looked like a broken "V").
+    const svg = (paths) => '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">' + paths + "</svg>";
+    const TOAST_ICON_HTML = {
+      success: svg('<path d="M5 12.5l4.5 4.5L19 7.5"/>'),
+      error: svg('<path d="M7 7l10 10M17 7L7 17"/>'),
+      warning: svg('<path d="M12 6.5v7"/><path d="M12 17.6v.1"/>'),
+      info: svg('<path d="M12 10.8v6.5"/><path d="M12 6.6v.1"/>')
+    };
+    function toToast(o) {
+      return originalFire({
+        toast: true,
+        position: "top",
+        icon: o.icon,
+        iconHtml: TOAST_ICON_HTML[o.icon],
+        title: o.title,
+        text: o.text,
+        html: o.html,
+        showConfirmButton: false,
+        showCloseButton: true,
+        timer: o.timer || TOAST_TIMES[o.icon],
+        timerProgressBar: true,
+        buttonsStyling: false,
+        customClass: {
+          popup: "jr-toast jr-toast--" + o.icon,
+          title: "jr-toast__title",
+          htmlContainer: "jr-toast__text",
+          closeButton: "jr-toast__close",
+          timerProgressBar: "jr-toast__progress"
+        },
+        didOpen: (el) => {
+          // Pause while a mouse pointer rests on it (desktop only: on touch
+          // screens the last tap position would otherwise freeze the timer).
+          if (window.matchMedia && window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+            el.addEventListener("mouseenter", window.Swal.stopTimer);
+            el.addEventListener("mouseleave", window.Swal.resumeTimer);
+          }
+        }
+      });
+    }
+
     const originalFire = window.Swal.fire.bind(window.Swal);
     window.Swal.fire = function (...args) {
       if (typeof args[0] === "string") {
         const [title, text, icon] = args;
+        if (TOAST_ICONS.includes(icon)) return toToast({ title, text, icon });
         return originalFire({
           ...swalDefaults,
           title,
@@ -310,6 +364,7 @@
 
       if (typeof args[0] === "object" && args[0] !== null) {
         const options = args[0];
+        if (isNotification(options)) return toToast(options);
         // Callers still pass legacy confirmButtonColor values (ignored with
         // buttonsStyling off); a red one on a confirm dialog means "destructive".
         const destructive = options.showCancelButton &&

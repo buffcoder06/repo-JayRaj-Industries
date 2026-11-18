@@ -3,7 +3,7 @@
 Every expected value is computed straight from the database (or from the
 app's own JSON endpoint) at test time and compared with what the page shows.
 """
-from datetime import date
+from datetime import date, timedelta
 
 import pytest
 from playwright.sync_api import expect
@@ -168,6 +168,33 @@ def test_datewise_pending_matches_database_and_is_sorted(open_page):
     assert parse_num(page.inner_text("#kpiPending")) == sum(expected.values())
 
 
+def test_datewise_reloads_when_dates_change_and_has_no_share_column(open_page):
+    today = date.today()
+    first_this = today.replace(day=1)
+    last_month_end = first_this - timedelta(days=1)
+    last_month_start = last_month_end.replace(day=1)
+    expected = {r["comp"].strip(): r["qty"] for r in db.rows(
+        "SELECT f_Component_Desc AS comp, SUM(CAST(f_Actual_InMaterial_Quantity AS int)) AS qty " + ACTIVE_LIST +
+        f" AND CONVERT(date, f_ChalanDate, 23) BETWEEN '{last_month_start}' AND '{last_month_end}' GROUP BY f_Component_Desc")}
+    page = open_page("desktop", "/GetDatewiseData/Index")
+    expect(page.locator("#statInPeriod")).not_to_have_text("—")
+    headers = [h.strip().lower() for h in page.locator("#tblDatewiseResults thead th").all_inner_texts()]
+    assert not any("share" in h for h in headers)
+    assert page.locator("#tblDatewiseResults .jr-bar").count() == 0
+    assert page.locator("#tblDatewiseResults thead th.c-qty2").is_hidden()   # Rejected only on Out material
+
+    page.locator(".jr-page-title .jr-daterange__trigger").click()
+    page.locator(".jr-daterange__chip[data-shortcut=last-month]").click()     # no Run report button needed
+    page.wait_for_load_state("networkidle")
+    page.wait_for_timeout(500)
+    assert _datewise_rows(page) == expected
+    assert parse_num(page.inner_text("#statInPeriod")) == sum(expected.values())
+
+    page.click(".jr-segmented__btn[data-tab=outward]")
+    page.wait_for_load_state("networkidle")
+    assert page.locator("#tblDatewiseResults thead th.c-qty2").is_visible()
+
+
 def _datewise_rows(page) -> dict:
     page.wait_for_selector("#tblDatewiseResults tbody tr")
     out = {}
@@ -213,7 +240,7 @@ def test_invoice_lines_match_api(open_page):
     assert api["success"] is True
     page.click("#btnLoadInvoiceData")
     page.wait_for_selector(".swal2-popup")          # "Loaded" (or a no-data message)
-    page.click(".swal2-confirm")
+    page.click(".swal2-close")
     rows = page.locator("#invoiceItemsTable tbody tr.invoice-item-row")
     assert rows.count() == len(api["items"])
     shown_qty = page.evaluate("""() => [...document.querySelectorAll('#invoiceItemsTable tbody tr.invoice-item-row')].map(r => {

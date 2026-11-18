@@ -25,8 +25,6 @@
             </button>
             <div class="jr-daterange__panel" hidden></div>
         </div>
-
-        <button type="button" class="jr-btn jr-btn--accent" id="btnRunReport">Run report</button>
     </div>
 </div>
 
@@ -54,23 +52,24 @@
     </div>
 
     <div class="jr-table-wrap">
-        <table class="jr-table jr-table--scroll-sm" id="tblDatewiseResults">
+        @* Columns: Sr | Material | Qty | Rejected. The Rejected column only
+           shows on the Out material tab (.jr-datewise--two-qty); widths are
+           set in jr-theme.css. *@
+        <table class="jr-table jr-datewise-table" id="tblDatewiseResults">
             <thead>
                 <tr>
-                    <th style="width:6%">Sr</th>
-                    <th style="width:39%">Material code &amp; description</th>
-                    <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader1">Qty</th>
-                    <th style="width:12%" class="jr-text-right" id="datewiseQtyHeader2"></th>
-                    <th style="width:31%" id="datewiseShareHeader">Share of period</th>
+                    <th class="c-sr">Sr</th>
+                    <th class="c-desc">Material code &amp; description</th>
+                    <th class="c-qty jr-text-right" id="datewiseQtyHeader1">Qty</th>
+                    <th class="c-qty c-qty2 jr-text-right" id="datewiseQtyHeader2"></th>
                 </tr>
             </thead>
             <tbody></tbody>
             <tfoot id="datewiseTotalsRow" hidden>
                 <tr>
                     <td colspan="2" class="jr-text-right"><strong id="datewiseTotalsLabel">Total</strong></td>
-                    <td class="jr-text-right jr-tabular"><strong id="datewiseTotal1"></strong></td>
-                    <td class="jr-text-right jr-tabular"><strong id="datewiseTotal2"></strong></td>
-                    <td></td>
+                    <td class="c-qty jr-text-right jr-tabular"><strong id="datewiseTotal1"></strong></td>
+                    <td class="c-qty c-qty2 jr-text-right jr-tabular"><strong id="datewiseTotal2"></strong></td>
                 </tr>
             </tfoot>
         </table>
