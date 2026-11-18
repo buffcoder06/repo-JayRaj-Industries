@@ -100,6 +100,22 @@ def test_out_entries_popup_matches_database(open_page):
     expected_pairs = sorted((e["outNo"].strip(), e["qtyOut"], e["rej"]) for e in entries)
     assert shown_pairs == expected_pairs
 
+    # Balance is a running total, oldest entry first: incoming minus every
+    # out/rejected entry so far. The last balance equals the chalan's pending.
+    ordered = db.rows(
+        "SELECT CAST(f_OutMaterial_Quantity AS int) + CAST(f_RejectMaterial_Quantity AS int) AS moved "
+        f"FROM dbo.t_JR_Chalan_Process_Dtls WHERE f_Chalan_Proccess_HdrSeq = N'{hdr['hdrSeq']}' AND f_active = 1 "
+        "ORDER BY CAST(f_ChalanDtls_Date AS date), f_PK_Chalan_Process_Dtls_ID")
+    head = db.rows("SELECT CAST(f_Actual_InMaterial_Quantity AS int) AS qtyIn, CAST(f_Pending_Quantity AS int) AS pending "
+                   f"FROM dbo.t_JR_Chalan_Process WHERE f_Chalan_Proccess_HdrSeq = N'{hdr['hdrSeq']}'")[0]
+    running, expected_balances = head["qtyIn"], []
+    for e in ordered:
+        running -= e["moved"]
+        expected_balances.append(max(0, running))
+    shown_balances = [parse_num(r.locator("td").nth(4).inner_text()) for r in shown]
+    assert shown_balances == expected_balances
+    assert shown_balances[-1] == head["pending"]
+
 
 # ---------------------------------------------------------------- Datewise
 

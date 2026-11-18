@@ -126,7 +126,11 @@ $('#ddlComponentnew').on('change', function () {
 });
 
 
+var bulkSubmitInFlight = false;
 $('#idSubmit').on('click', function () {
+    // One submit at a time: a second click while saving used to record the
+    // same out entries twice (seen in production as duplicate out entries).
+    if (bulkSubmitInFlight) return;
 
     if ($('#txtOutChalan').val() == "") {
 
@@ -175,12 +179,17 @@ $('#idSubmit').on('click', function () {
         }
 
         // Send data to C# API
+        bulkSubmitInFlight = true;
+        var $submit = $('#idSubmit').prop('disabled', true);
+        var unlock = function () { bulkSubmitInFlight = false; $submit.prop('disabled', false); };
         $.ajax({
             url: '/BulkOutMaterialEntry/InsertChalanProcessDtls',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(chalanData),
             success: function (response) {
+                // Stays locked after a successful save: the page reloads.
+                if (!response.success) unlock();
                 if (response.success) {
                     //alert('Data saved successfully!');
                     Swal.fire({
@@ -202,6 +211,7 @@ $('#idSubmit').on('click', function () {
                 }
             },
             error: function (error) {
+                unlock();
                 console.error('Error:', error);
                 //alert('An error occurred while saving data.');
                 Swal.fire({

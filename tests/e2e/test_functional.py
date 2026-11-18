@@ -155,6 +155,8 @@ def test_record_out_rejected_and_delete(open_page, data):
     row.locator(".chalan-number-link").click()
     page.wait_for_selector("#tblDockedHistory .jr-row-btn--danger")
     assert page.locator("#tblDockedHistory tbody tr").count() == 2
+    balances = [parse_num(t) for t in page.locator("#tblDockedHistory tbody tr td:nth-child(5)").all_inner_texts()]
+    assert balances == [70, 60]                                   # running balance: 100-30, then -10
     rej_row = page.locator("#tblDockedHistory tbody tr").filter(has_text="10").last
     rej_row.locator(".jr-row-btn--danger").click()
     title, _ = swal(page)
@@ -248,3 +250,43 @@ def test_sign_out_in_one_tab_signs_out_the_other(open_page, base_url):
     tab_a.click("#btnLogout")
     tab_b.wait_for_url("**/Account/Login**", timeout=10000)
     assert "signed out" in tab_b.inner_text(".jr-login__alert--info").lower()
+
+
+# ---------------------------------------------------------------- Double-click protection
+
+def _entry_count(chalan_no):
+    return db.scalar(
+        "SELECT COUNT(*) FROM dbo.t_JR_Chalan_Process_Dtls d JOIN dbo.t_JR_Chalan_Process h "
+        "ON h.f_Chalan_Proccess_HdrSeq = d.f_Chalan_Proccess_HdrSeq "
+        f"WHERE h.f_InChalanNo = N'{chalan_no}' AND h.f_active = 1 AND d.f_active = 1")
+
+
+def test_double_click_record_out_saves_once(open_page, data):
+    chalan = data.create_chalan(100)
+    page = open_page("desktop", "/ChalanProcess/Index")
+    find_chalan(page, chalan["chalanNo"]).locator(".jr-row-action").click()
+    page.fill("#dockedOutChalan", data.next_out_no())
+    page.fill("#dockedQty", "40")
+    page.dblclick("#dockedSaveEntry")
+    page.wait_for_selector(".jr-modal-backdrop--docked", state="detached")
+    page.wait_for_timeout(1000)
+    assert _entry_count(chalan["chalanNo"]) == 1
+    db_row = data.chalan(chalan["chalanNo"])
+    assert (db_row["pending"], db_row["outQty"]) == (60, 40)
+
+
+def test_double_click_bulk_submit_saves_once(open_page, data):
+    chalan = data.create_chalan(50)
+    page = open_page("desktop", "/BulkOutMaterialEntry")
+    pick_dropdown(page, "section.jr-card:first-of-type", TEST_COMPONENT_TEXT)
+    page.wait_for_load_state("networkidle")
+    page.wait_for_timeout(400)
+    page.locator("#idTotAmount").press_sequentially("20")
+    page.fill("#txtOutChalan", data.next_out_no())
+    page.dblclick("#idSubmit")
+    title, _ = swal(page)
+    assert title == "Saved!"
+    page.wait_for_timeout(1000)
+    assert _entry_count(chalan["chalanNo"]) == 1
+    db_row = data.chalan(chalan["chalanNo"])
+    assert (db_row["pending"], db_row["outQty"]) == (30, 20)

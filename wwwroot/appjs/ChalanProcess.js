@@ -389,6 +389,7 @@ function openDockedPanel(hdrSeq, mode) {
         $docked.find('#dockedBalanceLabel').text(formatNumber(currentRemaining()) + ' Nos will remain pending');
     });
 
+    var saveInFlight = false;
     function saveDockedEntry(keepOpen) {
         var qty = toNumber($docked.find('#dockedQty').val());
         var pending = toNumber(item.pendingQuantity);
@@ -415,10 +416,20 @@ function openDockedPanel(hdrSeq, mode) {
             rejectMaterialQuantity: movement === 'REJ' ? qty : 0
         };
 
+        // One save at a time: a double-click / Enter + click used to send the
+        // same entry twice (seen in production as duplicate out entries).
+        if (saveInFlight) return;
+        saveInFlight = true;
+        var $saveButtons = $docked.find('#dockedSaveEntry, #dockedSaveAnother').prop('disabled', true);
+
         $.ajax({
             url: '/ChalanProcess/InsertChalanProcessDtls',
             type: 'POST',
             data: requestData,
+            complete: function () {
+                saveInFlight = false;
+                $saveButtons.prop('disabled', false);
+            },
             success: function (response) {
                 if (!response || !response.success) {
                     Swal.fire({ icon: 'error', title: 'Save Error!', text: (response && response.message) || 'Unable to save record', confirmButtonColor: 'red' });
@@ -500,11 +511,23 @@ function renderDockedHistory(data) {
         return;
     }
 
-    data.forEach(function (entry) {
+    // Balance is a running total: incoming quantity minus every out/rejected
+    // entry up to and including this one, oldest first. (It used to subtract
+    // only the row's own quantity, so every row after the first was wrong.)
+    // Computed here rather than read from each row's stored pending value,
+    // which goes stale when an earlier entry is deleted.
+    var entrySeqNo = function (e) { return parseInt(String(e.chalanDetailSeq || '').replace(/\D/g, ''), 10) || 0; };
+    var entryDate = function (e) { var t = Date.parse(e.detailDate); return isNaN(t) ? 0 : t; };
+    var ordered = data.slice().sort(function (a, b) {
+        return (entryDate(a) - entryDate(b)) || (entrySeqNo(a) - entrySeqNo(b));
+    });
+    var running = ordered.length ? toNumber(ordered[0].actualInMaterialQuantity) : 0;
+
+    ordered.forEach(function (entry) {
         var out = toNumber(entry.outMaterialQuantity);
         var rej = toNumber(entry.rejectMaterialQuantity);
-        var inQty = toNumber(entry.actualInMaterialQuantity);
-        var balance = Math.max(0, inQty - out - rej);
+        running -= out + rej;
+        var balance = Math.max(0, running);
         var $tr = $('<tr></tr>');
         $tr.append('<td>' + formatDate(entry.detailDate) + '</td>');
         $tr.append('<td>' + escapeHtml(entry.outChalanNo || '-') + '</td>');
